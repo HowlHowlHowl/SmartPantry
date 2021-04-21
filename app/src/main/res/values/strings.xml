@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name" translatable="false">Smart Pantry</string>
+    <string name="statisticsText">Statistiche</string>
+    <string name="prodText">Prodotti</string>
+    <string name="recipesText">Ricettario</string>
+    <string name="shoppingText">Spesa</string>
+    <string name="searchText">Cerca un prodotto nella tua dispensa</string>
+</resources>

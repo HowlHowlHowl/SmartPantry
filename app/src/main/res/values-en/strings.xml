@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="statisticsText">Statistics</string>
+    <string name="prodText">Products</string>
+    <string name="recipesText">Recipes</string>
+    <string name="shoppingText">Shopping\nList</string>
+    <string name="searchText">Search for a product in your pantry</string>
+</resources>
