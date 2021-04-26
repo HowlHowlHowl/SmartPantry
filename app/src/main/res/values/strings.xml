@@ -5,5 +5,10 @@
     <string name="prodText">Prodotti</string>
     <string name="recipesText">Ricettario</string>
     <string name="shoppingText">Spesa</string>
-    <string name="searchText">Cerca un prodotto nella tua dispensa</string>
+    <string name="searchText">Cerca un prodotto nella dispensa</string>
+    <string name="scanResultTitleText">Risultato della scansione</string>
+    <string name="scanResultDescrText">Se il codice a barre non è corretto puoi riprovare a scannerizzarlo o in alternativa modificarlo manualmente</string>
+    <string name="retryBtnText">Riprova</string>
+    <string name="confirmBtnText">Conferma</string>
+    <string name="retryToastText">Riprova</string>
 </resources>

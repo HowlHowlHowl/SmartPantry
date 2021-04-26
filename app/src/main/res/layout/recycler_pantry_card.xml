@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.cardview.widget.CardView
-    android:background="@drawable/card_bg"
+<androidx.cardview.widget.CardView xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardItem"
     android:layout_width="match_parent"
     android:layout_height="80dp"
@@ -12,10 +11,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:backgroundTint="#FFFFFF">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/productText"
@@ -24,9 +21,10 @@
             android:text="Product Name"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageButton"
-            app:layout_constraintStart_toEndOf="@+id/imageButton2"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/favCheckbox"
+            app:layout_constraintStart_toEndOf="@+id/modifyBtn"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.509" />
 
         <TextView
             android:id="@+id/expireText"
@@ -34,22 +32,24 @@
             android:layout_height="19dp"
             android:text="Expires by 00/00/0000"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageButton"
-                    app:layout_constraintTop_toBottomOf="@+id/productText" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productText" />
 
-        <ImageButton
-            android:id="@+id/imageButton"
+        <CheckBox
+            android:id="@+id/favCheckbox"
             android:layout_width="38dp"
             android:layout_height="35dp"
             android:layout_marginEnd="15dp"
-            android:background="#00FFFFFF"
+            android:clickable="true"
+            android:contextClickable="true"
+            android:button="@drawable/fav_checkbox"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/star" />
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <ImageButton
-            android:id="@+id/imageButton2"
+            android:id="@+id/modifyBtn"
             android:layout_width="38dp"
             android:layout_height="25dp"
             android:layout_marginStart="15dp"
@@ -58,5 +58,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/pencil" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="#66525559"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.cardview.widget.CardView>

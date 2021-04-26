@@ -6,4 +6,9 @@
     <string name="recipesText">Recipes</string>
     <string name="shoppingText">Shopping\nList</string>
     <string name="searchText">Search for a product in your pantry</string>
+    <string name="scanResultTitleText">Scan result</string>
+    <string name="scanResultDescrText">If the barcode isn\'t correct you can try to scan again or alternatively you can manually change it.</string>
+    <string name="retryBtnText">Retry</string>
+    <string name="confirmBtnText">Confirm</string>
+    <string name="retryToastText">Try again</string>
 </resources>
