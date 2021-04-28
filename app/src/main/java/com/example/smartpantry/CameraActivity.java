@@ -9,17 +9,14 @@ import android.util.Log;
 import android.util.Size;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
@@ -145,18 +142,16 @@ public class CameraActivity extends AppCompatActivity {
     }
 
     private void showToast() {
-        Toast retryToast = Toast.makeText(
-                getApplicationContext(),
-                getResources().getString(R.string.retryToastText),
-                Toast.LENGTH_SHORT
+        Toast retryToast = new Toast(getApplicationContext());
+        retryToast.setDuration(Toast.LENGTH_SHORT);
+        retryToast.setText(
+                getResources().getString(R.string.retryToastText)
         );
+        //setGravity doesn't work anymore with textToast
         retryToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP,
                 0,
                 300
         );
-        ViewGroup group = (ViewGroup) retryToast.getView();
-        TextView messageTextView = (TextView) group.getChildAt(0);
-        messageTextView.setTextSize(25);
         retryToast.show();
     }
 
@@ -167,14 +162,10 @@ public class CameraActivity extends AppCompatActivity {
         parent.addView(popUp);
 
         EditText barcode = findViewById(R.id.scanResultCode);
-        TextView title = findViewById(R.id.scanResultTitle);
-        TextView descr = findViewById(R.id.scanResultDescr);
         Button retryBtn = findViewById(R.id.retryBtn);
         Button confirmBtn = findViewById(R.id.confirmBtn);
 
         barcode.setText(rawValue);
-        title.setText(getResources().getString(R.string.scanResultTitleText));
-        descr.setText(getResources().getString(R.string.scanResultDescrText));
 
         retryBtn.setText(getResources().getString(R.string.retryBtnText));
         confirmBtn.setText(getResources().getString(R.string.confirmBtnText));
@@ -203,9 +194,7 @@ public class CameraActivity extends AppCompatActivity {
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
         preview.setSurfaceProvider(previewView.createSurfaceProvider());
-        imageCapture = new ImageCapture.Builder()
-                .setTargetRotation(previewView.getDisplay().getRotation())
-                .build();
+        imageCapture = new ImageCapture.Builder().build();
         cameraProvider.bindToLifecycle(
                 this, cameraSelector, imageCapture, imageAnalysis, preview);
         camera = cameraProvider;

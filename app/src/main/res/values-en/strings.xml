@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="pantryTitle">Your pantry</string>
+    <string name="loginBtn">Log In</string>
+    <string name="connectionError">Check your network connection</string>
+    <string name="registerBtn">Sign In</string>
+    <string name="passwordMissingErrorText">Insert your password</string>
+    <string name="emailMissingErrorText">Insert your email</string>
+    <string name="rememberCheckBox">Remember me</string>
     <string name="statisticsText">Statistics</string>
     <string name="prodText">Products</string>
     <string name="recipesText">Recipes</string>

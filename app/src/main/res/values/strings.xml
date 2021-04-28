@@ -1,5 +1,13 @@
 <resources>
     <string name="app_name" translatable="false">Smart Pantry</string>
+    <string name="emailText" translatable="false">Email</string>
+    <string name="passwordText" translatable="false">Password</string>
+    <string name="loginBtn">Accedi</string>
+    <string name="connectionError">Controlla la tua connessione di rete</string>
+    <string name="passwordMissingErrorText">Inserisci la tua password</string>
+    <string name="emailMissingErrorText">Inserisci la tua email</string>
+    <string name="registerBtn">Registrati</string>
+    <string name="rememberCheckBox">Ricordati di me</string>
     <string name="pantryTitle">La tua dispensa</string>
     <string name="statisticsText">Statistiche</string>
     <string name="prodText">Prodotti</string>
