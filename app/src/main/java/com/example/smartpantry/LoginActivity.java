@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -33,8 +35,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
-    private Button loginBtn;
-    private Button signBtn;
     private CheckBox rememberCheckBox;
     private TextView passwordField;
     private TextView emailField;
@@ -45,33 +45,37 @@ public class LoginActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        loginBtn = findViewById(R.id.loginBtn);
+        Log.println(Log.ASSERT,"LOGIN", "ISTANCE CREATED");
+        Button loginBtn = findViewById(R.id.loginBtn);
         rememberCheckBox = findViewById(R.id.rememberCheckBox);
         passwordField = findViewById(R.id.passwordField);
         emailField = findViewById(R.id.emailField);
 
         loginBtn.setOnClickListener(v -> {
-            boolean passwordEmpty = passwordField.getText().toString().isEmpty();
-            boolean emailEmpty = emailField.getText().toString().isEmpty();
-            if (passwordEmpty) {
+            String passwordString = passwordField.getText().toString();
+            String emailString = emailField.getText().toString();
+            if (passwordString.trim().isEmpty()) {
                 passwordField.setError(getResources().getString(R.string.passwordMissingErrorText));
             }
-            if (emailEmpty) {
+            if (emailString.trim().isEmpty()) {
                 emailField.setError(getResources().getString(R.string.emailMissingErrorText));
             }
-            if (!passwordEmpty && !emailEmpty) {
-                getToken();
+            if (!passwordString.trim().isEmpty() && !emailString.trim().isEmpty()) {
+                authenticateUser();
             }
         });
-        signBtn = findViewById(R.id.signinBtn);
+        Button signBtn = findViewById(R.id.signinBtn);
         signBtn.setOnClickListener(v -> {
-            Intent sign = new Intent(this, SigninActivity.class);
-            startActivity(sign);
+            if(checkConnectionAvailability()) {
+                Intent sign = new Intent(this, SigninActivity.class);
+                startActivity(sign);
+            } else {
+                Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG);
+            }
         });
     }
 
-    public void getToken() {
+    public void authenticateUser() {
         if (checkConnectionAvailability()) {
             RequestQueue queue = Volley.newRequestQueue(this);
             StringRequest loginRequest = new StringRequest(Request.Method.POST, loginURL,
@@ -88,12 +92,16 @@ public class LoginActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     },
-                    error -> error.printStackTrace()) {
+                    error -> {
+                        error.printStackTrace();
+                        Toast.makeText(this, getResources().getString(R.string.loginError), Toast.LENGTH_LONG);
+                        findViewById(R.id.errorDisplay).setVisibility(View.VISIBLE);
+                    }) {
                 @Override
                 protected Map<String, String> getParams() {
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("email", passwordField.getText().toString());
-                    params.put("password", emailField.getText().toString());
+                    params.put("password", passwordField.getText().toString());
+                    params.put("email", emailField.getText().toString());
                     return params;
                 }
             };
@@ -110,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
             Ed.putString("password", password);
             Ed.putBoolean("stayLogged", remember);
             Ed.putString("accessToken", token);
-            Ed.putBoolean("userLogged", true);
+            Ed.putBoolean("activeSession", true);
             Ed.putString("validDate", getNewValidDate());
             Ed.commit();
             Intent main = new Intent(this, MainActivity.class);
@@ -122,11 +130,7 @@ public class LoginActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            return true;
-        } else {
-            return false;
-        }
+        return (networkInfo != null && networkInfo.isConnected());
     }
 
     private String getNewValidDate() {
@@ -136,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
         String validDate = today;
         try {
             c.setTime(sdf.parse(today));
-            c.add(Calendar.DATE, 6);
+            c.add(Calendar.DATE, 1);
             validDate = sdf.format(c.getTime());
         } catch (ParseException e) {
             e.printStackTrace();

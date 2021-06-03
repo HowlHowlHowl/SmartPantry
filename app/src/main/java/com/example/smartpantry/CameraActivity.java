@@ -1,18 +1,11 @@
 package com.example.smartpantry;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,11 +18,11 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -43,11 +36,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class CameraActivity extends AppCompatActivity {
-    private static PreviewView previewView;
-    private static ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
-    private static ImageCapture imageCapture;
-    private static ImageButton captureBtn;
-    private static ProcessCameraProvider camera;
+    private PreviewView previewView;
+    private ListenableFuture<ProcessCameraProvider>                                                                                                                                                                                                                                                                                                                                                                                                 cameraProviderFuture;
+    private ImageCapture imageCapture;
+    private ImageButton captureBtn;
+    private ProcessCameraProvider camera;
     private final Executor executor = Executors.newSingleThreadExecutor();
 
     @Override
@@ -96,9 +89,23 @@ public class CameraActivity extends AppCompatActivity {
         camera.unbindAll();
     }
 
+    private void showResultFragment(String value) {
+        Bundle bundle = new Bundle();
+        String barcodeValue = value;
+        bundle.putString("barcode", barcodeValue);
+        BarcodeDialogFragment fragInfo = new BarcodeDialogFragment();
+        fragInfo.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.activity_camera, fragInfo)
+                .addToBackStack(null)
+                .commit();
+    }
+    public void toggleCaptureBtn() {
+        captureBtn.setEnabled(!captureBtn.isEnabled());
+    }
     private BarcodeScannerOptions getScanOption() {
          BarcodeScannerOptions options =
-                new BarcodeScannerOptions.Builder()
+                 new BarcodeScannerOptions.Builder()
                         .setBarcodeFormats(
                                 Barcode.FORMAT_CODABAR,
                                 Barcode.FORMAT_CODE_39,
@@ -127,62 +134,26 @@ public class CameraActivity extends AppCompatActivity {
                             for (Barcode barcode: barcodes) {
                                 String rawValue = barcode.getRawValue();
                                 Log.println(Log.DEBUG, "SCAN", "RAW VALUE FOUND " + rawValue);
-                                showResult(rawValue);
+                                showResultFragment(rawValue);
                             }
                         } else {
-                            showToast();
+                            showSnackbar();
                         }
                     }
                 })
                 .addOnFailureListener(e -> {
                     e.printStackTrace();
-                    showToast();
+                    showSnackbar();
                 });
         }
     }
 
-    private void showToast() {
-        Toast retryToast = new Toast(getApplicationContext());
-        retryToast.setDuration(Toast.LENGTH_SHORT);
-        retryToast.setText(
-                getResources().getString(R.string.retryToastText)
-        );
-        //setGravity doesn't work anymore with textToast
-        retryToast.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP,
-                0,
-                300
-        );
-        retryToast.show();
-    }
-
-    private void showResult(String rawValue) {
-        LayoutInflater inflater = LayoutInflater.from(this);
-        ConstraintLayout popUp = (ConstraintLayout) inflater.inflate(R.layout.scan_result, null, false);
-        ConstraintLayout parent = (ConstraintLayout)findViewById(R.id.activity_camera);
-        parent.addView(popUp);
-
-        EditText barcode = findViewById(R.id.scanResultCode);
-        Button retryBtn = findViewById(R.id.retryBtn);
-        Button confirmBtn = findViewById(R.id.confirmBtn);
-
-        barcode.setText(rawValue);
-
-        retryBtn.setText(getResources().getString(R.string.retryBtnText));
-        confirmBtn.setText(getResources().getString(R.string.confirmBtnText));
-        captureBtn.setEnabled(false);
-
-        retryBtn.setOnClickListener(v -> {
-            parent.removeView(popUp);
-            captureBtn.setEnabled(true);
-        });
-        confirmBtn.setOnClickListener(v -> {
-            String correctBarcode = barcode.getText().toString();
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("barcode", correctBarcode);
-            setResult(Activity.RESULT_OK,returnIntent);
-            finish();
-        });
-
+    private void showSnackbar() {
+        Snackbar.make(findViewById(R.id.captureBtn),
+                getResources().getString(R.string.retryToastText),
+                Snackbar.LENGTH_SHORT)
+                .setAnchorView(R.id.barcodeBig)
+                .show();
     }
 
     private void bindImageAnalysis(@NonNull ProcessCameraProvider cameraProvider) {

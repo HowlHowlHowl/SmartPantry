@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F57F17">
+    android:background="@color/app_color">
 
     <androidx.constraintlayout.widget.ConstraintLayout
 
         android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="550dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:background="@android:drawable/dialog_holo_light_frame"
@@ -38,10 +38,11 @@
         <Button
             android:id="@+id/loginBtn"
             android:layout_width="200dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:backgroundTint="#F57F17"
+            android:backgroundTint="@color/app_color"
             android:text="@string/loginBtn"
+            android:textSize="20sp"
             app:layout_constraintBottom_toTopOf="@+id/signinBtn"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.495"
@@ -50,10 +51,11 @@
         <Button
             android:id="@+id/signinBtn"
             android:layout_width="200dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:backgroundTint="#C6C6C6"
             android:text="@string/registerBtn"
+            android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.495"
@@ -73,14 +75,14 @@
 
         <CheckBox
             android:id="@+id/rememberCheckBox"
-            android:layout_width="200dp"
-            android:layout_height="35dp"
+            android:layout_width="214dp"
+            android:layout_height="40dp"
             android:text="@string/rememberCheckBox"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/loginBtn"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.495"
+            app:layout_constraintHorizontal_bias="0.51"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/emailField" />
 
         <TextView
             android:id="@+id/appTitle"
@@ -90,10 +92,24 @@
             android:fontFamily="@font/aclonica"
             android:text="@string/app_name"
             android:textColor="#000000"
-            android:textSize="30sp"
+            android:textSize="36sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/errorDisplay"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:text="@string/authenticationError"
+            android:textAlignment="center"
+            android:textColor="#C80303"
+            android:textSize="16sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/loginBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rememberCheckBox" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

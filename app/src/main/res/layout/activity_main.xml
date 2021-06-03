@@ -5,7 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EDECE5"
+    android:id="@+id/activity_main"
     tools:context=".MainActivity">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pantryRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#EDECE5"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/bottomBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/manualEntryBtn">
+
+    </androidx.recyclerview.widget.RecyclerView>
 
     <FrameLayout
         android:id="@+id/bottomBackground"
@@ -20,7 +35,7 @@
     </FrameLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout3"
+        android:id="@+id/navBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,20 +53,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/diagram" />
-
-        <TextView
-            android:id="@+id/statisticsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:labelFor="@id/statisticsBtn"
-            android:textColor="#EDECE5"
-            android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/statisticsBtn"
-            app:layout_constraintStart_toStartOf="@+id/statisticsBtn"
-            app:layout_constraintTop_toBottomOf="@+id/statisticsBtn"
-            tools:text="TextView" />
 
         <ImageButton
             android:id="@+id/productsBtn"
@@ -92,6 +93,17 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/recipe" />
 
+        <ImageButton
+            android:id="@+id/listBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#EDECE5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/recipesBtn"
+            app:layout_constraintStart_toEndOf="@+id/barcodeBtn"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/document__2_" />
+
         <TextView
             android:id="@+id/recipesLabel"
             android:layout_width="wrap_content"
@@ -109,16 +121,19 @@
             app:layout_constraintTop_toBottomOf="@+id/recipesBtn"
             app:layout_constraintVertical_bias="0.0" />
 
-        <ImageButton
-            android:id="@+id/listBtn"
+        <TextView
+            android:id="@+id/statisticsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#EDECE5"
+            android:layout_marginBottom="5dp"
+            android:labelFor="@id/statisticsBtn"
+            android:textColor="#EDECE5"
+            android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/recipesBtn"
-            app:layout_constraintStart_toEndOf="@+id/barcodeBtn"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/document__2_" />
+            app:layout_constraintEnd_toEndOf="@+id/statisticsBtn"
+            app:layout_constraintStart_toStartOf="@+id/statisticsBtn"
+            app:layout_constraintTop_toBottomOf="@+id/statisticsBtn"
+            tools:text="TextView" />
 
         <TextView
             android:id="@+id/listLabel"
@@ -153,20 +168,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/pantryRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#EDECE5"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/constraintLayout3"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchBox">
-
-    </androidx.recyclerview.widget.RecyclerView>
-
     <LinearLayout
         android:id="@+id/searchBox"
         android:layout_width="390dp"
@@ -189,6 +190,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:hint="@string/searchText"
             android:inputType="text" />
     </LinearLayout>
 
@@ -203,12 +205,8 @@
 
         <TextView
             android:id="@+id/pantryTitle"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/pantryTitle"
             android:textAlignment="center"
             android:textColor="#EDECE5"
@@ -218,6 +216,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Button
+        android:id="@+id/manualEntryBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/app_color"
+        android:drawableStart="@drawable/plus"
+        android:text="/@"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchBox" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
