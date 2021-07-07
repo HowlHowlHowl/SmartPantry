@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/scan_result"
+    android:id="@+id/previewProduct"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_constraintBottom_toBottomOf="parent"
@@ -25,7 +25,7 @@
 
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:id="@+id/constraintLayout"
+            android:id="@+id/popUpWindow"
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginTop="229dp"
@@ -33,7 +33,7 @@
             android:background="#FFFFFF">
 
             <TextView
-                android:id="@+id/scanResultTitle"
+                android:id="@+id/previewProductTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
@@ -60,7 +60,7 @@
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/scanResultTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/previewProductTitle" />
 
             <TextView
                 android:id="@+id/scanResultDescr"

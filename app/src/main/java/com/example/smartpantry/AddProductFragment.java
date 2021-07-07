@@ -4,7 +4,6 @@ package com.example.smartpantry;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,8 +42,8 @@ public class AddProductFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_product_add, container, false);
-        ((TextView)view.findViewById(R.id.addFragmentTitle)).append(getArguments().getString("barcode"));
-        expendable = view.findViewById(R.id.addExpireExtendable);
+        ((TextView)view.findViewById(R.id.viewFragmentTitle)).append(getArguments().getString("barcode"));
+        expendable = view.findViewById(R.id.viewExpireExtendable);
         nameField = view.findViewById(R.id.productNameField);
         descriptionField = view.findViewById(R.id.productDescriptionField);
         quantityField = view.findViewById(R.id.productQuantity);
@@ -60,7 +59,7 @@ public class AddProductFragment extends Fragment {
         });
 
         //Add product event
-        view.findViewById(R.id.addProductBtn).setOnClickListener(v -> {
+        view.findViewById(R.id.viewProductBtn).setOnClickListener(v -> {
             String barcode =  getArguments().getString("barcode");
             String name = nameField.getText().toString();
             String description = descriptionField.getText().toString();
@@ -72,7 +71,10 @@ public class AddProductFragment extends Fragment {
                 getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         });
-
+        view.findViewById(R.id.cancelDateButton).setOnClickListener(v->{
+            expireDateField.setText("");
+        });
+        //Date picker event
         expireDateField.setOnClickListener(v -> {
             //Set date picker
             Calendar myCalendar = Calendar.getInstance();

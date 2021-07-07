@@ -1,4 +1,4 @@
-                                    package com.example.smartpantry;
+package com.example.smartpantry;
 
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +39,9 @@ public class LoginActivity extends AppCompatActivity {
     private TextView passwordField;
     private TextView emailField;
 
+
+    //TODO: FOR DEBUG PURPOSE ONLY, CHANGE TO 6
+    private final int DAYS_FOR_TOKEN_EXPIRE = 1;
     private final String loginURL = "https://lam21.modron.network/auth/login";
 
     @Override
@@ -140,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
         String validDate = today;
         try {
             c.setTime(sdf.parse(today));
-            c.add(Calendar.DATE, 1);
+            c.add(Calendar.DATE, DAYS_FOR_TOKEN_EXPIRE);
             validDate = sdf.format(c.getTime());
         } catch (ParseException e) {
             e.printStackTrace();

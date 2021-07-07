@@ -14,7 +14,7 @@
     <string name="passwordMatchRegistrationError">La password non coincide</string>
     <string name="alreadyExistsUserError">Sembra che l\'email sia già associata ad un altro account</string>
     <string name="authenticationError">Le credenziali inserite sono sbagliate, riprova per favore.</string>
-    <string name="signInGenericError">Si è verificato un errore, riprova per favore</string>
+    <string name="genericError">Si è verificato un errore, riprova per favore</string>
     <string name="passwordMissingErrorText">Inserisci la tua password</string>
     <string name="emailMissingErrorText">Inserisci la tua email</string>
     <string name="registerBtn">Registrati</string>
@@ -26,8 +26,8 @@
     <string name="shoppingText">Spesa</string>
     <string name="searchText">Cerca un prodotto nella dispensa</string>
     <string name="addProductBtnText">Aggiungi un prodotto</string>
-    <string name="foundProductsTitle">Risultati per&#160;</string>
-    <string name="noProductsFoundText">Nessun prodotto trovato.\nPuoi aggiungerne uno nuovo tramite il bottone qua sopra.</string>
+    <string name="foundProductsTitle">Risultati per\n</string>
+    <string name="noProductsFoundText">Nessun prodotto trovato.\n\nPuoi aggiungerne uno nuovo tramite il bottone qua sopra.</string>
     <string name="scanResultTitleText">Risultato della scansione</string>
     <string name="scanResultDescrText">Se il codice a barre non è corretto puoi riprovare a scannerizzarlo o in alternativa modificarlo manualmente</string>
     <string name="retryBtnText">Riprova</string>
@@ -47,4 +47,12 @@
     <string name="addProductDescriptionError">Inserisci una descrizione</string>
     <string name="addProductQuantity">Quantità:</string>
     <string name="pantryItemCardExpire">"Scade: "</string>
+    <string name="manualEntryButtonText">Aggiungi un prodotto\n manualmente</string>
+    <string name="ownedProductsHeader">I tuoi prodotti</string>
+    <string name="otherProductsHeader">Tutti i prodotti</string>
+    <string name="previewVoteBtn">Vota</string>
+    <string name="previewVoteLabel">Vota il\nprodotto</string>
+    <string name="voteFirstError">Devi prima valutare il prodotto.</string>
+    <string name="ratingResult">"Punteggio del prodotto: "</string>
+    <string name="alreadyRatedProduct">Sembra che tu abbia già valutato questo prodotto.</string>
 </resources>

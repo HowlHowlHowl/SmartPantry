@@ -111,7 +111,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="5dp"
             android:labelFor="@id/recipesBtn"
-            android:text="TextView"
+            android:text="@string/recipesText"
             android:textColor="#EDECE5"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -133,7 +133,7 @@
             app:layout_constraintEnd_toEndOf="@+id/statisticsBtn"
             app:layout_constraintStart_toStartOf="@+id/statisticsBtn"
             app:layout_constraintTop_toBottomOf="@+id/statisticsBtn"
-            tools:text="TextView" />
+            tools:text="@string/statisticsText" />
 
         <TextView
             android:id="@+id/listLabel"
@@ -141,7 +141,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:labelFor="@id/listBtn"
-            android:text="TextView"
+            android:text="@string/shoppingText"
             android:textColor="#EDECE5"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -156,7 +156,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:labelFor="@id/productsBtn"
-            android:text="TextView"
+            android:text="@string/prodText"
             android:textColor="#EDECE5"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -223,7 +223,8 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/app_color"
         android:drawableStart="@drawable/plus"
-        android:text="/@"
+        android:text="@string/manualEntryButtonText"
+        android:textAlignment="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/searchBox" />

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -20,7 +19,6 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -132,7 +130,7 @@ public class SigninActivity extends AppCompatActivity {
                     if (error.networkResponse.statusCode == 500) {
                         Toast.makeText(this, getResources().getString(R.string.alreadyExistsUserError), Toast.LENGTH_LONG);
                     } else {
-                        Toast.makeText(this, getResources().getString(R.string.signInGenericError), Toast.LENGTH_LONG);
+                        Toast.makeText(this, getResources().getString(R.string.genericError), Toast.LENGTH_LONG);
                     }
 
                 }) {

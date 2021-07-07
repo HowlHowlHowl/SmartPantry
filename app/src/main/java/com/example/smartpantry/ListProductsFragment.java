@@ -1,19 +1,17 @@
 
 package com.example.smartpantry;
-
-import android.content.Intent;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,23 +22,26 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class ListProductsFragment extends Fragment {
-    TextView title;
-    TextView warning;
-    FloatingActionButton addProduct;
-    String barcode;
-    private RecyclerView rv;
+    private TextView title;
+    private TextView warning;
+    private ListView listProducts;
+    private FloatingActionButton addProduct;
+    private String barcode;
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_products_found_list, container, false);
-        rv = view.findViewById(R.id.productsRecyclerView);
-        rv.setLayoutManager(new LinearLayoutManager(view.getContext()));
+
         title = view.findViewById(R.id.productsResultTitle);
         warning = view.findViewById(R.id.noProductsFound);
-        addProduct  = view.findViewById(R.id.addProductFloatingBtn);
+        addProduct = view.findViewById(R.id.addProductFloatingBtn);
+        listProducts = view.findViewById(R.id.productsRecyclerView);
         barcode = this.getArguments().getString("barcode");
         Log.println(Log.ASSERT, "FRAGMENT", "CREATED");
         return view;
@@ -63,39 +64,94 @@ public class ListProductsFragment extends Fragment {
         });
         try {
             JSONArray products = new JSONArray(this.getArguments().getString("productsString"));
-            RVAdapterProducts adapter = new RVAdapterProducts(populateProductsList(products));
-            rv.setAdapter(adapter);
+            List<ProductListGeneric> populatedProductsList = populateProductsList(products);
+            AdapterProducts adapter = new AdapterProducts(getContext(), populatedProductsList);
+            listProducts.setAdapter(adapter);
+            listProducts.setOnItemClickListener((parent, view1, position, id) -> {
+                ProductListGeneric item = populatedProductsList.get(position);
+                Log.d("########", "ITEM CLICKED ");
+                //If clicked item isn't an header
+                if(item.getViewType() == 0) {
+                    ProductListItem castedItem  = ((ProductListItem) item);
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("isUserOwned", castedItem.isUserOwned);
+                    bundle.putString("id", castedItem.id);
+                    bundle.putString("name", castedItem.name);
+                    bundle.putString("barcode", castedItem.barcode);
+                    bundle.putString("description", castedItem.description);
+                    PreviewProductFragment previewProductFragment = new PreviewProductFragment();
+                    previewProductFragment.setArguments(bundle);
+                    getActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .add(R.id.activity_main, previewProductFragment)
+                            .addToBackStack("previewFragment")
+                            .commit();
+                }
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
     }
-    private List<ProductListItem> populateProductsList(JSONArray products) {
-        List<ProductListItem> toShowProducts = new ArrayList<ProductListItem>();
-        for (int i=0; i<products.length(); i++) {
-            try {
-                JSONObject item = products.getJSONObject(i);
-                toShowProducts.add(new ProductListItem(
-                        item.getString("id"),
-                        item.getString("name"),
-                        item.getString("description"),
-                        item.getString("barcode"),
-                        item.getString("userId"),
-                        item.getString("createdAt"),
-                        item.getString("updatedAt"),
-                        item.getBoolean("test")
-                ));
-            } catch (JSONException e) {
-                e.printStackTrace();
+
+    private List<ProductListGeneric> populateProductsList(JSONArray products) {
+        List<ProductListGeneric> toShowProducts = new ArrayList<ProductListGeneric>();
+        String userId = getContext()
+                .getSharedPreferences("UserData", Context.MODE_PRIVATE)
+                .getString("id", null);
+        //the list of matched items is scanned 2 times
+        //The first loop is made to add items owned by the user
+        //The second one is made to add the other items
+        //The reason behind this is to add header and graphically divide the shown list of items
+        //TODO: REFACTOR CODE
+        Log.println(Log.ASSERT, "LIST RAW", products.toString());
+        boolean owned = true;
+        for (int j = 0; j < 2; j++) {
+            boolean headerNeeded = true;
+            for (int i = 0; i < products.length(); i++) {
+                try {
+                    JSONObject item = products.getJSONObject(i);
+                    if (owned) {
+                        if (item.getString("userId") == userId) {
+                            if (headerNeeded) {
+                                toShowProducts.add(new ProductListHeader(getResources().getString(R.string.ownedProductsHeader)));
+                                headerNeeded = false;
+                            }
+                            toShowProducts.add(new ProductListItem(
+                                    item.getString("id"),
+                                    item.getString("name"),
+                                    item.getString("description"),
+                                    item.getString("barcode"),
+                                    item.getString("userId"),
+                                    item.getString("createdAt"),
+                                    item.getString("updatedAt"),
+                                    item.getBoolean("test"),
+                                    (item.getString("userId") == userId)
+                            ));
+                        }
+                    } else {
+                        if (headerNeeded) {
+                            toShowProducts.add(new ProductListHeader(getResources().getString(R.string.otherProductsHeader)));
+                            headerNeeded = false;
+                        }
+                        toShowProducts.add(new ProductListItem(
+                                item.getString("id"),
+                                item.getString("name"),
+                                item.getString("description"),
+                                item.getString("barcode"),
+                                item.getString("userId"),
+                                item.getString("createdAt"),
+                                item.getString("updatedAt"),
+                                item.getBoolean("test"),
+                                (item.getString("userId") == userId)
+                        ));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
+            owned = false;
         }
-        //TODO: ___DEBUG___
-        toShowProducts.add(new ProductListItem("id", "name",  "description", "barcode",
-                "userId", "created", "updated", true));
-        toShowProducts.add(new ProductListItem("id", "name",  "description", "barcode",
-                "userId", "created", "updated", true));
-        toShowProducts.add(new ProductListItem("id", "name",  "description", "barcode",
-                "userId", "created", "updated", true));
         Log.println(Log.ASSERT, "LIST", toShowProducts.toString());
         if (toShowProducts.size() < 1) {
             warning.setVisibility(View.VISIBLE);

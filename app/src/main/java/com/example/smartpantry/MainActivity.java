@@ -11,6 +11,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -24,9 +25,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -35,10 +38,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,9 +59,11 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
     static final int STATUS_OK = 200;
     static final int SHOW_LOGIN = 201;
     static final int REQUEST_TOKEN = 202;
+
     private static final String LOGIN_URL = "https://lam21.modron.network/auth/login";
     private static final String LIST_PRODUCTS_URL = "https://lam21.modron.network/products?barcode=";
     private static final String ADD_PRODUCT_URL = "https://lam21.modron.network/products";
+    private static final String VOTE_PRODUCT_URL = "https://lam21.modron.network/votes";
     private DBHelper database;
     private List<ProductPantryItem> pantryProducts;
     private RecyclerView pantryRecyclerView;
@@ -63,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.println(ASSERT, "USER ID", "" +
+                getSharedPreferences("UserData",MODE_PRIVATE).getString("id", null));
         database = new DBHelper(getApplicationContext());
         setContentView(R.layout.activity_main);
         ImageButton barcodeScan = findViewById(R.id.barcodeBtn);
@@ -111,13 +122,14 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
 
     @Override
     public void productAdded(String barcode, String name, String description, String expire, String quantity, boolean test) {
+        //TODO STOP EVERYTHING IF REMOTE GOES WRONG
+        addProductRemote(barcode, name, description, test);
         long id = addProductLocal(barcode, name, description, expire, quantity);
         pantryAdapter.pantryProducts.add(new ProductPantryItem(
                 name, expire,
                 Long.toString(id), 0,
                 Integer.parseInt(quantity)));
         pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount() );
-        addProductRemote(barcode, name, description, test);
     }
 
     @Override
@@ -134,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
         } else {
             //TODO: INSERIMENTO IN LOCALE FALLITO, PERCHE'?
             //      AVVISARE L'UTENTE E RIMEDIARE
-            Log.wtf("ADD LOCAL", "ERROR");
+            Log.wtf("ADD LOCAL", "ERROR ADDING PRODUCT TO LOCAL DB  ");
 
         }
         return code;
@@ -142,47 +154,67 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
 
     private void addProductRemote(String barcode, String name, String description, boolean test) {
         if(checkConnectionAvailability()){
-            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            JSONObject params= new JSONObject();
+            try {
+                RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                params.put("token",
+                        getApplicationContext()
+                                .getSharedPreferences("Utils", MODE_PRIVATE)
+                                .getString("sessionToken", null));
+                params.put("name", name);
+                params.put("description", description);
+                params.put("barcode", barcode);
+                params.put("test", test);
+                final String requestBody = params.toString();
 
-            StringRequest addProductRequest = new StringRequest(Request.Method.POST, ADD_PRODUCT_URL,
-                response -> {
-                },
-                error -> {
-                    if(error.networkResponse.statusCode == 0) {
-
+                StringRequest addProductRequest = new StringRequest(Request.Method.POST, ADD_PRODUCT_URL,
+                        response -> {
+                    Log.i("VOLLEY", response);
+                        }, Throwable::printStackTrace)
+                {
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json; charset=utf-8";
                     }
-                    error.printStackTrace();
-                })
-            {
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String, String> params= new HashMap<String, String>();
-                    params.put("token",
-                            getApplicationContext()
-                                    .getSharedPreferences("Utils", MODE_PRIVATE)
-                                    .getString("sessionToken", null));
-                    params.put("name", name);
-                    params.put("description", description);
-                    params.put("barcode", barcode);
-                    params.put("test", test+"");
-                    return params;
-                }
 
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> headers = new HashMap<String, String>();
-                    headers.put("Authorization", "Bearer "
-                            + getApplicationContext()
-                            .getSharedPreferences("Login", MODE_PRIVATE)
-                            .getString("accessToken", null));
-                    return headers;
-                }
+                    @Override
+                    public byte[] getBody() throws AuthFailureError {
+                        return requestBody.getBytes(StandardCharsets.UTF_8);
+                    }
 
-            };
-            queue.add(addProductRequest);
-        }else{
-            //TODO: NO NETWORK ENQUEUE
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("Authorization", "Bearer "
+                                + getApplicationContext()
+                                .getSharedPreferences("Login", MODE_PRIVATE)
+                                .getString("accessToken", null));
+                        return headers;
+                    }
+
+                    @Override
+                    protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                        String responseString = "";
+                        if (response != null) {
+                            //TODO C'AMMA FA D STU CODE
+                            responseString = String.valueOf(response.statusCode);
+
+                        }
+                        return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
+                    }
+
+                };
+                queue.add(addProductRequest);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+        } else {
+            //TODO: NO NETWORK - NOTIFY
         }
+
     }
     private void handleLogin() {
         Log.println(ASSERT, "HANDLE LOGIN", "HANDLING");
@@ -323,10 +355,7 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                    },
-                    error -> {
-                        error.printStackTrace();
-                    }) {
+                    }, Throwable::printStackTrace) {
                 @Override
                 public Map<String, String> getHeaders() {
                     Map<String, String> headers = new HashMap<String, String>();
@@ -404,5 +433,70 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
             cursor.moveToNext();
         }
         cursor.close();
+    }
+
+    public void voteProduct(int rating, String productID) {
+        if (checkConnectionAvailability()) {
+            JSONObject params = new JSONObject();
+            try {
+                RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                params.put("token", getApplicationContext()
+                        .getSharedPreferences("Utils", MODE_PRIVATE)
+                        .getString("sessionToken", null)
+                );
+                params.put("rating", rating);
+                params.put("productId", productID);
+                final String requestBody = params.toString();
+
+                PreviewProductFragment preview = (PreviewProductFragment) getSupportFragmentManager()
+                                .findFragmentById(R.id.previewProduct);
+                StringRequest voteProductRequest = new StringRequest(Request.Method.POST, VOTE_PRODUCT_URL,
+                    response -> {
+                        Log.println(ASSERT, "VOTE RESPONSE", response);
+                        try {
+                            JSONObject respObj = new JSONObject(response);
+                            Log.println(ASSERT, "VOTE RESPONSE", "FRAG FOUND = " + (preview != null));
+                            if(preview != null) {
+                                preview.showRatingResult(respObj.getInt("rating"));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    },
+                    error -> {
+                        if(preview != null) {
+                            preview.handleError();
+                        }
+                    }
+                ) {
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json; charset=utf-8";
+                    }
+
+                    @Override
+                    public byte[] getBody() {
+                        return requestBody.getBytes(StandardCharsets.UTF_8);
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> headers = new HashMap<String, String>();
+                        headers.put("Authorization", "Bearer "
+                                + getApplicationContext()
+                                .getSharedPreferences("Login", MODE_PRIVATE)
+                                .getString("accessToken", null));
+                        return headers;
+                    }
+
+                };
+                queue.add(voteProductRequest);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            //TODO NO CONNECTION - NOTIFY
+        }
     }
 }

@@ -17,7 +17,7 @@
         app:layout_constraintBottom_toTopOf="@+id/productNameField"
         app:layout_constraintStart_toStartOf="@+id/productNameField" />
 
-    <EditText
+    <TextView
         android:id="@+id/productNameField"
         android:layout_width="330dp"
         android:layout_height="48dp"
@@ -39,16 +39,6 @@
         android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/productDescriptionField"
         app:layout_constraintStart_toStartOf="@+id/productDescriptionField" />
-
-    <CheckBox
-        android:id="@+id/testCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="44dp"
-        android:checked="true"
-        android:text="Articolo di Test"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/productDescriptionField" />
 
     <TextView
         android:id="@+id/viewFragmentTitle"
@@ -74,27 +64,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/addToPantry"
-        android:layout_width="330dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="50dp"
-        android:text="@string/addProductToPantryLabel"
-        android:thumb="@drawable/switch_thumb"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/productDescriptionField"
-        app:switchPadding="20dp"
-        app:track="@drawable/switch_track"
-        tools:checked="true" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/viewExpireExtendable"
         android:layout_width="330dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addToPantry">
+        app:layout_constraintTop_toBottomOf="@+id/productDescriptionField">
 
         <TextView
             android:id="@+id/textView4"
@@ -160,34 +137,9 @@
             app:layout_constraintStart_toStartOf="@+id/productQuantity"
             app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
 
-        <TextView
-            android:id="@+id/selectProductIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Seleziona un'icona "
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/productIconPreview"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/productIconPreview" />
-
-        <ImageView
-            android:id="@+id/productIconPreview"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginEnd="40dp"
-            android:background="@drawable/imageview_borders"
-            android:cropToPadding="true"
-            android:padding="5dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/productQuantity"
-            tools:srcCompat="@drawable/food" />
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <EditText
+    <TextView
         android:id="@+id/productDescriptionField"
         android:layout_width="330dp"
         android:layout_height="130dp"
@@ -201,5 +153,31 @@
         app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/productNameField" />
+
+    <TextView
+        android:id="@+id/selectProductIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Seleziona un'icona "
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/productIconPreview"
+        app:layout_constraintEnd_toStartOf="@+id/productIconPreview"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/productIconPreview" />
+
+    <ImageView
+        android:id="@+id/productIconPreview"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="70dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewExpireExtendable"
+        tools:srcCompat="@drawable/food"
+        android:padding="5dp"
+        android:scaleType="centerCrop"
+        android:cropToPadding="true"
+        android:background="@drawable/imageview_borders"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

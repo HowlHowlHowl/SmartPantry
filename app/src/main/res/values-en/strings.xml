@@ -13,7 +13,7 @@
     <string name="passwordMatchRegistrationError">The password doesn\'t match</string>
     <string name="alreadyExistsUserError">The email is already associated to an account</string>
     <string name="authenticationError">The credentials provided are wrong, please try again.</string>
-    <string name="signInGenericError">An error occurred, please try again</string>
+    <string name="genericError">An error occurred, please try again</string>
     <string name="registerBtn">Sign In</string>
     <string name="passwordMissingErrorText">Insert your password</string>
     <string name="emailMissingErrorText">Insert your email</string>
@@ -24,8 +24,8 @@
     <string name="shoppingText">Shopping\nList</string>
     <string name="searchText">Search for a product in your pantry</string>
     <string name="addProductBtnText">Add product</string>
-    <string name="foundProductsTitle">Results for&#160;</string>
-    <string name="noProductsFoundText">No products found.\n You can add a your own product by clicking the button above</string>
+    <string name="foundProductsTitle">Results for\n</string>
+    <string name="noProductsFoundText">No products found.\n\n You can add a your own product by clicking the button above</string>
     <string name="scanResultTitleText">Scan result</string>
     <string name="scanResultDescrText">If the barcode isn\'t correct you can try to scan again or alternatively you can manually change it.</string>
     <string name="retryBtnText">Retry</string>
@@ -45,4 +45,12 @@
     <string name="addProductDescriptionError">Insert a description</string>
     <string name="addProductQuantity">Quantity:</string>
     <string name="pantryItemCardExpire">"Expires by: "</string>
+    <string name="manualEntryButtonText">Manually add a \nproduct</string>
+    <string name="ownedProductsHeader">Your products</string>
+    <string name="otherProductsHeader">All products</string>
+    <string name="previewVoteBtn">Vote</string>
+    <string name="previewVoteLabel">Vote the\nproduct</string>
+    <string name="voteFirstError">Evaluate the product first.</string>
+    <string name="ratingResult">"Product rating: "</string>
+    <string name="alreadyRatedProduct">It seems like you already rated this product.</string>
 </resources>

@@ -6,4 +6,5 @@
     <color name="app_color_secondary">#FBA152</color>
     <color name="milk_white">#EDECE5</color>
     <color name="app_gray">#2D2F31</color>
+    <color name="smart_pantry_launcher_background">#FFFFFF</color>
 </resources>

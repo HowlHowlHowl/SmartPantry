@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="false"
+        android:drawable="@drawable/thumb_down_icon">
+    </item>
+    <item android:state_checked="true">
+        <bitmap android:src="@drawable/thumb_down_icon"
+            android:tint="@color/app_color"/>
+    </item>
+</selector>

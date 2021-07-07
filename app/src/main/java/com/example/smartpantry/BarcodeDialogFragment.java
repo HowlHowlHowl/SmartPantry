@@ -12,9 +12,9 @@ import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
-public class BarcodeDialogFragment extends DialogFragment {
+public class BarcodeDialogFragment extends Fragment {
     EditText barcode;
     Button retryBtn;
     Button confirmBtn;
@@ -25,7 +25,7 @@ public class BarcodeDialogFragment extends DialogFragment {
         barcode = view.findViewById(R.id.scanResultCode);
         retryBtn = view.findViewById(R.id.retryBtn);
         confirmBtn = view.findViewById(R.id.confirmBtn);
-        Log.println(Log.ASSERT, "FRAGMENT", "CREATED");
+        Log.println(Log.ASSERT, "FRAGMENT SCAN RESULT", "CREATED");
     return view;
     }
 
