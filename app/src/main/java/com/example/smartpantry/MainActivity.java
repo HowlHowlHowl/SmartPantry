@@ -449,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
                 final String requestBody = params.toString();
 
                 PreviewProductFragment preview = (PreviewProductFragment) getSupportFragmentManager()
-                                .findFragmentById(R.id.previewProduct);
+                                .findFragmentByTag("previewFragment");
                 StringRequest voteProductRequest = new StringRequest(Request.Method.POST, VOTE_PRODUCT_URL,
                     response -> {
                         Log.println(ASSERT, "VOTE RESPONSE", response);

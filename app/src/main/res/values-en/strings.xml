@@ -51,6 +51,7 @@
     <string name="previewVoteBtn">Vote</string>
     <string name="previewVoteLabel">Vote the\nproduct</string>
     <string name="voteFirstError">Evaluate the product first.</string>
-    <string name="ratingResult">"Product rating: "</string>
-    <string name="alreadyRatedProduct">It seems like you already rated this product.</string>
+    <string name="ratingResult">"Product\nrating: "</string>
+    <string name="alreadyRatedProduct">It seems like you already rated \nthis product.</string>
+    <string name="yourVote">Your vote:</string>
 </resources>

@@ -83,8 +83,8 @@ public class ListProductsFragment extends Fragment {
                     previewProductFragment.setArguments(bundle);
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
-                            .add(R.id.activity_main, previewProductFragment)
-                            .addToBackStack("previewFragment")
+                            .add(R.id.activity_main, previewProductFragment, "previewFragment")
+                            .addToBackStack(null)
                             .commit();
                 }
             });

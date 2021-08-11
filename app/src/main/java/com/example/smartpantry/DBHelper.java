@@ -11,6 +11,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TABLE_PREFERENCES = "preferences";
     public static final String COLUMN_PREFERENCE_PRODUCT_ID = "_prefID";
     public static final String COLUMN_PREFERENCE_PRODUCT_RATING = "productPreferenceVote";
+    public static final String COLUMN_PREFERENCE_PRODUCT_TOTAL = "productPreferenceTotal";
 
     public static final String TABLE_PRODUCTS = "products";
     public static final String COLUMN_PRODUCT_ID = "_id";
@@ -22,7 +23,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_IS_FAVORITE = "favorite";
 
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     // Products Database creation sql statement
     private static final String PRODUCTS_DATABASE_CREATE = "create table "
@@ -39,7 +40,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String  PREFERENCES_DATABASE_CREATE = "create table "
             + TABLE_PREFERENCES + "( "
             + COLUMN_PREFERENCE_PRODUCT_ID + " text primary key, "
-            + COLUMN_PREFERENCE_PRODUCT_RATING + " integer not null);";
+            + COLUMN_PREFERENCE_PRODUCT_RATING + " integer not null,"
+            + COLUMN_PREFERENCE_PRODUCT_TOTAL + "integer);";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -60,24 +62,35 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertNewPreference(String id, int rating) {
+    public void insertNewPreference(String id, int rating) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PREFERENCE_PRODUCT_ID, id);
         cv.put(COLUMN_PREFERENCE_PRODUCT_RATING, rating);
 
-        return getWritableDatabase().insert(TABLE_PREFERENCES, null, cv);
+        getWritableDatabase().insert(TABLE_PREFERENCES, null, cv);
     }
-    public Integer isAlreadyRated(String id) {
+    public void addRatingToProduct(String id, int rating) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_PREFERENCE_PRODUCT_TOTAL, rating);
+        getWritableDatabase().update(TABLE_PREFERENCES, cv, "_prefID=?",
+                new String[] {id});
+    }
+    public Integer getPreference(String id) {
         Cursor cursor = getWritableDatabase().query(TABLE_PREFERENCES, null,
                 COLUMN_PREFERENCE_PRODUCT_ID + "='" + id + "'", null,
                 null, null, null);
         if(cursor.getCount() > 0){
-            return cursor.getInt( cursor.getColumnIndex(COLUMN_PREFERENCE_PRODUCT_RATING));
+            cursor.moveToFirst();
+            return cursor.getInt(cursor.getColumnIndex(COLUMN_PREFERENCE_PRODUCT_RATING));
         } else {
             cursor.close();
             return null;
         }
     }
+    public Integer getRating(String id) {
+        return 0;
+    }
+
     public long insertNewProduct(String barcode, String name, String description, String expire, String quantity) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PRODUCT_BARCODE, barcode);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/previewProduct"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,7 +27,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/popUpWindow"
             android:layout_width="match_parent"
-            android:layout_height="440dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="150dp"
             android:layout_marginRight="10dp"
@@ -64,66 +65,111 @@
                 app:layout_constraintTop_toBottomOf="@+id/previewProductName" />
 
             <LinearLayout
-                android:id="@+id/previewVoteBlock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/voteBlockInner"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="20dp"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/previewProdAdd">
 
-                <TextView
-                    android:id="@+id/previewProductVoteLabel"
+                <LinearLayout
+                    android:id="@+id/previewVoteBlock"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:lines="2"
-                    android:text="@string/previewVoteLabel"
-                    android:textAlignment="center"
-                    android:textSize="16sp" />
+                    android:orientation="horizontal">
 
-                <ToggleButton
-                    android:id="@+id/previewProductVoteUp"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="20dp"
-                    android:background="@drawable/thumb_up"
-                    android:contextClickable="false"
-                    android:includeFontPadding="false"
-                    android:padding="60dp"
-                    android:textOff=""
-                    android:textOn=""
-                    android:tintMode="src_in" />
+                    <TextView
+                        android:id="@+id/previewProductVoteLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:gravity="center_vertical"
+                        android:lines="2"
+                        android:text="@string/previewVoteLabel"
+                        android:textAlignment="center"
+                        android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/previewProdVoteVal"
-                    android:layout_width="wrap_content"
+                    <ToggleButton
+                        android:id="@+id/previewProductVoteUp"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="20dp"
+                        android:background="@drawable/thumb_up"
+                        android:contextClickable="false"
+                        android:includeFontPadding="false"
+                        android:padding="60dp"
+                        android:textOff=""
+                        android:textOn=""
+                        android:tintMode="src_in" />
+
+                    <TextView
+                        android:id="@+id/previewProdVoteVal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:ems="2"
+                        android:gravity="center"
+                        android:textAlignment="center"
+                        android:textColor="@color/app_color"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <ToggleButton
+                        android:id="@+id/previewProductVoteDown"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/thumb_down"
+                        android:contextClickable="false"
+                        android:padding="60dp"
+                        android:textOff=""
+                        android:textOn=""
+                        android:tintMode="src_in" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/totalRatingsBlock"
+                    android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:ems="2"
-                    android:gravity="center"
-                    android:textAlignment="center"
-                    android:textColor="@color/app_color"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:visibility="gone">
 
-                <ToggleButton
-                    android:id="@+id/previewProductVoteDown"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_gravity="center"
-                    android:layout_marginRight="20dp"
-                    android:background="@drawable/thumb_down"
-                    android:contextClickable="false"
-                    android:padding="60dp"
-                    android:textOff=""
-                    android:textOn=""
-                    android:tintMode="src_in" />
+                    <TextView
+                        android:id="@+id/previewProductTotalRatingsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:lines="2"
+                        android:text="@string/ratingResult"
+                        android:textAlignment="center"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/previewProdTotalRatingsVal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_weight="1"
+                        android:ems="2"
+                        android:gravity="center"
+                        android:textAlignment="center"
+                        android:textColor="@color/app_color"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
             </LinearLayout>
 
             <Button
@@ -131,13 +177,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="10dp"
                 android:text="@string/previewVoteBtn"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/voteFirstError"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/previewVoteBlock" />
+                app:layout_constraintTop_toBottomOf="@+id/voteBlockInner" />
 
             <Button
                 android:id="@+id/previewProdAdd"
@@ -156,13 +204,15 @@
                 android:id="@+id/voteFirstError"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:lines="2"
                 android:text="@string/voteFirstError"
+                android:textAlignment="center"
                 android:textColor="@color/design_default_color_error"
-                android:visibility="invisible"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/previewProdVoteBtn" />
+                app:layout_constraintStart_toStartOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -53,6 +53,7 @@
     <string name="previewVoteBtn">Vota</string>
     <string name="previewVoteLabel">Vota il\nprodotto</string>
     <string name="voteFirstError">Devi prima valutare il prodotto.</string>
-    <string name="ratingResult">"Punteggio del prodotto: "</string>
-    <string name="alreadyRatedProduct">Sembra che tu abbia già valutato questo prodotto.</string>
+    <string name="ratingResult">"Punteggio\n del prodotto: "</string>
+    <string name="alreadyRatedProduct">Sembra che tu abbia già valutato \nquesto prodotto.</string>
+    <string name="yourVote">Il tuo voto:</string>
 </resources>

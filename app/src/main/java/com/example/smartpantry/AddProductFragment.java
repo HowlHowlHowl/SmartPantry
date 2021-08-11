@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,11 +27,11 @@ import java.util.Calendar;
 public class AddProductFragment extends Fragment {
 
     private ConstraintLayout expendable;
-    private EditText nameField;
-    private EditText descriptionField;
+    private EditText nameField, descriptionField, expireDateField, quantityField;
     private CheckBox testCheckBox;
-    private EditText expireDateField;
-    private EditText quantityField;
+    private SwitchCompat switchExpand;
+    private Button addProductButton;
+    private ImageButton cancelDateButton;
     onProductAddedListener productAddedListener;
 
     public interface onProductAddedListener {
@@ -49,31 +51,23 @@ public class AddProductFragment extends Fragment {
         quantityField = view.findViewById(R.id.productQuantity);
         testCheckBox = view.findViewById(R.id.testCheckBox);
         expireDateField = view.findViewById(R.id.productExpireDateField);
+        switchExpand = view.findViewById(R.id.addToPantry);
+        addProductButton = view.findViewById(R.id.viewProductBtn);
+        cancelDateButton = view.findViewById(R.id.cancelDateButton);
 
-        SwitchCompat switchExpand = view.findViewById(R.id.addToPantry);
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         switchExpand.setChecked(true);
-
         //Switch event
         switchExpand.setOnCheckedChangeListener((v, isChecked) -> {
             expendable.setVisibility(isChecked  ? View.VISIBLE : View.GONE);
         });
 
-        //Add product event
-        view.findViewById(R.id.viewProductBtn).setOnClickListener(v -> {
-            String barcode =  getArguments().getString("barcode");
-            String name = nameField.getText().toString();
-            String description = descriptionField.getText().toString();
-            String quantity = quantityField.getText().toString();
-            String date = expireDateField.getText().toString();
-            boolean test = testCheckBox.isChecked();
-            if (checkFields(name, description)) {
-                productAddedListener.productAdded(barcode, name, description, date, quantity, test);
-                getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            }
-        });
-        view.findViewById(R.id.cancelDateButton).setOnClickListener(v->{
-            expireDateField.setText("");
-        });
         //Date picker event
         expireDateField.setOnClickListener(v -> {
             //Set date picker
@@ -85,20 +79,47 @@ public class AddProductFragment extends Fragment {
                         myCalendar.set(year, month, day);
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                         expireDateField.setText(sdf.format(myCalendar.getTime()));
-                },
-                myCalendar.get(Calendar.YEAR),
-                myCalendar.get(Calendar.MONTH),
-                myCalendar.get(Calendar.DAY_OF_MONTH));
+                    },
+                    myCalendar.get(Calendar.YEAR),
+                    myCalendar.get(Calendar.MONTH),
+                    myCalendar.get(Calendar.DAY_OF_MONTH));
             dpd.getDatePicker().setMinDate(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
             dpd.show();
         });
-        return view;
+
+        //Add product event
+        //Add button behaviour when the product has to be created and added in remote db
+        if(getArguments().getBoolean("new_product")) {
+            addProductButton.setOnClickListener(v -> {
+                String barcode =  getArguments().getString("barcode");
+                String name = nameField.getText().toString();
+                String description = descriptionField.getText().toString();
+                String quantity = quantityField.getText().toString();
+                String date = expireDateField.getText().toString();
+                boolean test = testCheckBox.isChecked();
+                if (checkFields(name, description)) {
+                    productAddedListener.productAdded(barcode, name, description, date, quantity, test);
+                    getActivity()
+                            .getSupportFragmentManager()
+                            .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                }
+            });
+        }
+        //Add button behaviour when the product already exists and ha to be added local only
+        else {
+            addProductButton.setOnClickListener(v -> {
+
+            });
+        }
+
+
+        //Clear date field
+        cancelDateButton.setOnClickListener(v->{
+            expireDateField.setText("");
+        });
+
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-    }
     private boolean checkFields(String name, String description) {
         boolean formOk = true;
         if (name.isEmpty()) {
@@ -112,7 +133,6 @@ public class AddProductFragment extends Fragment {
         return formOk;
     }
 
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -123,4 +143,11 @@ public class AddProductFragment extends Fragment {
         }
     }
 
+    public void fillFormData(String name, String description) {
+        nameField.setText(name);
+        descriptionField.setText(description);
+        switchExpand.setEnabled(false);
+        //TODO: CHANGE ADD BUTTON BEHAVIOR.
+
+    }
 }
