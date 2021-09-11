@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,13 +38,12 @@ public class ListProductsFragment extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_products_found_list, container, false);
-
         title = view.findViewById(R.id.productsResultTitle);
         warning = view.findViewById(R.id.noProductsFound);
         addProduct = view.findViewById(R.id.addProductFloatingBtn);
         listProducts = view.findViewById(R.id.productsRecyclerView);
         barcode = this.getArguments().getString("barcode");
-        Log.println(Log.ASSERT, "FRAGMENT", "CREATED");
+        Log.println(Log.ASSERT, "LIST PRODUCT FRAGMENT", "CREATED");
         return view;
     }
 
@@ -58,7 +58,7 @@ public class ListProductsFragment extends Fragment {
             AddProductFragment addProductFragment = new AddProductFragment();
             addProductFragment.setArguments(bundle);
             getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.activity_main, addProductFragment)
+                    .replace(R.id.activity_main, addProductFragment, "addProductFragment")
                     .addToBackStack(null)
                     .commit();
         });

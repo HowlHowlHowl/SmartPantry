@@ -27,7 +27,7 @@
     <string name="searchText">Cerca un prodotto nella dispensa</string>
     <string name="addProductBtnText">Aggiungi un prodotto</string>
     <string name="foundProductsTitle">Risultati per\n</string>
-    <string name="noProductsFoundText">Nessun prodotto trovato.\n\nPuoi aggiungerne uno nuovo tramite il bottone qua sopra.</string>
+    <string name="noProductsFoundText">Nessun prodotto trovato.\n\nPuoi aggiungerne uno nuovo tramite il pulsante.</string>
     <string name="scanResultTitleText">Risultato della scansione</string>
     <string name="scanResultDescrText">Se il codice a barre non è corretto puoi riprovare a scannerizzarlo o in alternativa modificarlo manualmente</string>
     <string name="retryBtnText">Riprova</string>
@@ -53,7 +53,8 @@
     <string name="previewVoteBtn">Vota</string>
     <string name="previewVoteLabel">Vota il\nprodotto</string>
     <string name="voteFirstError">Devi prima valutare il prodotto.</string>
-    <string name="ratingResult">"Punteggio\n del prodotto: "</string>
+    <string name="ratingResult">"Punteggio\ndel prodotto: "</string>
     <string name="alreadyRatedProduct">Sembra che tu abbia già valutato \nquesto prodotto.</string>
-    <string name="yourVote">Il tuo voto:</string>
+    <string name="yourVote">Il tuo\nvoto</string>
+    <string name="manualEntryTitle">Digita il barcode del prodotto che vuoi aggiungere</string>
 </resources>

@@ -33,7 +33,7 @@
             android:background="#FFFFFF">
 
             <TextView
-                android:id="@+id/previewProductTitle"
+                android:id="@+id/manualEntryTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
@@ -54,13 +54,12 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="20dp"
                 android:ems="10"
-                android:inputType="text"
-                android:text="BARCODE"
+                android:inputType="number"
                 android:textAlignment="center"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/previewProductTitle" />
+                app:layout_constraintTop_toBottomOf="@+id/manualEntryTitle" />
 
             <TextView
                 android:id="@+id/scanResultDescr"

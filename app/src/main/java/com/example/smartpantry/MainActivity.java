@@ -11,10 +11,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -30,7 +28,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.HttpHeaderParser;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -38,14 +35,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +47,11 @@ import java.util.Map;
 
 import static android.util.Log.ASSERT;
 
-public class MainActivity extends AppCompatActivity implements AddProductFragment.onProductAddedListener, RVAdapterPantry.onFavoritePressed {
+public class MainActivity extends AppCompatActivity
+        implements
+                AddProductFragment.onProductAddedListener,
+                ManuelEntryProductFragment.onManualEntryListener,
+                RVAdapterPantry.onFavoritePressed {
     static final int CAMERA_REQUEST_CODE = 1;
     static final int CAMERA_ACTIVITY = 101;
     static final int STATUS_OK = 200;
@@ -84,6 +82,14 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
                 requestPermission();
             }
         });
+        Button barcodeManualEntry = findViewById(R.id.manualEntryBtn);
+        barcodeManualEntry.setOnClickListener(v -> {
+            ManuelEntryProductFragment fragManualEntry = new ManuelEntryProductFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.activity_main, fragManualEntry)
+                    .addToBackStack(null)
+                    .commit();
+        });
         setPantryRecyclerView();
         handleLogin();
     }
@@ -107,47 +113,46 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
     }
 
+    //Interface implementation of method to add product
     @Override
-    protected void onStop() {
-        super.onStop();
-        getApplicationContext()
-                .getSharedPreferences("LOGIN", MODE_PRIVATE)
-                .edit()
-                .putBoolean("activeSession", false)
-                .apply();
+    public void productAdded(String barcode, String name, String description, String expire,
+                             String quantity, String icon, boolean test, boolean addLocal, boolean isNew) {
+        Log.println(ASSERT, "INCOMING PRODUCT TO ADD:", "barcode " + barcode+
+                "\nname " + name + "\ndescription " + description + "\nexpire " + expire+
+                "\n quantity " + quantity + "\n icon " + icon + "\ntest " + test + "\naddLocal " +addLocal + "\nisNew " + isNew
+        );
+        if(isNew) {
+            addProductRemote(barcode, name, description, test);
+        }
+        if(addLocal) {
+            long id = addProductLocal(barcode, name, description, expire, quantity, icon);
+            RVAdapterPantry.pantryProducts.add(new ProductPantryItem(
+                    name, expire,
+                    Long.toString(id), icon, 0,
+                    Integer.parseInt(quantity)));
+            pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount());
+        }
     }
 
+    //Interface implementation of method to receive barcode from manual entry
     @Override
-    public void productAdded(String barcode, String name, String description, String expire, String quantity, boolean test) {
-        //TODO STOP EVERYTHING IF REMOTE GOES WRONG
-        addProductRemote(barcode, name, description, test);
-        long id = addProductLocal(barcode, name, description, expire, quantity);
-        pantryAdapter.pantryProducts.add(new ProductPantryItem(
-                name, expire,
-                Long.toString(id), 0,
-                Integer.parseInt(quantity)));
-        pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount() );
+    public void manualEntry(String barcode) {
+        getProductsByBarcode(barcode);
     }
+
 
     @Override
     public void favoritePressed(boolean state, int id) {
         database.setFavorite(state, id);
     }
 
-    private long addProductLocal(String barcode, String name, String description, String expire, String quantity) {
-        long code = database.insertNewProduct(barcode, name, description, expire, quantity);
-        if (code != -1) {
-            Toast.makeText(getApplicationContext(),
-                "Inserimento effettuato",
-                Toast.LENGTH_LONG);
-        } else {
-            //TODO: INSERIMENTO IN LOCALE FALLITO, PERCHE'?
-            //      AVVISARE L'UTENTE E RIMEDIARE
-            Log.wtf("ADD LOCAL", "ERROR ADDING PRODUCT TO LOCAL DB  ");
-
+    private long addProductLocal(String barcode, String name, String description, String expire, String quantity, String icon) {
+        long code = database.insertNewProduct(barcode, name, description, expire, quantity, icon);
+        if (code == -1) {
+            Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG);
+            Log.wtf("ADD LOCAL", "_____________ ERROR ADDING PRODUCT TO LOCAL DB _____________");
         }
         return code;
     }
@@ -166,10 +171,10 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
                 params.put("barcode", barcode);
                 params.put("test", test);
                 final String requestBody = params.toString();
-
+                Log.println(ASSERT, "REMOTE ADD ", "BODY CREATED" + params.toString());
                 StringRequest addProductRequest = new StringRequest(Request.Method.POST, ADD_PRODUCT_URL,
                         response -> {
-                    Log.i("VOLLEY", response);
+                    Log.println(ASSERT, "PRODUCT ADD REMOTE RESPONSE:", response);
                         }, Throwable::printStackTrace)
                 {
                     @Override
@@ -196,9 +201,8 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
                     protected Response<String> parseNetworkResponse(NetworkResponse response) {
                         String responseString = "";
                         if (response != null) {
-                            //TODO C'AMMA FA D STU CODE
                             responseString = String.valueOf(response.statusCode);
-
+                            Log.println(ASSERT, "REMOTE ADD RESPONSE ", response.toString() + " CODE " + responseString);
                         }
                         return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
                     }
@@ -208,14 +212,17 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
 
             } catch (JSONException e) {
                 e.printStackTrace();
+                Log.println(ASSERT, "REMOTE ADD ERROR", "EXCEPTION");
             }
 
 
         } else {
             //TODO: NO NETWORK - NOTIFY
+            Log.println(ASSERT, "REMOTE ADD ERROR", "NO CONNECTION AVAILABLE");
         }
 
     }
+
     private void handleLogin() {
         Log.println(ASSERT, "HANDLE LOGIN", "HANDLING");
         SharedPreferences sp = this.getSharedPreferences("Login", MODE_PRIVATE);
@@ -251,8 +258,11 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
         }
         //DON'T STAY LOGGED BUT JUST LOGGED
         else if(sp.getBoolean("activeSession", false)) {
+            this.getSharedPreferences("Login", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("activeSession", false)
+                    .commit();
             Log.println(ASSERT, "LOGIN", "OK - JUST LOGGED");
-            //sp.edit().putBoolean("justLoggedIn", false).commit();
             return STATUS_OK;
         }
         //DON'T STAY LOGGED
@@ -334,6 +344,7 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        Log.println(ASSERT, "TOKEN VALID -", Boolean.toString(isTokenValid));
         return isTokenValid;
     }
 
@@ -414,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
         pantryRecyclerView = (RecyclerView)findViewById(R.id.pantryRecycler);
         pantryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         populatePantryList();
-        pantryAdapter = new RVAdapterPantry(pantryProducts, this);
+        pantryAdapter = new RVAdapterPantry(pantryProducts, this, getApplicationContext());
         pantryRecyclerView.setAdapter(pantryAdapter);
     }
 
@@ -427,6 +438,7 @@ public class MainActivity extends AppCompatActivity implements AddProductFragmen
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_NAME)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_ID)),
+                cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_ICON)),
                 cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_IS_FAVORITE)),
                 cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_QUANTITY))
             ));

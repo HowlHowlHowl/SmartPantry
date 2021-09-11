@@ -41,14 +41,14 @@ public class LoginActivity extends AppCompatActivity {
 
 
     //TODO: FOR DEBUG PURPOSE ONLY, CHANGE TO 6
-    private final int DAYS_FOR_TOKEN_EXPIRE = 1;
+    private final int DAYS_FOR_TOKEN_TO_EXPIRE = 1;
     private final String loginURL = "https://lam21.modron.network/auth/login";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Log.println(Log.ASSERT,"LOGIN", "ISTANCE CREATED");
+        Log.println(Log.ASSERT,"LOGIN", "INSTANCE CREATED");
         Button loginBtn = findViewById(R.id.loginBtn);
         rememberCheckBox = findViewById(R.id.rememberCheckBox);
         passwordField = findViewById(R.id.passwordField);
@@ -64,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                 emailField.setError(getResources().getString(R.string.emailMissingErrorText));
             }
             if (!passwordString.trim().isEmpty() && !emailString.trim().isEmpty()) {
+                findViewById(R.id.errorDisplay).setVisibility(View.INVISIBLE);
                 authenticateUser();
             }
         });
@@ -97,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
                     },
                     error -> {
                         error.printStackTrace();
-                        Toast.makeText(this, getResources().getString(R.string.loginError), Toast.LENGTH_LONG);
                         findViewById(R.id.errorDisplay).setVisibility(View.VISIBLE);
                     }) {
                 @Override
@@ -143,7 +143,7 @@ public class LoginActivity extends AppCompatActivity {
         String validDate = today;
         try {
             c.setTime(sdf.parse(today));
-            c.add(Calendar.DATE, DAYS_FOR_TOKEN_EXPIRE);
+            c.add(Calendar.DATE, DAYS_FOR_TOKEN_TO_EXPIRE);
             validDate = sdf.format(c.getTime());
         } catch (ParseException e) {
             e.printStackTrace();

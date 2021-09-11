@@ -23,11 +23,9 @@ import java.util.Objects;
 public class PreviewProductFragment extends Fragment {
     private TextView name, description,
             preferenceValue, preferenceLabel,
-            errorMsg,
-            ratingValue;
+            errorMsg;
     private Button addBtn, voteBtn;
     private ToggleButton voteUp, voteDown;
-    private LinearLayout ratingBlock;
     private Integer tempPreference = 0;
     private DBHelper db;
     private String productID;
@@ -44,8 +42,6 @@ public class PreviewProductFragment extends Fragment {
         voteBtn = view.findViewById(R.id.previewProdVoteBtn);
         voteUp = view.findViewById(R.id.previewProductVoteUp);
         voteDown = view.findViewById(R.id.previewProductVoteDown);
-        ratingValue = view.findViewById(R.id.previewProdTotalRatingsVal);
-        ratingBlock = view.findViewById(R.id.totalRatingsBlock);
 
         FrameLayout bg = view.findViewById(R.id.previewBackground);
         ConstraintLayout ignoreTouch = view.findViewById(R.id.popUpWindow);
@@ -71,9 +67,8 @@ public class PreviewProductFragment extends Fragment {
         if (this.getArguments() != null) {
             productID = this.getArguments().getString("id");
             Integer productPreference = db.getPreference(productID);
-            Integer productRating = db.getRating(productID);
-            if(productPreference != null && productRating != null) {
-                setViewAsAlreadyRated(productPreference, productRating);
+            if(productPreference != null) {
+                setViewAsAlreadyRated(productPreference);
             }
             name.setText(this.getArguments().getString("name"));
             description.setText(this.getArguments().getString("description"));
@@ -81,14 +76,26 @@ public class PreviewProductFragment extends Fragment {
 
         voteUp.setOnClickListener(v -> {
             voteDown.setChecked(false);
-            tempPreference = 1;
-            preferenceValue.setText("+" + tempPreference);
+            errorMsg.setVisibility(View.GONE);
+            if(voteUp.isChecked()) {
+                tempPreference = 1;
+                preferenceValue.setText("+" + tempPreference);
+            } else {
+                tempPreference = 0;
+                preferenceValue.setText("");
+            }
         });
 
         voteDown.setOnClickListener(v -> {
             voteUp.setChecked(false);
+            errorMsg.setVisibility(View.GONE);
+            if(voteDown.isChecked()){
             tempPreference = -1;
-            preferenceValue.setText(tempPreference);
+            preferenceValue.setText("" + tempPreference);
+        } else {
+            tempPreference = 0;
+            preferenceValue.setText("");
+        }
         });
         voteBtn.setOnClickListener(v -> {
             if(tempPreference!=0){
@@ -100,22 +107,25 @@ public class PreviewProductFragment extends Fragment {
         });
         addBtn.setOnClickListener(v -> {
             AddProductFragment addProductFragment = new AddProductFragment();
-            addProductFragment.fillFormData(
-                    this.getArguments().getString("name"),
-                    this.getArguments().getString("description")
-            );
+            Bundle bundle = getArguments();
+            bundle.putBoolean("alreadyExistingProduct", true);
+            addProductFragment.setArguments(bundle);
+            getActivity().getSupportFragmentManager().popBackStack();
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.activity_main, addProductFragment, "addProductFragment")
+                    .addToBackStack(null)
+                    .commit();
+
         });
     }
 
-    private void setViewAsAlreadyRated(Integer preference, Integer rating) {
+    private void setViewAsAlreadyRated(Integer preference) {
         //Preference display
         preferenceValue.setText((preference > 0 ? "+" : "") + preference);
         voteUp.setChecked(preference==1);
         voteDown.setChecked(preference==-1);
         preferenceLabel.setText(getResources().getString(R.string.yourVote));
-        //Rating display
-        ratingBlock.setVisibility(View.VISIBLE);
-        ratingValue.setText(rating);
 
         disableVote();
         errorMsg.setVisibility(View.VISIBLE);
@@ -128,15 +138,12 @@ public class PreviewProductFragment extends Fragment {
         // prima dell'implementazione della table preferences
         // e sostituire con la chiamata di setVAAR
         db.insertNewPreference(productID, tempPreference);
-        setViewAsAlreadyRated(tempPreference, db.getRating(productID));
+        setViewAsAlreadyRated(tempPreference);
     }
     public void showRatingResult(Integer rating) {
         db.insertNewPreference(productID, tempPreference);
-        db.addRatingToProduct(productID, rating);
         preferenceLabel.setText(getResources().getString(R.string.yourVote));
         preferenceValue.setText((tempPreference > 0 ? "+" : "") + tempPreference.toString());
-        ratingValue.setText(rating);
-        ratingBlock.setVisibility(View.VISIBLE);
 
     }
     public void disableVote() {

@@ -61,7 +61,6 @@
             android:backgroundTint="#EDECE5"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/barcodeBtn"
-            app:layout_constraintHorizontal_bias="0.487"
             app:layout_constraintStart_toEndOf="@+id/statisticsBtn"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/grocery" />
@@ -108,63 +107,49 @@
             android:id="@+id/recipesLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="5dp"
             android:labelFor="@id/recipesBtn"
             android:text="@string/recipesText"
             android:textColor="#EDECE5"
             android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/recipesBtn"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/recipesBtn"
-            app:layout_constraintTop_toBottomOf="@+id/recipesBtn"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/recipesBtn" />
 
         <TextView
             android:id="@+id/statisticsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
             android:labelFor="@id/statisticsBtn"
             android:textColor="#EDECE5"
             android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/statisticsBtn"
             app:layout_constraintStart_toStartOf="@+id/statisticsBtn"
             app:layout_constraintTop_toBottomOf="@+id/statisticsBtn"
-            tools:text="@string/statisticsText" />
+            android:text="@string/statisticsText"/>
 
         <TextView
             android:id="@+id/listLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
             android:labelFor="@id/listBtn"
             android:text="@string/shoppingText"
             android:textColor="#EDECE5"
             android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/listBtn"
             app:layout_constraintStart_toStartOf="@+id/listBtn"
-            app:layout_constraintTop_toBottomOf="@+id/listBtn"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/listBtn" />
 
         <TextView
             android:id="@+id/productsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
             android:labelFor="@id/productsBtn"
             android:text="@string/prodText"
             android:textColor="#EDECE5"
             android:textSize="12sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/productsBtn"
-            app:layout_constraintHorizontal_bias="0.481"
             app:layout_constraintStart_toStartOf="@+id/productsBtn"
-            app:layout_constraintTop_toBottomOf="@+id/productsBtn"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/productsBtn" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -189,9 +174,11 @@
             android:id="@+id/searchProdField"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/app_color"
             android:ems="10"
             android:hint="@string/searchText"
-            android:inputType="text" />
+            android:inputType="text"
+            android:textCursorDrawable="@drawable/colored_cursor" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -221,6 +208,8 @@
         android:id="@+id/manualEntryBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:backgroundTint="@color/app_color"
         android:drawableStart="@drawable/plus"
         android:text="@string/manualEntryButtonText"

@@ -30,6 +30,7 @@ public class SigninActivity extends AppCompatActivity {
     private EditText passwordField;
     private EditText confirmPasswordField;
     private Button registerBtn;
+    private Toast toast = null;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,11 +128,16 @@ public class SigninActivity extends AppCompatActivity {
                 },
                 error -> {
                     error.printStackTrace();
-                    if (error.networkResponse.statusCode == 500) {
-                        Toast.makeText(this, getResources().getString(R.string.alreadyExistsUserError), Toast.LENGTH_LONG);
-                    } else {
-                        Toast.makeText(this, getResources().getString(R.string.genericError), Toast.LENGTH_LONG);
+                    if (toast!=null) {
+                        toast.cancel();
                     }
+                    if (error.networkResponse.statusCode == 500) {
+                        toast = Toast.makeText(this, getResources().getString(R.string.alreadyExistsUserError), Toast.LENGTH_LONG);
+                    } else {
+                        toast = Toast.makeText(this, getResources().getString(R.string.genericError), Toast.LENGTH_SHORT);
+                    }
+                    toast.show();
+
 
                 }) {
             @Override

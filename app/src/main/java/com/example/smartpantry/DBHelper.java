@@ -1,5 +1,7 @@
 package com.example.smartpantry;
 
+import static android.util.Log.ASSERT;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,22 +10,24 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
+    //TABLE OF PREFERENCES AND COLUMNS
     public static final String TABLE_PREFERENCES = "preferences";
     public static final String COLUMN_PREFERENCE_PRODUCT_ID = "_prefID";
-    public static final String COLUMN_PREFERENCE_PRODUCT_RATING = "productPreferenceVote";
-    public static final String COLUMN_PREFERENCE_PRODUCT_TOTAL = "productPreferenceTotal";
+    public static final String COLUMN_PREFERENCE_PRODUCT_PREFERENCE = "productPreferenceVote";
 
+    //TABLE OF PRODUCTS AND COLUMNS
     public static final String TABLE_PRODUCTS = "products";
     public static final String COLUMN_PRODUCT_ID = "_id";
     public static final String COLUMN_PRODUCT_BARCODE = "barcode";
     public static final String COLUMN_PRODUCT_NAME = "productName";
     public static final String COLUMN_PRODUCT_DESCRIPTION = "productDescription";
     public static final String COLUMN_PRODUCT_EXPIRE_DATE = "expireDate";
+    public static final String COLUMN_PRODUCT_ICON = "icon";
     public static final String COLUMN_PRODUCT_QUANTITY = "quantity";
     public static final String COLUMN_IS_FAVORITE = "favorite";
 
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 12;
 
     // Products Database creation sql statement
     private static final String PRODUCTS_DATABASE_CREATE = "create table "
@@ -34,14 +38,14 @@ public class DBHelper extends SQLiteOpenHelper {
             + COLUMN_PRODUCT_DESCRIPTION + " text not null, "
             + COLUMN_PRODUCT_QUANTITY + " integer not null, "
             + COLUMN_PRODUCT_EXPIRE_DATE + " text, "
+            + COLUMN_PRODUCT_ICON + " text not null, "
             + COLUMN_IS_FAVORITE + " integer not null default 0);";
 
     // Ratings Database creation sql statement
     private static final String  PREFERENCES_DATABASE_CREATE = "create table "
             + TABLE_PREFERENCES + "( "
             + COLUMN_PREFERENCE_PRODUCT_ID + " text primary key, "
-            + COLUMN_PREFERENCE_PRODUCT_RATING + " integer not null,"
-            + COLUMN_PREFERENCE_PRODUCT_TOTAL + "integer);";
+            + COLUMN_PREFERENCE_PRODUCT_PREFERENCE + " integer not null)";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -54,7 +58,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.w(DBHelper.class.getName(),
+        Log.println(ASSERT, DBHelper.class.getName(),
                 "Upgrading database from version " + oldVersion + " to "
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
@@ -65,39 +69,32 @@ public class DBHelper extends SQLiteOpenHelper {
     public void insertNewPreference(String id, int rating) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PREFERENCE_PRODUCT_ID, id);
-        cv.put(COLUMN_PREFERENCE_PRODUCT_RATING, rating);
+        cv.put(COLUMN_PREFERENCE_PRODUCT_PREFERENCE, rating);
 
         getWritableDatabase().insert(TABLE_PREFERENCES, null, cv);
     }
-    public void addRatingToProduct(String id, int rating) {
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_PREFERENCE_PRODUCT_TOTAL, rating);
-        getWritableDatabase().update(TABLE_PREFERENCES, cv, "_prefID=?",
-                new String[] {id});
-    }
+
     public Integer getPreference(String id) {
         Cursor cursor = getWritableDatabase().query(TABLE_PREFERENCES, null,
                 COLUMN_PREFERENCE_PRODUCT_ID + "='" + id + "'", null,
                 null, null, null);
         if(cursor.getCount() > 0){
             cursor.moveToFirst();
-            return cursor.getInt(cursor.getColumnIndex(COLUMN_PREFERENCE_PRODUCT_RATING));
+            return cursor.getInt(cursor.getColumnIndex(COLUMN_PREFERENCE_PRODUCT_PREFERENCE));
         } else {
             cursor.close();
             return null;
         }
     }
-    public Integer getRating(String id) {
-        return 0;
-    }
 
-    public long insertNewProduct(String barcode, String name, String description, String expire, String quantity) {
+    public long insertNewProduct(String barcode, String name, String description, String expire, String quantity, String icon) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PRODUCT_BARCODE, barcode);
         cv.put(COLUMN_PRODUCT_NAME, name);
         cv.put(COLUMN_PRODUCT_DESCRIPTION, description);
         cv.put(COLUMN_PRODUCT_EXPIRE_DATE, expire);
         cv.put(COLUMN_PRODUCT_QUANTITY, quantity);
+        cv.put(COLUMN_PRODUCT_ICON, icon);
 
         return getWritableDatabase().insert(TABLE_PRODUCTS, null, cv);
     }

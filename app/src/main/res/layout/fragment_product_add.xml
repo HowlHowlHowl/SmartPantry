@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:elevation="10dp">
+    android:elevation="10dp"
+    android:clickable="true">
 
     <TextView
         android:id="@+id/viewProductNameLabel"
@@ -25,6 +26,8 @@
         android:backgroundTint="@color/app_color"
         android:ems="10"
         android:inputType="textPersonName"
+        android:maxLength="30"
+        android:textColor="@color/black"
         android:textCursorDrawable="@drawable/colored_cursor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,7 +75,8 @@
         android:text="Aggiungi"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewExpireExtendable" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/addToPantry"
@@ -141,11 +145,13 @@
             android:id="@+id/productQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/app_color"
             android:ems="10"
             android:inputType="number"
             android:minEms="5"
             android:text="1"
             android:textAlignment="center"
+            android:textCursorDrawable="@drawable/colored_cursor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -181,9 +187,10 @@
             android:cropToPadding="true"
             android:padding="5dp"
             android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/productQuantity"
-            tools:srcCompat="@drawable/food" />
+            app:srcCompat="@drawable/shopping_basket" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -196,6 +203,7 @@
         android:ems="10"
         android:gravity="start|top"
         android:inputType="textMultiLine"
+        android:textColor="@color/black"
         android:textCursorDrawable="@drawable/colored_cursor"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"

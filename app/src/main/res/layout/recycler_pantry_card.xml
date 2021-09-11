@@ -23,8 +23,8 @@
             android:text="Product Name"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/favCheckbox"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/productQuantity"
+            app:layout_constraintStart_toEndOf="@+id/modifyBtn"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.509" />
 
@@ -59,12 +59,10 @@
             android:id="@+id/modifyBtn"
             android:layout_width="38dp"
             android:layout_height="25dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="12dp"
+            android:layout_marginStart="5dp"
             android:background="#00FFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/productName"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iconView"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/pencil" />
 
@@ -82,11 +80,21 @@
             android:id="@+id/productQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
             android:text="x86"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/favCheckbox"
-            app:layout_constraintStart_toEndOf="@+id/productName"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iconView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="15dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/shopping_basket" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>
