@@ -18,12 +18,12 @@ public class ProductListHeader implements ProductListGeneric {
     public View getView(LayoutInflater inflater, View convertView) {
         View view;
         if (convertView == null) {
-            view = (View) inflater.inflate(R.layout.recycler_products_header, null);
+            view = inflater.inflate(R.layout.recycler_products_header, null);
             view.setClickable(false);
         } else {
             view = convertView;
         }
-        TextView text = (TextView) view.findViewById(R.id.header_card_title);
+        TextView text = view.findViewById(R.id.header_card_title);
         text.setText(title);
 
         return view;

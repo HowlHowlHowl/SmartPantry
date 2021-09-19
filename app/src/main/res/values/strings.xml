@@ -5,7 +5,7 @@
     <string name="repeatPasswordText">Conferma la password</string>
     <string name="usernameText">Nome utente</string>
     <string name="loginBtn">Accedi</string>
-    <string name="connectionError">Controlla la tua connessione di rete</string>
+    <string name="connectionError">Controlla la tua connessione di rete e riprova.</string>
     <string name="loginError">Controlla le credenziali e riprova</string>
     <string name="usernameRegistrationError">Inserisci un nome utente</string>
     <string name="emailRegistrationError">Inserisci una mail</string>
@@ -20,7 +20,7 @@
     <string name="registerBtn">Registrati</string>
     <string name="rememberCheckBox">Ricordati di me</string>
     <string name="pantryTitle">La tua dispensa</string>
-    <string name="statisticsText">Statistiche</string>
+    <string name="optionsText">Opzioni</string>
     <string name="prodText">Prodotti</string>
     <string name="recipesText">Ricettario</string>
     <string name="shoppingText">Spesa</string>
@@ -45,6 +45,7 @@
     <string name="addProductBtn">Aggiungi</string>
     <string name="addProductNameError">Inserisci un nome</string>
     <string name="addProductDescriptionError">Inserisci una descrizione</string>
+    <string name="addProductQuantityError">Inserisci una quantità positiva</string>
     <string name="addProductQuantity">Quantità:</string>
     <string name="pantryItemCardExpire">"Scade: "</string>
     <string name="manualEntryButtonText">Aggiungi un prodotto\n manualmente</string>
@@ -57,4 +58,18 @@
     <string name="alreadyRatedProduct">Sembra che tu abbia già valutato \nquesto prodotto.</string>
     <string name="yourVote">Il tuo\nvoto</string>
     <string name="manualEntryTitle">Digita il barcode del prodotto che vuoi aggiungere</string>
+    <string name="deleteText">Elimina</string>
+    <string name="modifyText">Modifica</string>
+    <string name="logout" translatable="false">Logout</string>
+    <string name="settingsText">Impostazioni</string>
+    <string name="accountText" translatable="false">Account</string>
+    <string name="clearPantry">Pulisci la dispensa</string>
+    <string name="deleteProducts">Elimina tutti i prodotti salvati</string>
+    <string name="errorRestartApp">Si è verificato un errore, chiudi l\'app e prova di nuovo.</string>
+    <string name="alreadyRegisteredText">Sei già registrat*? Clicca qui per accedere.</string>
+    <string name="noProductAddedError">Il prodotto non è stato aggiunto al server per mancanza di connessione.</string>
+    <string name="warningText">Attenzione!</string>
+    <string name="dropTablesText">Eseguendo l\'accesso da un nuovo account, tutti i tuoi dati locali \nandranno persi per sempre! (prodotti nella dispensa, preferiti, ecc..) \n \n Sei sicuro di voler eseguire l\'accesso come nuovo utente?</string>
+    <string name="yesText">Si</string>
+    <string name="noText">No</string>
 </resources>

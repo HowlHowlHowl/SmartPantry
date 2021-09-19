@@ -81,11 +81,11 @@
             android:layout_marginTop="10dp"
             android:text="@string/addProductExpirationDateLabel"
             android:textColor="@color/black"
-            app:layout_constraintStart_toStartOf="@+id/frameLayout2"
+            app:layout_constraintStart_toStartOf="@+id/dateWidget"
             app:layout_constraintTop_toTopOf="parent" />
 
         <FrameLayout
-            android:id="@+id/frameLayout2"
+            android:id="@+id/dateWidget"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@+id/textView4">
@@ -135,7 +135,7 @@
             android:text="@string/addProductQuantity"
             android:textColor="@color/black"
             app:layout_constraintStart_toStartOf="@+id/productQuantity"
-            app:layout_constraintTop_toBottomOf="@+id/frameLayout2" />
+            app:layout_constraintTop_toBottomOf="@+id/dateWidget" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

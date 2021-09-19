@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.smartpantry">
-    <!--Camera Permission-->
+    <!--Permission-->
     <uses-feature android:name="android.hardware.camera.any" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -31,7 +31,7 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".SigninActivity"
+            android:name=".RegisterActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"/>
 

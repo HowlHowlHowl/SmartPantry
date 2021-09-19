@@ -18,15 +18,14 @@
             android:id="@+id/productName"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Product Name"
             android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/productQuantity"
-            app:layout_constraintStart_toEndOf="@+id/modifyBtn"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.509" />
+            app:layout_constraintStart_toEndOf="@+id/iconView"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/expireText"
@@ -34,9 +33,7 @@
             android:layout_height="19dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="40dp"
-            android:layout_marginBottom="10dp"
             android:text="@string/pantryItemCardExpire"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/productName" />
 
@@ -44,29 +41,20 @@
             android:id="@+id/favCheckbox"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:layout_marginTop="50dp"
             android:layout_marginEnd="15dp"
             android:background="@drawable/fav_checkbox"
             android:clickable="true"
             android:contextClickable="true"
+            android:focusable="true"
             android:padding="20dp"
             android:textOff=""
             android:textOn=""
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageButton
-            android:id="@+id/modifyBtn"
-            android:layout_width="38dp"
-            android:layout_height="25dp"
-            android:layout_marginStart="5dp"
-            android:background="#00FFFFFF"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/iconView"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/pencil" />
-
         <View
+            android:id="@+id/view3"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_marginStart="5dp"
@@ -80,9 +68,9 @@
             android:id="@+id/productQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
+            android:layout_marginTop="55dp"
+            android:layout_marginEnd="10dp"
             android:text="x86"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/favCheckbox"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -91,10 +79,162 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="15dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="35dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/shopping_basket" />
+
+        <ImageView
+            android:id="@+id/expandableStateImageView"
+            android:layout_width="30dp"
+            android:layout_height="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/down_arrow" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/fullDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:visibility="visible"
+            app:layout_constraintBottom_toTopOf="@+id/view3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/expireText">
+
+            <TextView
+                android:id="@+id/productCardDescription"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:background="@drawable/product_description_edittext"
+                android:text=""
+                android:textColor="#000000"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <FrameLayout
+                android:id="@+id/dateWidget"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintEnd_toStartOf="@+id/confirmChangeDate"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/productCardDescription">
+
+                <EditText
+                    android:id="@+id/productExpireDateField"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/app_color"
+                    android:clickable="false"
+                    android:cursorVisible="false"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:inputType="date"
+                    android:longClickable="false" />
+
+                <ImageButton
+                    android:id="@+id/cancelDateButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="5dp"
+                    android:backgroundTint="#FFFFFF"
+                    android:padding="0dp"
+                    android:tint="#A6A6A6"
+                    app:srcCompat="@android:drawable/ic_input_delete" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/deleteItemLinearL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="20dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/changeQuantityLinearL">
+
+                <Space
+                    android:id="@+id/space_"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/removeItemButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/deleteText" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/confirmChangeDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:backgroundTint="@color/button_confirm"
+                android:text="Ok"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/dateWidget" />
+
+            <LinearLayout
+                android:id="@+id/changeQuantityLinearL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dateWidget">
+
+                <TextView
+                    android:id="@+id/changeQuantityLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
+                    android:text="@string/addProductQuantity"
+                    android:textSize="20sp" />
+
+                <EditText
+                    android:id="@+id/changeQuantityField"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:backgroundTint="@color/app_color"
+                    android:ems="10"
+                    android:inputType="number"
+                    android:textAlignment="center" />
+
+                <Button
+                    android:id="@+id/changeQuantityButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/button_confirm"
+                    android:maxLines="1"
+                    android:text="@string/modifyText" />
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

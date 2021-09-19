@@ -6,18 +6,25 @@
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/icon_picker_bg.xml" value="0.290625" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/icon_selected_foreground.xml" value="0.290625" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/imageview_borders.xml" value="0.290625" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/large_gradient.xml" value="0.39537037037037037" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/pantry_borders_and_background.xml" value="0.39537037037037037" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/product_description_edittext.xml" value="0.19270833333333334" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/switch_track.xml" value="0.290625" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/drawable/text_color_disabled.xml" value="0.19791666666666666" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/activity_camera.xml" value="0.36820652173913043" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/activity_login.xml" value="0.264" />
-        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/activity_main.xml" value="0.264" />
-        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/activity_signin.xml" value="0.264" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/activity_main.xml" value="0.4" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/activity_signin.xml" value="0.4" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/fragment_icon_picker_dialog.xml" value="0.264" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/fragment_manual_entry.xml" value="0.264" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/fragment_preview_found_product.xml" value="0.264" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/fragment_product_add.xml" value="0.25" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/fragment_products_found_list.xml" value="0.271875" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/fragment_scan_result.xml" value="0.14375" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/header_navigation_drawer.xml" value="0.28072916666666664" />
         <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/recycler_pantry_card.xml" value="0.264" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/layout/recycler_products_header.xml" value="0.28072916666666664" />
+        <entry key="..\:/Users/gabri/StudioProjects/SmartPantry/app/src/main/res/menu/navigation_drawer.xml" value="0.28072916666666664" />
       </map>
     </option>
   </component>

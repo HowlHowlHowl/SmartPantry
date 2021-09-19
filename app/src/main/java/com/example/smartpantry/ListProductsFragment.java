@@ -6,16 +6,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -23,10 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class ListProductsFragment extends Fragment {
@@ -69,7 +62,6 @@ public class ListProductsFragment extends Fragment {
             listProducts.setAdapter(adapter);
             listProducts.setOnItemClickListener((parent, view1, position, id) -> {
                 ProductListGeneric item = populatedProductsList.get(position);
-                Log.d("########", "ITEM CLICKED ");
                 //If clicked item isn't an header
                 if(item.getViewType() == 0) {
                     ProductListItem castedItem  = ((ProductListItem) item);
@@ -96,66 +88,76 @@ public class ListProductsFragment extends Fragment {
 
     private List<ProductListGeneric> populateProductsList(JSONArray products) {
         List<ProductListGeneric> toShowProducts = new ArrayList<ProductListGeneric>();
-        String userId = getContext()
-                .getSharedPreferences("UserData", Context.MODE_PRIVATE)
-                .getString("id", null);
-        //the list of matched items is scanned 2 times
-        //The first loop is made to add items owned by the user
-        //The second one is made to add the other items
-        //The reason behind this is to add header and graphically divide the shown list of items
-        //TODO: REFACTOR CODE
-        Log.println(Log.ASSERT, "LIST RAW", products.toString());
-        boolean owned = true;
-        for (int j = 0; j < 2; j++) {
-            boolean headerNeeded = true;
-            for (int i = 0; i < products.length(); i++) {
-                try {
-                    JSONObject item = products.getJSONObject(i);
-                    if (owned) {
-                        if (item.getString("userId") == userId) {
-                            if (headerNeeded) {
-                                toShowProducts.add(new ProductListHeader(getResources().getString(R.string.ownedProductsHeader)));
-                                headerNeeded = false;
-                            }
-                            toShowProducts.add(new ProductListItem(
-                                    item.getString("id"),
-                                    item.getString("name"),
-                                    item.getString("description"),
-                                    item.getString("barcode"),
-                                    item.getString("userId"),
-                                    item.getString("createdAt"),
-                                    item.getString("updatedAt"),
-                                    item.getBoolean("test"),
-                                    (item.getString("userId") == userId)
-                            ));
-                        }
-                    } else {
-                        if (headerNeeded) {
-                            toShowProducts.add(new ProductListHeader(getResources().getString(R.string.otherProductsHeader)));
-                            headerNeeded = false;
-                        }
-                        toShowProducts.add(new ProductListItem(
-                                item.getString("id"),
-                                item.getString("name"),
-                                item.getString("description"),
-                                item.getString("barcode"),
-                                item.getString("userId"),
-                                item.getString("createdAt"),
-                                item.getString("updatedAt"),
-                                item.getBoolean("test"),
-                                (item.getString("userId") == userId)
-                        ));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            owned = false;
-        }
-        Log.println(Log.ASSERT, "LIST", toShowProducts.toString());
+
+        //Add user owned items first w/ relative header
+        toShowProducts.addAll(addOwnedItems(products));
+
+        //The the other items are added w/ relative header
+        toShowProducts.addAll(addOtherItems(products));
+
         if (toShowProducts.size() < 1) {
             warning.setVisibility(View.VISIBLE);
         }
+
+        Log.println(Log.ASSERT, "LIST RAW", products.toString());
+        Log.println(Log.ASSERT, "LIST", toShowProducts.toString());
+
         return toShowProducts;
     }
+    public ArrayList<ProductListGeneric> addOwnedItems(JSONArray products) {
+        ArrayList<ProductListGeneric> ownedItemsList = new ArrayList<>();
+        ownedItemsList.add(new ProductListHeader(
+                getResources().getString(R.string.ownedProductsHeader))
+        );
+        for (int i = 0; i < products.length(); i++) {
+            try {
+                JSONObject item = products.getJSONObject(i);
+                if(item.getBoolean("isUserOwned")) {
+                    ownedItemsList.add(new ProductListItem(
+                            item.getString("id"),
+                            item.getString("name"),
+                            item.getString("description"),
+                            item.getString("barcode"),
+                            item.getString("userId"),
+                            item.getString("createdAt"),
+                            item.getString("updatedAt"),
+                            item.getBoolean("test"),
+                            true
+                    ));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return ownedItemsList;
+    }
+    public ArrayList<ProductListGeneric> addOtherItems(JSONArray products) {
+        ArrayList<ProductListGeneric> otherItemsList = new ArrayList<>();
+        otherItemsList.add(new ProductListHeader(
+                getResources().getString(R.string.otherProductsHeader))
+        );
+        for (int i = 0; i < products.length(); i++) {
+
+            try {
+                JSONObject item = products.getJSONObject(i);
+            if(!item.getBoolean("isUserOwned")) {
+                otherItemsList.add(new ProductListItem(
+                        item.getString("id"),
+                        item.getString("name"),
+                        item.getString("description"),
+                        item.getString("barcode"),
+                        item.getString("userId"),
+                        item.getString("createdAt"),
+                        item.getString("updatedAt"),
+                        item.getBoolean("test"),
+                        false
+                ));
+            }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return otherItemsList;
+    }
 }
+

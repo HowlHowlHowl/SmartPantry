@@ -2,7 +2,7 @@
 <resources>
     <string name="pantryTitle">Your pantry</string>
     <string name="loginBtn">Log In</string>
-    <string name="connectionError">Check your network connection</string>
+    <string name="connectionError">Check your network connection and try again.</string>
     <string name="repeatPasswordText">Confirm password</string>
     <string name="usernameText">Username</string>
     <string name="loginError">Check your credentials and try again</string>
@@ -18,11 +18,11 @@
     <string name="passwordMissingErrorText">Insert your password</string>
     <string name="emailMissingErrorText">Insert your email</string>
     <string name="rememberCheckBox">Remember me</string>
-    <string name="statisticsText">Statistics</string>
+    <string name="optionsText">Options</string>
     <string name="prodText">Products</string>
     <string name="recipesText">Recipes</string>
-    <string name="shoppingText">Shopping\nList</string>
-    <string name="searchText">Search for a product in your pantry</string>
+    <string name="shoppingText">Shopping</string>
+    <string name="searchText">Search a product in the pantry</string>
     <string name="addProductBtnText">Add product</string>
     <string name="foundProductsTitle">Results for\n</string>
     <string name="noProductsFoundText">No products found.\n\n You can add a your own product by clicking the button.</string>
@@ -55,4 +55,17 @@
     <string name="alreadyRatedProduct">It seems like you already rated \nthis product.</string>
     <string name="yourVote">Your\\nvote:</string>
     <string name="manualEntryTitle">Write the barcode of the product you want to add</string>
+    <string name="addProductQuantityError">Insert a positive quantity</string>
+    <string name="deleteText">Delete</string>
+    <string name="modifyText">Change</string>
+    <string name="settingsText">Settings</string>
+    <string name="clearPantry">Clear pantry</string>
+    <string name="deleteProducts">Delete all saved products</string>
+    <string name="errorRestartApp">An error occurred, close the app and try again.</string>
+    <string name="alreadyRegisteredText">You\'re already registered? Click here to sign in.</string>
+    <string name="noProductAddedError">The product hasn\'t been added to the server due to missing connection.</string>
+    <string name="warningText">Warning!</string>
+    <string name="dropTablesText">If you sign in as a new user, you are going to lose\nall your local data  forever! (products in your pantry, favorites, etc...)\n\nAre you sure you want to continue?</string>
+    <string name="yesText">Yes</string>
+    <string name="noText">No</string>
 </resources>

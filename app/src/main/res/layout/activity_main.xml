@@ -1,222 +1,292 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    tools:context=".MainActivity"
+    android:id="@+id/drawer_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EDECE5"
+    android:layout_width="match_parent"
+    tools:openDrawer="left">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
     android:id="@+id/activity_main"
-    tools:context=".MainActivity">
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/pantryRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#EDECE5"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/bottomBackground"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/manualEntryBtn">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#EDECE5">
 
-    </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pantryRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/pantry_borders_and_background"
+                android:scrollbars="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/bottomBackground"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/manualEntryBtn">
 
-    <FrameLayout
-        android:id="@+id/bottomBackground"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:background="#2D2F31"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
+            </androidx.recyclerview.widget.RecyclerView>
 
-    </FrameLayout>
+            <FrameLayout
+                android:id="@+id/bottomBackground"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="#2D2F31"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/navBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent">
+            </FrameLayout>
 
-        <ImageButton
-            android:id="@+id/statisticsBtn"
-            android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/navBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageButton
+                    android:id="@+id/optionsBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:backgroundTint="#EDECE5"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/gears" />
+
+                <ImageButton
+                    android:id="@+id/productsBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#EDECE5"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/barcodeBtn"
+                    app:layout_constraintStart_toEndOf="@+id/optionsBtn"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/grocery" />
+
+                <ImageButton
+                    android:id="@+id/barcodeBtn"
+                    android:layout_width="78dp"
+                    android:layout_height="83dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/button_scan"
+                    android:padding="1dp"
+                    android:src="@drawable/barcode"
+                    android:textAlignment="center"
+                    android:tint="#EDECE5"
+                    app:icon="@android:drawable/ic_menu_camera"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:strokeWidth="3dp" />
+
+                <ImageButton
+                    android:id="@+id/recipesBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="16dp"
+                    android:backgroundTint="#EDECE5"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/recipe" />
+
+                <ImageButton
+                    android:id="@+id/listBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#EDECE5"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/recipesBtn"
+                    app:layout_constraintStart_toEndOf="@+id/barcodeBtn"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/document__2_" />
+
+                <TextView
+                    android:id="@+id/recipesLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/recipesBtn"
+                    android:text="@string/recipesText"
+                    android:textColor="#EDECE5"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="@+id/recipesBtn"
+                    app:layout_constraintStart_toStartOf="@+id/recipesBtn"
+                    app:layout_constraintTop_toBottomOf="@+id/recipesBtn" />
+
+                <TextView
+                    android:id="@+id/settingsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/optionsBtn"
+                    android:text="@string/optionsText"
+                    android:textColor="#EDECE5"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="@+id/optionsBtn"
+                    app:layout_constraintStart_toStartOf="@+id/optionsBtn"
+                    app:layout_constraintTop_toBottomOf="@+id/optionsBtn" />
+
+                <TextView
+                    android:id="@+id/listLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/listBtn"
+                    android:text="@string/shoppingText"
+                    android:textColor="#EDECE5"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="@+id/listBtn"
+                    app:layout_constraintStart_toStartOf="@+id/listBtn"
+                    app:layout_constraintTop_toBottomOf="@+id/listBtn" />
+
+                <TextView
+                    android:id="@+id/productsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/productsBtn"
+                    android:text="@string/prodText"
+                    android:textColor="#EDECE5"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toEndOf="@+id/productsBtn"
+                    app:layout_constraintStart_toStartOf="@+id/productsBtn"
+                    app:layout_constraintTop_toBottomOf="@+id/productsBtn" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:id="@+id/searchBox"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="@+id/manualEntryBtn"
+                app:layout_constraintStart_toStartOf="@+id/manualEntryBtn"
+                app:layout_constraintTop_toBottomOf="@+id/pantryHeader">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="56dp"
+                    android:layout_height="43dp"
+                    app:srcCompat="?android:attr/actionModeWebSearchDrawable" />
+
+                <EditText
+                    android:id="@+id/searchProdField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/app_color"
+                    android:ems="10"
+                    android:hint="@string/searchText"
+                    android:inputType="text"
+                    android:textAlignment="viewStart"
+                    android:textCursorDrawable="@drawable/colored_cursor"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/pantryHeader"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="#2D2F31"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/pantryTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/pantryTitle"
+                    android:textAlignment="center"
+                    android:textColor="#EDECE5"
+                    android:textSize="26sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Button
+                android:id="@+id/manualEntryBtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:backgroundTint="@color/app_color"
+                android:drawableStart="@drawable/plus"
+                android:text="@string/manualEntryButtonText"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/searchBox" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+<!--
+-->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigation_view"
+        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_gravity="start"
+
+        app:menu="@menu/navigation_drawer"
+        app:headerLayout="@layout/header_navigation_drawer">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:backgroundTint="#EDECE5"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/diagram" />
+            android:layout_gravity="bottom"
+            android:background="#e5e5e5"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <ImageButton
-            android:id="@+id/productsBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#EDECE5"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/barcodeBtn"
-            app:layout_constraintStart_toEndOf="@+id/statisticsBtn"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/grocery" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="bottom">
 
-        <ImageButton
-            android:id="@+id/barcodeBtn"
-            android:layout_width="78dp"
-            android:layout_height="83dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/button_scan"
-            android:padding="1dp"
-            android:src="@drawable/barcode"
-            android:textAlignment="center"
-            android:tint="#EDECE5"
-            app:icon="@android:drawable/ic_menu_camera"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:strokeWidth="3dp" />
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp"
+                    android:src="@drawable/delete_file"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="#800000" />
 
-        <ImageButton
-            android:id="@+id/recipesBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:backgroundTint="#EDECE5"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/recipe" />
+                <TextView
+                    android:id="@+id/deleteAllProducts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="@string/deleteProducts"
+                    android:textColor="#800000"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/imageView2"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <ImageButton
-            android:id="@+id/listBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#EDECE5"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/recipesBtn"
-            app:layout_constraintStart_toEndOf="@+id/barcodeBtn"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/document__2_" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/recipesLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/recipesBtn"
-            android:text="@string/recipesText"
-            android:textColor="#EDECE5"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@+id/recipesBtn"
-            app:layout_constraintStart_toStartOf="@+id/recipesBtn"
-            app:layout_constraintTop_toBottomOf="@+id/recipesBtn" />
-
-        <TextView
-            android:id="@+id/statisticsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/statisticsBtn"
-            android:textColor="#EDECE5"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@+id/statisticsBtn"
-            app:layout_constraintStart_toStartOf="@+id/statisticsBtn"
-            app:layout_constraintTop_toBottomOf="@+id/statisticsBtn"
-            android:text="@string/statisticsText"/>
-
-        <TextView
-            android:id="@+id/listLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/listBtn"
-            android:text="@string/shoppingText"
-            android:textColor="#EDECE5"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@+id/listBtn"
-            app:layout_constraintStart_toStartOf="@+id/listBtn"
-            app:layout_constraintTop_toBottomOf="@+id/listBtn" />
-
-        <TextView
-            android:id="@+id/productsLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:labelFor="@id/productsBtn"
-            android:text="@string/prodText"
-            android:textColor="#EDECE5"
-            android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="@+id/productsBtn"
-            app:layout_constraintStart_toStartOf="@+id/productsBtn"
-            app:layout_constraintTop_toBottomOf="@+id/productsBtn" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <LinearLayout
-        android:id="@+id/searchBox"
-        android:layout_width="390dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="1dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.333"
-        app:layout_constraintStart_toStartOf="@+id/pantryRecycler"
-        app:layout_constraintTop_toBottomOf="@+id/pantryHeader">
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="56dp"
-            android:layout_height="43dp"
-            app:srcCompat="?android:attr/actionModeWebSearchDrawable" />
-
-        <EditText
-            android:id="@+id/searchProdField"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/app_color"
-            android:ems="10"
-            android:hint="@string/searchText"
-            android:inputType="text"
-            android:textCursorDrawable="@drawable/colored_cursor" />
-    </LinearLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/pantryHeader"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:background="#2D2F31"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/pantryTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pantryTitle"
-            android:textAlignment="center"
-            android:textColor="#EDECE5"
-            android:textSize="26sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <Button
-        android:id="@+id/manualEntryBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:backgroundTint="@color/app_color"
-        android:drawableStart="@drawable/plus"
-        android:text="@string/manualEntryButtonText"
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchBox" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.navigation.NavigationView>
+<!--            -->
+</androidx.drawerlayout.widget.DrawerLayout>

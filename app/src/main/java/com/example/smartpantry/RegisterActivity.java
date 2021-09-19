@@ -22,14 +22,13 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SigninActivity extends AppCompatActivity {
-    private final String registerURL = "https://lam21.modron.network/users";
+public class RegisterActivity extends AppCompatActivity {
+    private final String REGISTER_URL = Global.register_url;
 
     private EditText usernameField;
     private EditText emailField;
     private EditText passwordField;
     private EditText confirmPasswordField;
-    private Button registerBtn;
     private Toast toast = null;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,12 +38,19 @@ public class SigninActivity extends AppCompatActivity {
         emailField = findViewById(R.id.emailField);
         passwordField  = findViewById(R.id.passwordField);
         confirmPasswordField = findViewById(R.id.confirmPasswordField);
-        registerBtn = findViewById(R.id.signinBtn);
 
-        registerBtn.setOnClickListener(v -> {
+        //Register user button
+        findViewById(R.id.registerBtn).setOnClickListener(v -> {
             if(checkFields()) {
                 registerUser();
             }
+        });
+
+        //Already registered user, sign in button
+        findViewById(R.id.alreadyRegistered).setOnClickListener(v->{
+            Intent login = new Intent(this, LoginActivity.class);
+            startActivity(login);
+            this.finish();
         });
     }
     public boolean checkFields() {
@@ -89,36 +95,19 @@ public class SigninActivity extends AppCompatActivity {
 
     private  void registerUser() {
         RequestQueue queue = Volley.newRequestQueue(this);
-        StringRequest loginRequest = new StringRequest(Request.Method.POST, registerURL,
+        StringRequest loginRequest = new StringRequest(Request.Method.POST, REGISTER_URL,
                 response -> {
                     try {
-                        /*
-                        EXAMPLE
-                        "id": "ckna223pm00002bn055hp3amj",
-                        "username": "stradivarius",
-                        "email": "federico.montori2@unibo.it",
-                        "password": "mypassword-ENCRYPTED",
-                        "createdAt": "2021-04-09T08:36:34.762Z",
-                        "updatedAt": "2021-04-09T08:36:34.763Z"
-                        */
-
                         JSONObject credentials = new JSONObject(response);
-                        String id = credentials.get("id").toString();
-                        String username = credentials.get("username").toString();
-                        String email = credentials.get("email").toString();
-                        String password_ENC = credentials.get("password").toString();
-                        String createdAt = credentials.get("createdAt").toString();
-                        String updatedAt = credentials.get("updatedAt").toString();
 
                         SharedPreferences sp = getApplicationContext().getSharedPreferences("UserData", MODE_PRIVATE);
                         SharedPreferences.Editor Ed = sp.edit();
-                        Ed.putString("email", email);
-                        Ed.putString("password_ENC", password_ENC);
-                        Ed.putString("username", username);
-                        Ed.putString("id", id);
-                        Ed.putString("createdAt", createdAt);
-                        Ed.putString("updatedAt", updatedAt);
+                        Ed.putString("email", credentials.get("email").toString());
+                        //Ed.putString("password_ENC", credentials.get("password").toString()); SERVER SENDS THIS ENCRYPTED_PASSWORD BACK: USELESS
+                        Ed.putString("username", credentials.get("username").toString());
+                        Ed.putString("id", credentials.get("id").toString());
                         Ed.commit();
+
                         Intent login = new Intent(this, LoginActivity.class);
                         startActivity(login);
                         this.finish();
@@ -137,8 +126,6 @@ public class SigninActivity extends AppCompatActivity {
                         toast = Toast.makeText(this, getResources().getString(R.string.genericError), Toast.LENGTH_SHORT);
                     }
                     toast.show();
-
-
                 }) {
             @Override
             protected Map<String, String> getParams() {

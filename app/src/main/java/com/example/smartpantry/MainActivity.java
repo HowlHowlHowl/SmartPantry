@@ -11,18 +11,24 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -30,6 +36,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,29 +58,64 @@ public class MainActivity extends AppCompatActivity
         implements
                 AddProductFragment.onProductAddedListener,
                 ManuelEntryProductFragment.onManualEntryListener,
-                RVAdapterPantry.onFavoritePressed {
+                NavigationView.OnNavigationItemSelectedListener,
+                RVAdapterPantry.onCardClicked {
     static final int CAMERA_REQUEST_CODE = 1;
     static final int CAMERA_ACTIVITY = 101;
     static final int STATUS_OK = 200;
     static final int SHOW_LOGIN = 201;
     static final int REQUEST_TOKEN = 202;
 
-    private static final String LOGIN_URL = "https://lam21.modron.network/auth/login";
-    private static final String LIST_PRODUCTS_URL = "https://lam21.modron.network/products?barcode=";
-    private static final String ADD_PRODUCT_URL = "https://lam21.modron.network/products";
-    private static final String VOTE_PRODUCT_URL = "https://lam21.modron.network/votes";
+    private static final String LOGIN_URL = Global.login_url;
+    private static final String LIST_PRODUCTS_URL = Global.list_products_url;
+    private static final String ADD_PRODUCT_URL = Global.add_product_url;
+    private static final String VOTE_PRODUCT_URL = Global.vote_product_url;
+
+    private final int DAYS_FOR_TOKEN_TO_EXPIRE = Global.token_valid_days;
+
     private DBHelper database;
+
     private List<ProductPantryItem> pantryProducts;
     private RecyclerView pantryRecyclerView;
     private RVAdapterPantry pantryAdapter;
-
+    private DrawerLayout drawerLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+    //TODO: ADD IMAGE TO USER & END YOU SURE ABOUT LOSING EVERYTHING? CONTROLLA SE DOPO REGISTRAZIONE C'E'  LOGIN
         super.onCreate(savedInstanceState);
-        Log.println(ASSERT, "USER ID", "" +
-                getSharedPreferences("UserData",MODE_PRIVATE).getString("id", null));
         database = new DBHelper(getApplicationContext());
         setContentView(R.layout.activity_main);
+
+        Log.println(ASSERT, "USER ID", "" +
+                getSharedPreferences("UserData", MODE_PRIVATE).getString("id", null));
+
+
+        //Stop adjustment of views when keyboard pops up
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+        //Drawer Navigation setting
+        drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.navigation_view);
+        //Set listener for navigation view drawer's items
+        navigationView.setNavigationItemSelectedListener(this);
+        //Set headers for navigation view
+        View headerView = navigationView.getHeaderView(0);
+        //Title of drawer: if available the username it's written, otherwise the word "Settings" tales place
+        TextView navUsername = headerView.findViewById(R.id.username_view);
+
+        navUsername.setText(getSharedPreferences("UserData", MODE_PRIVATE)
+                .getString("username", getResources().getString(R.string.accountText))
+        );
+        //Email
+        TextView navEmail = headerView.findViewById(R.id.email_view);
+        navEmail.setText(
+                getSharedPreferences("UserData", MODE_PRIVATE).getString("email","")
+        );
+
+        //Option button to show side drawer
+        ImageButton optionsBtn = findViewById(R.id.optionsBtn);
+        optionsBtn.setOnClickListener(v-> drawerLayout.openDrawer(GravityCompat.START));
+
         ImageButton barcodeScan = findViewById(R.id.barcodeBtn);
         barcodeScan.setOnClickListener(v -> {
             if (hasCameraPermission()) {
@@ -82,6 +124,7 @@ public class MainActivity extends AppCompatActivity
                 requestPermission();
             }
         });
+
         Button barcodeManualEntry = findViewById(R.id.manualEntryBtn);
         barcodeManualEntry.setOnClickListener(v -> {
             ManuelEntryProductFragment fragManualEntry = new ManuelEntryProductFragment();
@@ -95,6 +138,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        switch(item.getItemId()) {
+            case R.id.logoutBtn:
+                logout();
+                break;
+            case R.id.clearPantry:
+                //TODO clear pantry w/ pop-up
+                break;
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
@@ -102,7 +160,7 @@ public class MainActivity extends AppCompatActivity
                 if(resultCode == Activity.RESULT_OK){
                     String barcode = data.getStringExtra("barcode");
                     Log.println(ASSERT, "RESULT BARCODE", barcode);
-                    getProductsByBarcode(barcode);
+                    getProductsByBarcode(barcode, true);
                 }
                 break;
             default:
@@ -115,43 +173,45 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
     }
 
-    //Interface implementation of method to add product
+    //Interface implementation of method to add product from addProductActivity
     @Override
-    public void productAdded(String barcode, String name, String description, String expire,
-                             String quantity, String icon, boolean test, boolean addLocal, boolean isNew) {
-        Log.println(ASSERT, "INCOMING PRODUCT TO ADD:", "barcode " + barcode+
-                "\nname " + name + "\ndescription " + description + "\nexpire " + expire+
-                "\n quantity " + quantity + "\n icon " + icon + "\ntest " + test + "\naddLocal " +addLocal + "\nisNew " + isNew
+    public void productAdded(String barcode, String name, String description, String expire, String quantity,
+                             String icon, boolean test, boolean addToPantry, boolean isNew) {
+
+        Log.println(ASSERT, "INCOMING PRODUCT TO ADD:", "barcode " + barcode+ "\nname " + name +
+                "\ndescription " + description + "\nexpire " + expire + "\n quantity " + quantity +
+                "\n icon " + icon + "\ntest " + test + "\naddLocal " + addToPantry + "\nisNew " + isNew
         );
+
         if(isNew) {
             addProductRemote(barcode, name, description, test);
         }
-        if(addLocal) {
-            long id = addProductLocal(barcode, name, description, expire, quantity, icon);
-            RVAdapterPantry.pantryProducts.add(new ProductPantryItem(
-                    name, expire,
-                    Long.toString(id), icon, 0,
-                    Integer.parseInt(quantity)));
-            pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount());
-        }
+
+        long id = addProductLocal(barcode, name, description, expire, quantity, icon, addToPantry);
+        RVAdapterPantry.pantryProducts.add(new ProductPantryItem(
+                name, description, expire,
+                Long.toString(id), icon, 0,
+                Integer.parseInt(quantity)));
+        pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount());
     }
 
     //Interface implementation of method to receive barcode from manual entry
     @Override
     public void manualEntry(String barcode) {
-        getProductsByBarcode(barcode);
+        getProductsByBarcode(barcode, true);
     }
-
 
     @Override
-    public void favoritePressed(boolean state, int id) {
-        database.setFavorite(state, id);
+    public void cardClicked(int height, int expandedPosition, int previouslyExpandedPosition) {
+        pantryAdapter.notifyItemChanged(previouslyExpandedPosition);
+        pantryAdapter.notifyItemChanged(expandedPosition);
+        pantryRecyclerView.smoothScrollBy(0, height);
     }
 
-    private long addProductLocal(String barcode, String name, String description, String expire, String quantity, String icon) {
-        long code = database.insertNewProduct(barcode, name, description, expire, quantity, icon);
+    private long addProductLocal(String barcode, String name, String description, String expire, String quantity, String icon, boolean addToPantry) {
+        long code = database.insertNewProduct(barcode, name, description, expire, quantity, icon, addToPantry);
         if (code == -1) {
-            Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG);
+            Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show();
             Log.wtf("ADD LOCAL", "_____________ ERROR ADDING PRODUCT TO LOCAL DB _____________");
         }
         return code;
@@ -170,7 +230,6 @@ public class MainActivity extends AppCompatActivity
                 params.put("description", description);
                 params.put("barcode", barcode);
                 params.put("test", test);
-                final String requestBody = params.toString();
                 Log.println(ASSERT, "REMOTE ADD ", "BODY CREATED" + params.toString());
                 StringRequest addProductRequest = new StringRequest(Request.Method.POST, ADD_PRODUCT_URL,
                         response -> {
@@ -183,13 +242,8 @@ public class MainActivity extends AppCompatActivity
                     }
 
                     @Override
-                    public byte[] getBody() throws AuthFailureError {
-                        return requestBody.getBytes(StandardCharsets.UTF_8);
-                    }
-
-                    @Override
                     public Map<String, String> getHeaders() {
-                        Map<String, String> headers = new HashMap<String, String>();
+                        Map<String, String> headers = new HashMap<>();
                         headers.put("Authorization", "Bearer "
                                 + getApplicationContext()
                                 .getSharedPreferences("Login", MODE_PRIVATE)
@@ -204,6 +258,7 @@ public class MainActivity extends AppCompatActivity
                             responseString = String.valueOf(response.statusCode);
                             Log.println(ASSERT, "REMOTE ADD RESPONSE ", response.toString() + " CODE " + responseString);
                         }
+
                         return Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response));
                     }
 
@@ -217,7 +272,7 @@ public class MainActivity extends AppCompatActivity
 
 
         } else {
-            //TODO: NO NETWORK - NOTIFY
+            Toast.makeText(this, getResources().getString(R.string.noProductAddedError), Toast.LENGTH_LONG).show();
             Log.println(ASSERT, "REMOTE ADD ERROR", "NO CONNECTION AVAILABLE");
         }
 
@@ -225,7 +280,7 @@ public class MainActivity extends AppCompatActivity
 
     private void handleLogin() {
         Log.println(ASSERT, "HANDLE LOGIN", "HANDLING");
-        SharedPreferences sp = this.getSharedPreferences("Login", MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
         int status = status(sp);
         switch (status) {
             case SHOW_LOGIN:
@@ -243,8 +298,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     public int status(SharedPreferences sp){
+        //JUST LOGGED
+        if(sp.getBoolean("currentSession", false)) {
+            sp.edit()
+                .putBoolean("currentSession", false)
+                .commit();
+            Log.println(ASSERT, "LOGIN", "OK - JUST LOGGED");
+            return STATUS_OK;
+        }
         //STAY LOGGED
-        if(sp.getBoolean("stayLogged", false)) {
+        else if(sp.getBoolean("stayLogged", false)) {
             //TOKEN IS VALID
             if(isTokenDateValid(sp.getString("validDate", null))) {
                 Log.println(ASSERT, "LOGIN", "OK - REMEMBERED USER WITH VALID TOKEN");
@@ -255,15 +318,6 @@ public class MainActivity extends AppCompatActivity
                 Log.println(ASSERT, "LOGIN", "AUTOMATICALLY REQUEST NEW TOKEN");
                 return REQUEST_TOKEN;
             }
-        }
-        //DON'T STAY LOGGED BUT JUST LOGGED
-        else if(sp.getBoolean("activeSession", false)) {
-            this.getSharedPreferences("Login", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("activeSession", false)
-                    .commit();
-            Log.println(ASSERT, "LOGIN", "OK - JUST LOGGED");
-            return STATUS_OK;
         }
         //DON'T STAY LOGGED
         else {
@@ -294,9 +348,8 @@ public class MainActivity extends AppCompatActivity
                     }) {
                         @Override
                         protected Map<String, String> getParams() {
-                            Map<String, String> params = new HashMap<String, String>();
-                            SharedPreferences sp = getApplicationContext().getSharedPreferences("Login", MODE_PRIVATE);
-
+                            Map<String, String> params = new HashMap<>();
+                            SharedPreferences sp = getApplicationContext().getSharedPreferences("UserData", MODE_PRIVATE);
                             params.put("email", sp.getString("email", null));
                             params.put("password", sp.getString("password", null));
                             return params;
@@ -312,7 +365,6 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sp = getApplicationContext().getSharedPreferences("Login", MODE_PRIVATE);
         SharedPreferences.Editor Ed = sp.edit();
         Ed.putBoolean("stayLogged", false);
-        Ed.putBoolean("activeSession", false);
         Ed.commit();
         Intent login = new Intent(this, LoginActivity.class);
         startActivity(login);
@@ -320,13 +372,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private String getNewValidDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat sdf;
+        sdf = new SimpleDateFormat("yyyy/MM/dd");
         Calendar c = Calendar.getInstance();
         String today = sdf.format(c.getTime());
         String validDate = today;
         try {
             c.setTime(sdf.parse(today));
-            c.add(Calendar.DATE, 6);
+            c.add(Calendar.DATE, DAYS_FOR_TOKEN_TO_EXPIRE);
             validDate = sdf.format(c.getTime());
         } catch (ParseException e) {
             e.printStackTrace();
@@ -348,7 +401,8 @@ public class MainActivity extends AppCompatActivity
         return isTokenValid;
     }
 
-    private void getProductsByBarcode(String barcode) {
+    private void getProductsByBarcode(String barcode,boolean show) {
+        //TODO check in pantry and in products? Eventually show a pop up saying so
         if (checkConnectionAvailability()) {
             RequestQueue queue = Volley.newRequestQueue(this);
             StringRequest showProductsByCodeRequest =
@@ -362,22 +416,26 @@ public class MainActivity extends AppCompatActivity
                                     .edit()
                                     .putString("sessionToken", responseObject.getString("token"))
                                     .commit();
-                            showMatchProducts(barcode, productsList);
+                            if(show) {
+                                showMatchProducts(barcode, productsList);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }, Throwable::printStackTrace) {
                 @Override
                 public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<String, String>();
-                    SharedPreferences sp = getApplicationContext().getSharedPreferences("Login", MODE_PRIVATE);
-                    headers.put("Authorization", "Bearer " + sp.getString("accessToken", null));
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Bearer "
+                            +getApplicationContext()
+                            .getSharedPreferences("Login", MODE_PRIVATE)
+                            .getString("accessToken", null));
                     return headers;
                 }
             };
             queue.add(showProductsByCodeRequest);
         } else {
-            //TODO NO RICHIESTA PER MANCANZA DI CONNESSIONE
+            Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -403,8 +461,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public boolean checkConnectionAvailability() {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         return (networkInfo != null && networkInfo.isConnected());
     }
@@ -422,20 +479,22 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setPantryRecyclerView() {
-        pantryRecyclerView = (RecyclerView)findViewById(R.id.pantryRecycler);
+        pantryRecyclerView = findViewById(R.id.pantryRecycler);
         pantryRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        pantryRecyclerView.setItemAnimator(null);
         populatePantryList();
-        pantryAdapter = new RVAdapterPantry(pantryProducts, this, getApplicationContext());
+        pantryAdapter = new RVAdapterPantry(pantryProducts, this);
         pantryRecyclerView.setAdapter(pantryAdapter);
     }
 
     private void populatePantryList() {
         pantryProducts = new ArrayList<>();
-        Cursor cursor = database.getProducts();
+        Cursor cursor = database.getPantryProducts();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             pantryProducts.add(new ProductPantryItem(
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_NAME)),
+                cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_DESCRIPTION)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_ID)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_ICON)),
@@ -447,7 +506,7 @@ public class MainActivity extends AppCompatActivity
         cursor.close();
     }
 
-    public void voteProduct(int rating, String productID) {
+    public void voteProduct(int rating, String productID, String barcode) {
         if (checkConnectionAvailability()) {
             JSONObject params = new JSONObject();
             try {
@@ -467,10 +526,11 @@ public class MainActivity extends AppCompatActivity
                         Log.println(ASSERT, "VOTE RESPONSE", response);
                         try {
                             JSONObject respObj = new JSONObject(response);
-                            Log.println(ASSERT, "VOTE RESPONSE", "FRAG FOUND = " + (preview != null));
                             if(preview != null) {
                                 preview.showRatingResult(respObj.getInt("rating"));
                             }
+                            //This refresh the session token
+                            getProductsByBarcode(barcode, false);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -493,9 +553,9 @@ public class MainActivity extends AppCompatActivity
 
                     @Override
                     public Map<String, String> getHeaders() {
-                        Map<String, String> headers = new HashMap<String, String>();
+                        Map<String, String> headers = new HashMap<>();
                         headers.put("Authorization", "Bearer "
-                                + getApplicationContext()
+                                +getApplicationContext()
                                 .getSharedPreferences("Login", MODE_PRIVATE)
                                 .getString("accessToken", null));
                         return headers;
@@ -508,7 +568,7 @@ public class MainActivity extends AppCompatActivity
                 e.printStackTrace();
             }
         } else {
-            //TODO NO CONNECTION - NOTIFY
+            Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show();
         }
     }
 }

@@ -100,7 +100,7 @@ public class PreviewProductFragment extends Fragment {
         voteBtn.setOnClickListener(v -> {
             if(tempPreference!=0){
                 disableVote();
-                ((MainActivity)getActivity()).voteProduct(tempPreference, productID);
+                ((MainActivity)getActivity()).voteProduct(tempPreference, productID, getArguments().getString("barcode"));
             } else {
                 errorMsg.setVisibility(View.VISIBLE);
             }
@@ -133,11 +133,6 @@ public class PreviewProductFragment extends Fragment {
     }
 
     public void handleError() {
-        //TODO
-        // Da rimuovere insertNP poiché serve a testare la logica per prodotti votati
-        // prima dell'implementazione della table preferences
-        // e sostituire con la chiamata di setVAAR
-        db.insertNewPreference(productID, tempPreference);
         setViewAsAlreadyRated(tempPreference);
     }
     public void showRatingResult(Integer rating) {

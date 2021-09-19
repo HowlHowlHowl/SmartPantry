@@ -28,14 +28,17 @@ import androidx.fragment.app.FragmentManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Calendar;
+import java.util.Date;
 
 
 public class AddProductFragment extends Fragment {
-    //TODO: put it in res file
-    static final String ICONS_DIR_NAME = "groceries_icons";
+
+    static final String ICONS_DIR_NAME = Global.icon_dirname;
+    private String icon = Global.default_icon;
 
     private ConstraintLayout expendable;
     private EditText nameField, descriptionField, expireDateField, quantityField;
@@ -44,8 +47,7 @@ public class AddProductFragment extends Fragment {
     private Button addProductButton;
     private ImageButton cancelDateButton;
     private ImageView iconPicker;
-    //Init to default icon TODO: put it in res file
-    private String icon = "shopping_basket.png";
+
     onProductAddedListener productAddedListener;
 
     public interface onProductAddedListener {
@@ -93,20 +95,41 @@ public class AddProductFragment extends Fragment {
         expireDateField.setOnClickListener(v -> {
             //Set date picker
             Calendar myCalendar = Calendar.getInstance();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             DatePickerDialog dpd  = new DatePickerDialog(
                     getContext(),
                     R.style.MyDatePickerDialogTheme,
                     (vv, year, month, day) -> {
                         myCalendar.set(year, month, day);
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
                         expireDateField.setText(sdf.format(myCalendar.getTime()));
                     },
                     myCalendar.get(Calendar.YEAR),
                     myCalendar.get(Calendar.MONTH),
                     myCalendar.get(Calendar.DAY_OF_MONTH));
             dpd.getDatePicker().setMinDate(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
+            try {
+                //Set current expire date on date picker
+                Date date =  sdf.parse(expireDateField.getText().toString());
+                Calendar currentExpireDate = Calendar.getInstance();
+                currentExpireDate.setTime(date);
+
+                dpd.updateDate(
+                        currentExpireDate.get(Calendar.YEAR),
+                        currentExpireDate.get(Calendar.MONTH),
+                        currentExpireDate.get(Calendar.DAY_OF_MONTH)
+                );
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             dpd.show();
         });
+
+        //Clear date field
+        cancelDateButton.setOnClickListener(v->{
+            expireDateField.setText("");
+        });
+
         //Icon Picker Event
         iconPicker.setOnClickListener(v -> {
             IconPickerFragment iconPickerFragment = new IconPickerFragment();
@@ -128,7 +151,7 @@ public class AddProductFragment extends Fragment {
             String fullIconFilename = ICONS_DIR_NAME + File.separator + icon;
             boolean test = testCheckBox.isChecked();
             boolean addLocal = switchExpand.isChecked();
-            if (checkFields(name, description)) {
+            if (checkFields(name, description, quantity)) {
                 productAddedListener.productAdded(barcode, name, description, date, quantity, fullIconFilename, test, addLocal,
                         !getArguments().getBoolean("alreadyExistingProduct", false));
                 getActivity()
@@ -136,24 +159,23 @@ public class AddProductFragment extends Fragment {
                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         });
-
-        //Clear date field
-        cancelDateButton.setOnClickListener(v->{
-            expireDateField.setText("");
-        });
     }
 
-    private boolean checkFields(String name, String description) {
-        boolean formOk = true;
+    private boolean checkFields(String name, String description, String quantity) {
+
         if (name.isEmpty()) {
             nameField.setError(getResources().getString(R.string.addProductNameError));
-            formOk = false;
+            return false;
         }
         if (description.isEmpty()) {
             descriptionField.setError(getResources().getString(R.string.addProductDescriptionError));
-            formOk = false;
+            return false;
         }
-        return formOk;
+        if (Integer.parseInt(quantity) <= 0 ) {
+            quantityField.setError(getResources().getString(R.string.addProductQuantityError));
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -170,8 +192,6 @@ public class AddProductFragment extends Fragment {
         nameField.setText(name);
         descriptionField.setText(description);
         switchExpand.setEnabled(false);
-        //TODO: CHANGE ADD BUTTON BEHAVIOR.
-
     }
 
     public void onSelectIconPressed(String iconFileName) {
@@ -185,9 +205,8 @@ public class AddProductFragment extends Fragment {
             iconPicker.setImageBitmap(bitmap);
         } catch (IOException e) {
             e.printStackTrace();
-            //TODO: TAKE TEXT FROM RES
             Toast.makeText(getContext(),
-                    "An error occurred, please close the app and try again",
+                    getResources().getString(R.string.errorRestartApp),
                     Toast.LENGTH_SHORT).show();
         }
 

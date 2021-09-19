@@ -20,8 +20,7 @@ import java.util.Arrays;
 
 
 public class GridViewAdapter extends BaseAdapter {
-    //TODO: put it in res
-    static final String ICONS_DIR_NAME = "groceries_icons";
+    static final String ICONS_DIR_NAME = Global.icon_dirname;
 
     private Context context;
     private String[] list;
