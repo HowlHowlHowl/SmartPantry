@@ -18,13 +18,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class AdapterProducts extends ArrayAdapter<ProductListGeneric> {
+public class AdapterProductsList extends ArrayAdapter<ProductListGeneric> {
     private LayoutInflater mInflater;
 
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_SEPARATOR = 1;
 
-    public AdapterProducts(@NonNull Context context, List<ProductListGeneric> products) {
+    public AdapterProductsList(@NonNull Context context, List<ProductListGeneric> products) {
         super(context, 0, products);
         mInflater = LayoutInflater.from(context);
     }
@@ -53,6 +53,7 @@ public class AdapterProducts extends ArrayAdapter<ProductListGeneric> {
         int rowType = getItemViewType(position);
         if (convertView == null) {
             holder = new ViewHolder();
+            //getView returns the view created by the object itself
             switch (rowType) {
                 case TYPE_ITEM:
                     convertView = mInflater.inflate(R.layout.recycler_products_card, null);

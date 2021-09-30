@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class CameraActivity extends AppCompatActivity {
+public class ActivityCamera extends AppCompatActivity {
     private PreviewView previewView;
     private ListenableFuture<ProcessCameraProvider>                                                                                                                                                                                                                                                                                                                                                                                                 cameraProviderFuture;
     private ImageCapture imageCapture;
@@ -93,7 +93,7 @@ public class CameraActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         String barcodeValue = value;
         bundle.putString("barcode", barcodeValue);
-        BarcodeDialogFragment fragInfo = new BarcodeDialogFragment();
+        FragmentBarcodeDialog fragInfo = new FragmentBarcodeDialog();
         fragInfo.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.activity_camera, fragInfo)

@@ -1,0 +1,42 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:descendantFocusability="blocksDescendants"
+    android:background="@drawable/suggestion_items">
+    <ImageView
+        android:id="@+id/productSuggestionIcon"
+        android:layout_width="35dip"
+        android:layout_height="35dip"
+        android:layout_gravity="center"
+        android:layout_margin="5dip" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/productSuggestionName"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_weight="6"
+            android:gravity="center_vertical"
+            android:paddingTop="5dp"
+            android:paddingStart="10dp"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/productSuggestionDescription"
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_weight="6"
+            android:maxLines="1"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:paddingTop="5dp"
+            android:paddingStart="10dp"
+            android:paddingBottom="5dp"
+            android:ellipsize="end"
+            android:textColor="#838383"/>
+    </LinearLayout>
+</LinearLayout>

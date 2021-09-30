@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -15,12 +14,10 @@ import android.widget.LinearLayout;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.SerializablePermission;
-import java.util.Arrays;
 
 
-public class GridViewAdapter extends BaseAdapter {
-    static final String ICONS_DIR_NAME = Global.icon_dirname;
+public class AdapterIconsGrid extends BaseAdapter {
+    static final String ICONS_DIR_NAME = Global.ICON_DIRNAME;
 
     private Context context;
     private String[] list;
@@ -31,7 +28,7 @@ public class GridViewAdapter extends BaseAdapter {
         void onIconSelected(String iconName);
     }
 
-    public GridViewAdapter(Context c, ProcessIconSelection callback) {
+    public AdapterIconsGrid(Context c, ProcessIconSelection callback) {
         context = c;
         callbackInstance = callback;
         try {

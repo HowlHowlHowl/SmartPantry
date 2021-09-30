@@ -2,7 +2,6 @@
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/pantryCardItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -69,7 +68,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="55dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="15dp"
             android:text="x86"
             app:layout_constraintEnd_toStartOf="@+id/favCheckbox"
             app:layout_constraintTop_toTopOf="parent" />
@@ -189,7 +188,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="20dp"
                 android:backgroundTint="@color/button_confirm"
-                android:text="Ok"
+                android:textColor="@color/white"
+                android:text="@string/okText"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/dateWidget" />
 
@@ -229,6 +229,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/button_confirm"
+                    android:textColor="@color/white"
                     android:maxLines="1"
                     android:text="@string/modifyText" />
             </LinearLayout>

@@ -25,7 +25,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PRODUCT_ICON = "icon";
     public static final String COLUMN_PRODUCT_QUANTITY = "quantity";
     public static final String COLUMN_PRODUCT_IN_PANTRY = "inPantry";
-    public static final String COLUMN_IS_FAVORITE = "favorite";
+    public static final String COLUMN_PRODUCT_IS_FAVORITE = "favorite";
 
     private static final String DATABASE_NAME = "products.db";
     private static final int DATABASE_VERSION = 13;
@@ -41,7 +41,7 @@ public class DBHelper extends SQLiteOpenHelper {
             + COLUMN_PRODUCT_EXPIRE_DATE + " text, "
             + COLUMN_PRODUCT_ICON + " text not null, "
             + COLUMN_PRODUCT_IN_PANTRY + " integer not null default 1, "
-            + COLUMN_IS_FAVORITE + " integer not null default 0);";
+            + COLUMN_PRODUCT_IS_FAVORITE + " integer not null default 0);";
 
     // Ratings Database creation sql statement
     private static final String  PREFERENCES_DATABASE_CREATE = "create table "
@@ -78,7 +78,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public Integer getPreference(String id) {
-        Cursor cursor = getWritableDatabase().query(TABLE_PREFERENCES, null,
+        Cursor cursor = getReadableDatabase().query(TABLE_PREFERENCES, null,
                 COLUMN_PREFERENCE_PRODUCT_ID + "='" + id + "'", null,
                 null, null, null);
         if(cursor.getCount() > 0){
@@ -118,20 +118,49 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deleteProductFromPantry(String id) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PRODUCT_IN_PANTRY, 0);
+        cv.put(COLUMN_PRODUCT_QUANTITY, 0);
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?", new String[] {id});
     }
 
-    public Cursor getPantryProducts() {
-        return getWritableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_IN_PANTRY +"=1",
-                null, null, null, COLUMN_IS_FAVORITE + " DESC");
+    public void deleteAllProductsFromPantry() {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_PRODUCT_IN_PANTRY, 0);
+        cv.put(COLUMN_PRODUCT_QUANTITY, 0);
+        getWritableDatabase().update(TABLE_PRODUCTS, cv, null, null);
+    }
+
+    public Cursor getPantryProducts(String order, String flow) {
+        //If the ordering is EXPIRE DATE ASC the NULL values are displayed after the others
+        if(order.equals(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE) &&
+           flow.equals(Global.ASC_ORDER)) {
+            order = "CASE WHEN "+ DBHelper.COLUMN_PRODUCT_EXPIRE_DATE +
+                    " IS NULL THEN 1 ELSE 0 END, "+ DBHelper.COLUMN_PRODUCT_EXPIRE_DATE;
+        }
+        return getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_IN_PANTRY +"=1",
+                null, null, null, order + " " + flow);
     }
 
     public void setFavorite(boolean state, String id){
         ContentValues cv = new ContentValues();
-        cv.put(COLUMN_IS_FAVORITE, state ? 1 : 0);
+        cv.put(COLUMN_PRODUCT_IS_FAVORITE, state ? 1 : 0);
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?",
                 new String[] {id});
     }
+/*
+    public Cursor searchMatchInProductsName(String selection) {
+        if(selection!=null && !selection.isEmpty()) {
+            return getReadableDatabase().query(
+                    TABLE_PRODUCTS,
+                    new String[]{COLUMN_PRODUCT_NAME, COLUMN_PRODUCT_DESCRIPTION, COLUMN_PRODUCT_ICON, COLUMN_PRODUCT_ID},
+                    COLUMN_PRODUCT_IN_PANTRY + "=1 AND " + COLUMN_PRODUCT_NAME + " LIKE ?",
+                    new String[]{"%" + selection + "%"}, null, null, null, null);
+        } else {
+            return getReadableDatabase().query(TABLE_PRODUCTS,
+                    new String[]{COLUMN_PRODUCT_NAME, COLUMN_PRODUCT_DESCRIPTION, COLUMN_PRODUCT_ICON, COLUMN_PRODUCT_ID},
+                    COLUMN_PRODUCT_IS_FAVORITE + "=-1", null, null, null, null);
+        }
+    }
+*/
 
     public void deleteProduct(int id) {
         getWritableDatabase().delete(TABLE_PRODUCTS, COLUMN_PRODUCT_ID + COLUMN_PRODUCT_ID + "=?",
@@ -139,10 +168,11 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public Cursor getFavorites() {
-        return getWritableDatabase().query(TABLE_PRODUCTS, null,
-                COLUMN_IS_FAVORITE + "= 1", null,
+        return getReadableDatabase().query(TABLE_PRODUCTS, null,
+                COLUMN_PRODUCT_IS_FAVORITE + "= 1", null,
                 null, null, null);
     }
+
     public void dropAllTables() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);

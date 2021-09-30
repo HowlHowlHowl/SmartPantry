@@ -28,17 +28,18 @@ import androidx.fragment.app.FragmentManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 
-public class AddProductFragment extends Fragment {
+public class FragmentAddProduct extends Fragment {
 
-    static final String ICONS_DIR_NAME = Global.icon_dirname;
-    private String icon = Global.default_icon;
+    static final String ICONS_DIR_NAME = Global.ICON_DIRNAME;
+    private String icon = Global.DEFAULT_ICON;
 
     private ConstraintLayout expendable;
     private EditText nameField, descriptionField, expireDateField, quantityField;
@@ -95,32 +96,36 @@ public class AddProductFragment extends Fragment {
         expireDateField.setOnClickListener(v -> {
             //Set date picker
             Calendar myCalendar = Calendar.getInstance();
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+            DateFormat df = DateFormat.getDateInstance();
             DatePickerDialog dpd  = new DatePickerDialog(
                     getContext(),
                     R.style.MyDatePickerDialogTheme,
                     (vv, year, month, day) -> {
                         myCalendar.set(year, month, day);
 
-                        expireDateField.setText(sdf.format(myCalendar.getTime()));
+                        expireDateField.setText(df.format(myCalendar.getTime()));
                     },
                     myCalendar.get(Calendar.YEAR),
                     myCalendar.get(Calendar.MONTH),
                     myCalendar.get(Calendar.DAY_OF_MONTH));
             dpd.getDatePicker().setMinDate(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
-            try {
-                //Set current expire date on date picker
-                Date date =  sdf.parse(expireDateField.getText().toString());
-                Calendar currentExpireDate = Calendar.getInstance();
-                currentExpireDate.setTime(date);
+            String expireDate = expireDateField.getText().toString();
+            if(!expireDate.isEmpty()) {
+                try {
+                    //Set current expire date on date picker
+                    Date date = df.parse(expireDate);
+                    Calendar currentExpireDate = Calendar.getInstance();
+                    currentExpireDate.setTime(date);
 
-                dpd.updateDate(
-                        currentExpireDate.get(Calendar.YEAR),
-                        currentExpireDate.get(Calendar.MONTH),
-                        currentExpireDate.get(Calendar.DAY_OF_MONTH)
-                );
-            } catch (ParseException e) {
-                e.printStackTrace();
+                    dpd.updateDate(
+                            currentExpireDate.get(Calendar.YEAR),
+                            currentExpireDate.get(Calendar.MONTH),
+                            currentExpireDate.get(Calendar.DAY_OF_MONTH)
+                    );
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
             dpd.show();
         });
@@ -132,11 +137,11 @@ public class AddProductFragment extends Fragment {
 
         //Icon Picker Event
         iconPicker.setOnClickListener(v -> {
-            IconPickerFragment iconPickerFragment = new IconPickerFragment();
+            FragmentIconPicker fragmentIconPicker = new FragmentIconPicker();
             //iconPickerFragment.setArguments();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_main, iconPickerFragment)
+                    .add(R.id.activity_main, fragmentIconPicker)
                     .addToBackStack(null)
                     .commit();
         });
@@ -147,12 +152,22 @@ public class AddProductFragment extends Fragment {
             String name = nameField.getText().toString();
             String description = descriptionField.getText().toString();
             String quantity = quantityField.getText().toString();
+
+            //Save date in fixed format dd/MM/yyyy
             String date = expireDateField.getText().toString();
+            String formattedDate="";
+            if(!date.isEmpty()) {
+                DateFormat originalFormat = DateFormat.getDateInstance();
+                DateFormat targetFormat = new SimpleDateFormat(Global.DB_DATE_FORMAT, Locale.getDefault());
+                formattedDate = Global.changeDateFormat(date, originalFormat, targetFormat);
+            }
             String fullIconFilename = ICONS_DIR_NAME + File.separator + icon;
             boolean test = testCheckBox.isChecked();
             boolean addLocal = switchExpand.isChecked();
             if (checkFields(name, description, quantity)) {
-                productAddedListener.productAdded(barcode, name, description, date, quantity, fullIconFilename, test, addLocal,
+                productAddedListener.productAdded(barcode, name, description,
+                        (formattedDate.isEmpty() ? null : formattedDate),
+                        quantity, fullIconFilename, test, addLocal,
                         !getArguments().getBoolean("alreadyExistingProduct", false));
                 getActivity()
                         .getSupportFragmentManager()

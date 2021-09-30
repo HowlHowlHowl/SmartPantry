@@ -6,10 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -20,7 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import java.util.Objects;
 
-public class PreviewProductFragment extends Fragment {
+public class FragmentPreviewProduct extends Fragment {
     private TextView name, description,
             preferenceValue, preferenceLabel,
             errorMsg;
@@ -51,7 +48,7 @@ public class PreviewProductFragment extends Fragment {
             Objects.requireNonNull(getActivity())
                     .getSupportFragmentManager()
                     .beginTransaction()
-                    .remove(PreviewProductFragment.this)
+                    .remove(FragmentPreviewProduct.this)
                     .commit();
         });
         ignoreTouch.setOnClickListener(v -> {
@@ -65,7 +62,7 @@ public class PreviewProductFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (this.getArguments() != null) {
-            productID = this.getArguments().getString("id");
+            productID = this.getArguments().getString(Global.ID);
             Integer productPreference = db.getPreference(productID);
             if(productPreference != null) {
                 setViewAsAlreadyRated(productPreference);
@@ -100,20 +97,20 @@ public class PreviewProductFragment extends Fragment {
         voteBtn.setOnClickListener(v -> {
             if(tempPreference!=0){
                 disableVote();
-                ((MainActivity)getActivity()).voteProduct(tempPreference, productID, getArguments().getString("barcode"));
+                ((ActivityMain)getActivity()).voteProduct(tempPreference, productID, getArguments().getString("barcode"));
             } else {
                 errorMsg.setVisibility(View.VISIBLE);
             }
         });
         addBtn.setOnClickListener(v -> {
-            AddProductFragment addProductFragment = new AddProductFragment();
+            FragmentAddProduct fragmentAddProduct = new FragmentAddProduct();
             Bundle bundle = getArguments();
             bundle.putBoolean("alreadyExistingProduct", true);
-            addProductFragment.setArguments(bundle);
+            fragmentAddProduct.setArguments(bundle);
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_main, addProductFragment, "addProductFragment")
+                    .add(R.id.activity_main, fragmentAddProduct, "addProductFragment")
                     .addToBackStack(null)
                     .commit();
 

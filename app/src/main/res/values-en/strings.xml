@@ -7,7 +7,7 @@
     <string name="usernameText">Username</string>
     <string name="loginError">Check your credentials and try again</string>
     <string name="usernameRegistrationError">Enter your username</string>
-    <string name="emailRegistrationError">Enter your email</string>
+    <string name="emailRegistrationError">Enter a valid email</string>
     <string name="passwordRegistrationError">Enter your password</string>
     <string name="confirmPasswordRegistrationError">Confirm your password</string>
     <string name="passwordMatchRegistrationError">The password doesn\'t match</string>
@@ -53,7 +53,7 @@
     <string name="voteFirstError">Rate the product first.</string>
     <string name="ratingResult">"Product\nrating: "</string>
     <string name="alreadyRatedProduct">It seems like you already rated \nthis product.</string>
-    <string name="yourVote">Your\\nvote:</string>
+    <string name="yourVote">Your\nvote:</string>
     <string name="manualEntryTitle">Write the barcode of the product you want to add</string>
     <string name="addProductQuantityError">Insert a positive quantity</string>
     <string name="deleteText">Delete</string>
@@ -68,4 +68,20 @@
     <string name="dropTablesText">If you sign in as a new user, you are going to lose\nall your local data  forever! (products in your pantry, favorites, etc...)\n\nAre you sure you want to continue?</string>
     <string name="yesText">Yes</string>
     <string name="noText">No</string>
+    <string name="cancelText">Cancel</string>
+    <string name="deleteProductFromPantry">Are you sure you want to delete\nthis product from the pantry?</string>
+    <string name="emptySuggestions">No product\nthat matches the query.</string>
+    <string name="deleteItemsFromPantry">You are going to delete all the products in the pantry, you can always view and manage them in the Products Page,anyway this operation cannot be undone.\n\nTo confirme type your email in the field below and confirm.</string>
+    <string name="deleteAllProducts">Are you sure?\nThe operation cannot be undone and you are going to lose every information on theproducts you saved.\n\nTo confirme type your email in the field below and confirm.</string>
+    <string name="allProductsDeletedFromPantry">All products have been removed from the pantry.</string>
+    <string name="allProductsDeleted">All products have been successfully deleted.</string>
+    <string name="applyText">Apply</string>
+    <string name="favoritesText">Favorites</string>
+    <string name="iconsText">Icons</string>
+    <string name="quantityText">Quantity</string>
+    <string name="expirationText">Expiration</string>
+    <string name="nameText">Name</string>
+    <string name="directionText">Direction</string>
+    <string name="orderText">Order</string>
+    <string name="saveANDapplyText">Save &amp; Apply</string>
 </resources>

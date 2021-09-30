@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 
-public class IconPickerFragment extends Fragment implements GridViewAdapter.ProcessIconSelection {
+public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.ProcessIconSelection {
     String selectedIcon = null;
 
     @Nullable
@@ -20,14 +20,14 @@ public class IconPickerFragment extends Fragment implements GridViewAdapter.Proc
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_icon_picker_dialog, container, false);
         GridView gridView = view.findViewById(R.id.iconGrid);
-        GridViewAdapter gridAdapter = (new GridViewAdapter(getContext(), this));
+        AdapterIconsGrid gridAdapter = (new AdapterIconsGrid(getContext(), this));
         gridView.setAdapter(gridAdapter);
 
         view.findViewById(R.id.setIconBtn).setOnClickListener(v -> {
             if(selectedIcon!=null) {
                 Log.println(Log.ASSERT, "FRAGMENT ICON PICKER", "ICON SELECTED: " + selectedIcon);
                 //Send selected icon from this fragment to the parent
-                AddProductFragment apf = (AddProductFragment)getActivity()
+                FragmentAddProduct apf = (FragmentAddProduct)getActivity()
                         .getSupportFragmentManager()
                         .findFragmentByTag("addProductFragment");
                 apf.onSelectIconPressed(selectedIcon);

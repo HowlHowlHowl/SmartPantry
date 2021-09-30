@@ -26,4 +26,9 @@
     <style name="MyDatePickerDialogTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
         <item name="colorAccent">@color/app_color</item>
     </style>
+    <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/app_color</item>
+        <item name="android:colorAccent">@color/app_color</item>
+    </style>
+
 </resources>

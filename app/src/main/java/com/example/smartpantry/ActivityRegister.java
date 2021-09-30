@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -22,8 +21,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegisterActivity extends AppCompatActivity {
-    private final String REGISTER_URL = Global.register_url;
+public class ActivityRegister extends AppCompatActivity {
+    private final String REGISTER_URL = Global.REGISTER_URL;
 
     private EditText usernameField;
     private EditText emailField;
@@ -41,6 +40,8 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Register user button
         findViewById(R.id.registerBtn).setOnClickListener(v -> {
+            //IT WOULD BE GREAT TO HASH THE PASSWORD BUT TO DO SO
+            // WE NEED SERVER SIDE MODIFICATIONS TO IMPLEMENT SALT MECHANISMS AND CONSISTENT HASHING
             if(checkFields()) {
                 registerUser();
             }
@@ -48,7 +49,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         //Already registered user, sign in button
         findViewById(R.id.alreadyRegistered).setOnClickListener(v->{
-            Intent login = new Intent(this, LoginActivity.class);
+            Intent login = new Intent(this, ActivityLogin.class);
             startActivity(login);
             this.finish();
         });
@@ -83,6 +84,7 @@ public class RegisterActivity extends AppCompatActivity {
                     + confirmPasswordField.getText().toString());
         }
         if (!isEmailValid(emailField.getText().toString())) {
+            emailField.setError(getResources().getString(R.string.emailRegistrationError));
             fieldsOk = false;
             Log.println(Log.ASSERT, "REGISTRATION", "Not a valid email");
         }
@@ -100,15 +102,14 @@ public class RegisterActivity extends AppCompatActivity {
                     try {
                         JSONObject credentials = new JSONObject(response);
 
-                        SharedPreferences sp = getApplicationContext().getSharedPreferences("UserData", MODE_PRIVATE);
+                        SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.USER_DATA, MODE_PRIVATE);
                         SharedPreferences.Editor Ed = sp.edit();
-                        Ed.putString("email", credentials.get("email").toString());
-                        //Ed.putString("password_ENC", credentials.get("password").toString()); SERVER SENDS THIS ENCRYPTED_PASSWORD BACK: USELESS
-                        Ed.putString("username", credentials.get("username").toString());
-                        Ed.putString("id", credentials.get("id").toString());
+                        Ed.putString(Global.EMAIL, credentials.get(Global.EMAIL).toString());
+                        Ed.putString(Global.USERNAME, credentials.get(Global.USERNAME).toString());
+                        Ed.putString(Global.ID, credentials.get(Global.ID).toString());
                         Ed.commit();
 
-                        Intent login = new Intent(this, LoginActivity.class);
+                        Intent login = new Intent(this, ActivityLogin.class);
                         startActivity(login);
                         this.finish();
                     } catch (JSONException e) {
@@ -117,7 +118,7 @@ public class RegisterActivity extends AppCompatActivity {
                 },
                 error -> {
                     error.printStackTrace();
-                    if (toast!=null) {
+                    if (toast!=null && toast.getView().isShown()) {
                         toast.cancel();
                     }
                     if (error.networkResponse.statusCode == 500) {
@@ -130,8 +131,8 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("username", usernameField.getText().toString());
-                params.put("email", emailField.getText().toString());
+                params.put(Global.USERNAME, usernameField.getText().toString());
+                params.put(Global.EMAIL, emailField.getText().toString());
                 params.put("password", passwordField.getText().toString());
                 return params;
             }

@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListProductsFragment extends Fragment {
+public class FragmentListProducts extends Fragment {
     private TextView title;
     private TextView warning;
     private ListView listProducts;
@@ -48,17 +48,17 @@ public class ListProductsFragment extends Fragment {
         addProduct.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putString("barcode", barcode);
-            AddProductFragment addProductFragment = new AddProductFragment();
-            addProductFragment.setArguments(bundle);
+            FragmentAddProduct fragmentAddProduct = new FragmentAddProduct();
+            fragmentAddProduct.setArguments(bundle);
             getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.activity_main, addProductFragment, "addProductFragment")
+                    .replace(R.id.activity_main, fragmentAddProduct, "addProductFragment")
                     .addToBackStack(null)
                     .commit();
         });
         try {
             JSONArray products = new JSONArray(this.getArguments().getString("productsString"));
             List<ProductListGeneric> populatedProductsList = populateProductsList(products);
-            AdapterProducts adapter = new AdapterProducts(getContext(), populatedProductsList);
+            AdapterProductsList adapter = new AdapterProductsList(getContext(), populatedProductsList);
             listProducts.setAdapter(adapter);
             listProducts.setOnItemClickListener((parent, view1, position, id) -> {
                 ProductListGeneric item = populatedProductsList.get(position);
@@ -67,15 +67,15 @@ public class ListProductsFragment extends Fragment {
                     ProductListItem castedItem  = ((ProductListItem) item);
                     Bundle bundle = new Bundle();
                     bundle.putBoolean("isUserOwned", castedItem.isUserOwned);
-                    bundle.putString("id", castedItem.id);
+                    bundle.putString(Global.ID, castedItem.id);
                     bundle.putString("name", castedItem.name);
                     bundle.putString("barcode", castedItem.barcode);
                     bundle.putString("description", castedItem.description);
-                    PreviewProductFragment previewProductFragment = new PreviewProductFragment();
-                    previewProductFragment.setArguments(bundle);
+                    FragmentPreviewProduct fragmentPreviewProduct = new FragmentPreviewProduct();
+                    fragmentPreviewProduct.setArguments(bundle);
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
-                            .add(R.id.activity_main, previewProductFragment, "previewFragment")
+                            .add(R.id.activity_main, fragmentPreviewProduct, "previewFragment")
                             .addToBackStack(null)
                             .commit();
                 }
@@ -89,11 +89,15 @@ public class ListProductsFragment extends Fragment {
     private List<ProductListGeneric> populateProductsList(JSONArray products) {
         List<ProductListGeneric> toShowProducts = new ArrayList<ProductListGeneric>();
 
+        String userID = getActivity()
+                .getSharedPreferences("UserDara", Context.MODE_PRIVATE)
+                .getString(Global.ID,"");
+
         //Add user owned items first w/ relative header
-        toShowProducts.addAll(addOwnedItems(products));
+        toShowProducts.addAll(addOwnedItems(products, userID));
 
         //The the other items are added w/ relative header
-        toShowProducts.addAll(addOtherItems(products));
+        toShowProducts.addAll(addOtherItems(products, userID));
 
         if (toShowProducts.size() < 1) {
             warning.setVisibility(View.VISIBLE);
@@ -104,17 +108,14 @@ public class ListProductsFragment extends Fragment {
 
         return toShowProducts;
     }
-    public ArrayList<ProductListGeneric> addOwnedItems(JSONArray products) {
+    public ArrayList<ProductListGeneric> addOwnedItems(JSONArray products, String userID) {
         ArrayList<ProductListGeneric> ownedItemsList = new ArrayList<>();
-        ownedItemsList.add(new ProductListHeader(
-                getResources().getString(R.string.ownedProductsHeader))
-        );
         for (int i = 0; i < products.length(); i++) {
             try {
                 JSONObject item = products.getJSONObject(i);
-                if(item.getBoolean("isUserOwned")) {
+                if(item.getString(Global.ID).equals(userID)) {
                     ownedItemsList.add(new ProductListItem(
-                            item.getString("id"),
+                            item.getString(Global.ID),
                             item.getString("name"),
                             item.getString("description"),
                             item.getString("barcode"),
@@ -129,33 +130,39 @@ public class ListProductsFragment extends Fragment {
                 e.printStackTrace();
             }
         }
+        if(!ownedItemsList.isEmpty()){
+            ownedItemsList.add(0, new ProductListHeader(
+                    getResources().getString(R.string.ownedProductsHeader))
+            );
+        }
         return ownedItemsList;
     }
-    public ArrayList<ProductListGeneric> addOtherItems(JSONArray products) {
+    public ArrayList<ProductListGeneric> addOtherItems(JSONArray products, String userID) {
         ArrayList<ProductListGeneric> otherItemsList = new ArrayList<>();
-        otherItemsList.add(new ProductListHeader(
-                getResources().getString(R.string.otherProductsHeader))
-        );
         for (int i = 0; i < products.length(); i++) {
-
             try {
                 JSONObject item = products.getJSONObject(i);
-            if(!item.getBoolean("isUserOwned")) {
-                otherItemsList.add(new ProductListItem(
-                        item.getString("id"),
-                        item.getString("name"),
-                        item.getString("description"),
-                        item.getString("barcode"),
-                        item.getString("userId"),
-                        item.getString("createdAt"),
-                        item.getString("updatedAt"),
-                        item.getBoolean("test"),
-                        false
-                ));
-            }
+                if(!item.getString(Global.ID).equals(userID)) {
+                    otherItemsList.add(new ProductListItem(
+                            item.getString(Global.ID),
+                            item.getString("name"),
+                            item.getString("description"),
+                            item.getString("barcode"),
+                            item.getString("userId"),
+                            item.getString("createdAt"),
+                            item.getString("updatedAt"),
+                            item.getBoolean("test"),
+                            false
+                    ));
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        }
+        if(!otherItemsList.isEmpty()){
+            otherItemsList.add(0, new ProductListHeader(
+                    getResources().getString(R.string.otherProductsHeader))
+            );
         }
         return otherItemsList;
     }

@@ -7,8 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.cardview.widget.CardView;
-
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -50,7 +49,6 @@ public class ProductListItem implements ProductListGeneric{
         View view;
         if (convertView == null) {
             view = (View) inflater.inflate(R.layout.recycler_products_card, null);
-            // Do some initialization
         } else {
             view = convertView;
         }
@@ -67,7 +65,8 @@ public class ProductListItem implements ProductListGeneric{
         barcodeView = (TextView)view.findViewById(R.id.productBarcode);
 
         SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        SimpleDateFormat output = new SimpleDateFormat("dd MMM yyyy");
+        DateFormat output = DateFormat.getDateInstance();
+
         try {
             Date created = input.parse(createdAt);
             Date updated = input.parse(updatedAt);

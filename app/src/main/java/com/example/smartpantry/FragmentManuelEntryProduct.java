@@ -1,8 +1,6 @@
 package com.example.smartpantry;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-public class ManuelEntryProductFragment extends Fragment {
+public class FragmentManuelEntryProduct extends Fragment {
     EditText barcode;
     Button confirmBtn;
     ConstraintLayout bg, window;
@@ -54,7 +52,7 @@ public class ManuelEntryProductFragment extends Fragment {
             getActivity()
                     .getSupportFragmentManager()
                     .beginTransaction()
-                    .remove(ManuelEntryProductFragment.this)
+                    .remove(FragmentManuelEntryProduct.this)
                     .commit();
         });
     }
@@ -63,7 +61,7 @@ public class ManuelEntryProductFragment extends Fragment {
         getActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()
-                .remove(ManuelEntryProductFragment.this)
+                .remove(FragmentManuelEntryProduct.this)
                 .commit();
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout
-    tools:context=".MainActivity"
+    tools:context=".ActivityMain"
     android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -167,33 +167,43 @@
 
             <LinearLayout
                 android:id="@+id/searchBox"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="20dp"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="@+id/manualEntryBtn"
-                app:layout_constraintStart_toStartOf="@+id/manualEntryBtn"
-                app:layout_constraintTop_toBottomOf="@+id/pantryHeader">
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toStartOf="@+id/imageFilterButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/pantryHeader"
+                app:layout_constraintWidth_default="wrap">
 
-                <ImageView
-                    android:id="@+id/imageView"
-                    android:layout_width="56dp"
-                    android:layout_height="43dp"
-                    app:srcCompat="?android:attr/actionModeWebSearchDrawable" />
-
-                <EditText
+                <SearchView
                     android:id="@+id/searchProdField"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/app_color"
                     android:ems="10"
                     android:hint="@string/searchText"
+                    android:iconifiedByDefault="false"
                     android:inputType="text"
                     android:textAlignment="viewStart"
                     android:textCursorDrawable="@drawable/colored_cursor"
-                    android:textSize="16sp" />
+                    android:textSize="16sp">
+
+                </SearchView>
             </LinearLayout>
+
+            <androidx.constraintlayout.utils.widget.ImageFilterButton
+                android:id="@+id/imageFilterButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="20dp"
+                app:layout_constraintBottom_toBottomOf="@+id/searchBox"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/searchBox"
+                app:layout_constraintTop_toTopOf="@+id/searchBox"
+                app:srcCompat="@drawable/filter" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/pantryHeader"
@@ -232,12 +242,25 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/searchBox" />
 
+            <ListView
+                android:id="@+id/searchResultsList"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/suggestions_dropdown"
+                android:elevation="5dp"
+                android:orientation="vertical"
+                android:outlineProvider="none"
+                app:layout_constraintEnd_toEndOf="@+id/imageFilterButton"
+                app:layout_constraintHeight_max="150dp"
+                app:layout_constraintStart_toStartOf="@+id/searchBox"
+                app:layout_constraintTop_toBottomOf="@+id/searchBox" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 <!--
 -->
     <com.google.android.material.navigation.NavigationView
+        android:visibility="gone"
         android:id="@+id/navigation_view"
         android:layout_height="match_parent"
         android:layout_width="wrap_content"
@@ -247,6 +270,7 @@
         app:headerLayout="@layout/header_navigation_drawer">
 
         <LinearLayout
+            android:id="@+id/deleteAllProducts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -272,7 +296,6 @@
                     app:tint="#800000" />
 
                 <TextView
-                    android:id="@+id/deleteAllProducts"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"

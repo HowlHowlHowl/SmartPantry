@@ -8,7 +8,7 @@
     <string name="connectionError">Controlla la tua connessione di rete e riprova.</string>
     <string name="loginError">Controlla le credenziali e riprova</string>
     <string name="usernameRegistrationError">Inserisci un nome utente</string>
-    <string name="emailRegistrationError">Inserisci una mail</string>
+    <string name="emailRegistrationError">Inserisci una mail valida</string>
     <string name="passwordRegistrationError">Inserisci una password</string>
     <string name="confirmPasswordRegistrationError">Conferma la password</string>
     <string name="passwordMatchRegistrationError">La password non coincide</string>
@@ -72,4 +72,23 @@
     <string name="dropTablesText">Eseguendo l\'accesso da un nuovo account, tutti i tuoi dati locali \nandranno persi per sempre! (prodotti nella dispensa, preferiti, ecc..) \n \n Sei sicuro di voler eseguire l\'accesso come nuovo utente?</string>
     <string name="yesText">Si</string>
     <string name="noText">No</string>
+    <string name="cancelText">Annulla</string>
+    <string name="deleteProductFromPantry">Sei sicuro di voler eliminare questo\nprodotto dalla dispensa?</string>
+    <string name="emptySuggestions">Nessun prodotto \ncorrispondente alla ricerca.</string>
+    <string name="deleteItemsFromPantry">Stai per eliminare tutti i prodotti nella dispensa, potrai comunque visualizzarli e gestirli dalla Pagina Prodotti, tuttavia l\'operazione è irreversibile.  \n\nPer confermare digita la tua email nel campo di testo e conferma.</string>
+    <string name="deleteAllProducts">Sei sicuro? L\'operazione è irreversibile e perderai tutte le informazioni sui prodotti salvati.   \n\nPer confermare digita la tua email nel campo di testo e conferma.</string>
+    <string name="allProductsDeletedFromPantry">Tutti i prodotti sono stati rimossi dalla dispensa.</string>
+    <string name="allProductsDeleted">Tutti i prodotti sono stati eliminati con successo.</string>
+    <string name="okText" translatable="false">Ok</string>
+    <string name="applyText">Applica</string>
+    <string name="favoritesText">Preferiti</string>
+    <string name="iconsText">Icone</string>
+    <string name="quantityText">Quantità</string>
+    <string name="expirationText">Scadenza</string>
+    <string name="nameText">Nome</string>
+    <string name="ASCText" translatable="false">ASC</string>
+    <string name="DESCText" translatable="false">DESC</string>
+    <string name="directionText">Direzione</string>
+    <string name="orderText">Ordinamento</string>
+    <string name="saveANDapplyText">Salva e Applica</string>
 </resources>

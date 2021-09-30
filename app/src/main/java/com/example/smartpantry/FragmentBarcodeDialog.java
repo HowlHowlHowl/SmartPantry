@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class BarcodeDialogFragment extends Fragment {
+public class FragmentBarcodeDialog extends Fragment {
     EditText barcode;
     Button retryBtn;
     Button confirmBtn;
@@ -50,18 +50,18 @@ public class BarcodeDialogFragment extends Fragment {
         getActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()
-                .remove(BarcodeDialogFragment.this)
+                .remove(FragmentBarcodeDialog.this)
                 .commit();
     }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((CameraActivity)getActivity()).toggleCaptureBtn();
+        ((ActivityCamera)getActivity()).toggleCaptureBtn();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        ((CameraActivity)getActivity()).toggleCaptureBtn();
+        ((ActivityCamera)getActivity()).toggleCaptureBtn();
     }
 }

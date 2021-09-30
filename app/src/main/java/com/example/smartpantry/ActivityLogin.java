@@ -1,11 +1,7 @@
 package com.example.smartpantry;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -26,21 +23,15 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
+public class ActivityLogin extends AppCompatActivity {
     private CheckBox rememberCheckBox;
     private TextView passwordField;
     private TextView emailField;
 
-
-    private final int DAYS_FOR_TOKEN_TO_EXPIRE = Global.token_valid_days;
-
-    private final String loginURL = Global.login_url;
+    private final String loginURL = Global.LOGIN_URL;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,8 +59,8 @@ public class LoginActivity extends AppCompatActivity {
         });
         Button signBtn = findViewById(R.id.registerBtn);
         signBtn.setOnClickListener(v -> {
-            if(checkConnectionAvailability()) {
-                Intent sign = new Intent(this, RegisterActivity.class);
+            if(Global.checkConnectionAvailability(getApplicationContext())) {
+                Intent sign = new Intent(this, ActivityRegister.class);
                 startActivity(sign);
                 this.finish();
             } else {
@@ -79,13 +70,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void authenticateUser() {
-        if (checkConnectionAvailability()) {
+        if (Global.checkConnectionAvailability(getApplicationContext())) {
             RequestQueue queue = Volley.newRequestQueue(this);
             StringRequest loginRequest = new StringRequest(Request.Method.POST, loginURL,
                     response -> {
                         try {
                             JSONObject credentials = new JSONObject(response);
-                            String token = credentials.get("accessToken").toString();
+                            String token = credentials.get(Global.ACCESS_TOKEN).toString();
                             verifyUserIsTheSameOne(
                                     emailField.getText().toString(),
                                     token,
@@ -104,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                     //password sent plain-text, lol
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("password", passwordField.getText().toString());
-                    params.put("email", emailField.getText().toString());
+                    params.put(Global.EMAIL, emailField.getText().toString());
                     return params;
                 }
             };
@@ -116,10 +107,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void verifyUserIsTheSameOne(String email, String token, String password, boolean remember) {
         String savedEmail = getApplicationContext()
-                .getSharedPreferences("Login", MODE_PRIVATE)
-                .getString("email", "");
-
-        if(!email.equals(savedEmail)){
+                .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
+                .getString(Global.EMAIL, "");
+        if(!email.equals(savedEmail) && savedEmail != null){
             askToDropTables(token, password, email, remember);
         } else {
             login(token, password, email, remember);
@@ -127,70 +117,61 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void askToDropTables(String token, String password, String email, boolean remember) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
         builder.setTitle(getResources().getString(R.string.warningText));
         builder.setMessage(getResources().getString(R.string.dropTablesText))
                 .setPositiveButton(
                         getResources().getString(R.string.yesText),
                         (dialog, id) -> {
                             login(token, password, email, remember);
-                            dropAllTables();
+                            DBHelper db = new DBHelper(getApplicationContext());
+                            db.dropAllTables();
+                            db.close();
                             this.finish();
                         })
                 .setNegativeButton(
                         getResources().getString(R.string.noText),
                         (dialog, id) -> dialog.cancel());
         AlertDialog alert = builder.create();
+        alert.setOnShowListener(arg0 -> {
+            alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                    ContextCompat.getColor(
+                            getApplicationContext(),
+                            R.color.button_confirm));
+
+            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                    ContextCompat.getColor(
+                            getApplicationContext(),
+                            R.color.app_color));
+        });
         alert.show();
     }
 
-    private void dropAllTables() {
-        DBHelper db = new DBHelper(getApplicationContext());
-        db.dropAllTables();
-        db.close();
-    }
+
 
     private void login (String token, String password, String email, boolean remember) {
-        SharedPreferences.Editor loginEdit = getApplicationContext().getSharedPreferences("Login", MODE_PRIVATE).edit();
+        SharedPreferences.Editor loginEdit = getApplicationContext()
+                .getSharedPreferences(Global.LOGIN, MODE_PRIVATE).edit();
 
         //Edit Login SharedPrefs.
-        //REMOVED EMAIL AND PWD
-        loginEdit.putBoolean("stayLogged", remember);
-        loginEdit.putString("accessToken", token);
-        loginEdit.putBoolean("currentSession", true);
-        loginEdit.putString("validDate", getNewValidDate());
+        loginEdit.putBoolean(Global.STAY_LOGGED, remember);
+        loginEdit.putString(Global.ACCESS_TOKEN, token);
+        loginEdit.putBoolean(Global.CURRENT_SESSION, true);
+        loginEdit.putString(Global.VALID_DATE, Global.getNewValidDate());
         loginEdit.commit();
 
         //Edit UserData SharedPrefs.
-        SharedPreferences.Editor userDataEdit = getApplicationContext().getSharedPreferences("UserData", MODE_PRIVATE).edit();
-        userDataEdit.putString("email", email);
+        SharedPreferences.Editor userDataEdit = getApplicationContext()
+                .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
+                .edit();
+        userDataEdit.putString(Global.EMAIL, email);
         userDataEdit.putString("password", password);
         userDataEdit.commit();
 
-        Intent main = new Intent(this, MainActivity.class);
+        Intent main = new Intent(this, ActivityMain.class);
         startActivity(main);
         this.finish();
     }
 
-    public boolean checkConnectionAvailability() {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
-    }
-
-    private String getNewValidDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
-        Calendar c = Calendar.getInstance();
-        String today = sdf.format(c.getTime());
-        String validDate = today;
-        try {
-            c.setTime(sdf.parse(today));
-            c.add(Calendar.DATE, DAYS_FOR_TOKEN_TO_EXPIRE);
-            validDate = sdf.format(c.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return validDate;
-    }
 
 }
