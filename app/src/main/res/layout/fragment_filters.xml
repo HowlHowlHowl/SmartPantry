@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/popUpWindow"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -92,14 +93,12 @@
             android:id="@+id/orderFlowSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="@string/directionText"
             android:textOff="@string/DESCText"
             android:textOn="@string/ASCText"
             android:thumb="@drawable/switch_thumb"
-            app:layout_constraintEnd_toStartOf="@+id/orderFlowLabel"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/sortingGroup"
             app:layout_constraintTop_toBottomOf="@+id/sortingGroup"
             app:switchPadding="20dp"
             app:track="@drawable/switch_track" />
@@ -116,12 +115,14 @@
 
         <TextView
             android:id="@+id/orderFlowLabel"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="40dp"
-            android:ems="4"
+            android:width="200dp"
+            android:gravity="center"
+            android:text="@string/ASCText"
             app:layout_constraintBottom_toBottomOf="@+id/orderFlowSwitch"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/flowIcon"
+            app:layout_constraintStart_toEndOf="@+id/orderFlowSwitch"
             app:layout_constraintTop_toTopOf="@+id/orderFlowSwitch" />
 
         <Button
@@ -133,6 +134,16 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:id="@+id/flowIcon"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/orderFlowSwitch"
+            app:layout_constraintEnd_toEndOf="@+id/sortingGroup"
+            app:layout_constraintTop_toTopOf="@+id/orderFlowSwitch"
+            app:srcCompat="@drawable/ascending_sorting" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

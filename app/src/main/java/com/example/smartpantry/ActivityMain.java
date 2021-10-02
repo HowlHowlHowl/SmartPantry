@@ -1,7 +1,11 @@
 package com.example.smartpantry;
 
+import static android.util.Log.ASSERT;
+
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -50,11 +54,11 @@ import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static android.util.Log.ASSERT;
 
 public class ActivityMain extends AppCompatActivity
         implements
@@ -63,11 +67,6 @@ public class ActivityMain extends AppCompatActivity
                 FragmentFilters.onApplyFilters,
                 NavigationView.OnNavigationItemSelectedListener,
                 AdapterPantryList.onCardClicked {
-    static final int CAMERA_REQUEST_CODE = 1;
-    static final int CAMERA_ACTIVITY = 101;
-    static final int LOGIN_STATUS_OK = 200;
-    static final int LOGIN_STATUS_SHOW_LOGIN = 201;
-    static final int LOGIN_STATUS_REQUEST_TOKEN = 202;
 
     private DBHelper database;
 
@@ -78,6 +77,7 @@ public class ActivityMain extends AppCompatActivity
     private RecyclerView pantryRecyclerView;
     private DrawerLayout drawerLayout;
     /*TODO:
+        REFACTOR CODE USING THREADS FOR DB AND NETWORK OPERATIONS
          ADD IMAGE TO USER
          NOTIFY AND SET TEXT RED FOR EXPIRED ITEMS
          EVENTUALLY ASK TO PUT EXPIRED ITEMS IN SHOPPING LIST (INSTEAD OF ASKING FOR CONFIRMATION?)
@@ -87,8 +87,10 @@ public class ActivityMain extends AppCompatActivity
     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
+        //TODO: DELETE THIS LINE MF.
+        getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).edit().putString(Global.ID, "cktx3ll3i3865020o8ook5ge5v").apply();
+
         database = new DBHelper(getApplicationContext());
         setContentView(R.layout.activity_main);
 
@@ -230,10 +232,8 @@ public class ActivityMain extends AppCompatActivity
                     //If the item is fully visible flash it else scroll to it and then flash it
                     if( llm.findFirstCompletelyVisibleItemPosition() <= positionInPantry &&
                             llm.findLastCompletelyVisibleItemPosition() >= positionInPantry){
-                        Log.println(ASSERT, "SEARCHED VIEW", "VISIBLE");
                         flashSearchedView(positionInPantry);
                     } else {
-                        Log.println(ASSERT, "SEARCHED VIEW", "INVISIBLE");
                         scrollPantryToPosition(positionInPantry);
                     }
                 });
@@ -242,8 +242,39 @@ public class ActivityMain extends AppCompatActivity
         });
         setPantryRecyclerView();
         handleLogin();
+        startPeriodicExpireCheck();
     }
 
+    protected void startPeriodicExpireCheck() {
+        //This method set a repeating alarm to check if inside the pantry there are expired products.
+        //If so, it notify the user thanks to the broadcast receiver "AlarmBroadcastReceiver"
+        Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
+        intent.setAction(Global.EXPIRED_INTENT_ACTION);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this.getApplicationContext(),
+                Global.REQUEST_CODE_CHECK,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT); //The warning for the last parameter is due to a bug resolved
+                                                            // in the new alpha release but the alpha it's unstable
+        //calendar will hold the time for the alarm to fire
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        //Set hour and minute, hardcoded values because a product always expire after midnight so there shouldn't be no need to change these numbers
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 15);
+        calendar.set(Calendar.SECOND, 0);
+        //If current hour is past 00:15 set the date to next day
+        if (calendar.getTime().compareTo(new Date()) < 0) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        //Hour of the day
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.getTimeInMillis(),
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+        );
+    }
     @Override
     protected void onStop() {
         //Clear temporary sorting preferences
@@ -252,6 +283,19 @@ public class ActivityMain extends AppCompatActivity
         ed.putString(Global.TEMP_FLOW, null);
         ed.commit();
         super.onStop();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getAction().equals(Global.EXPIRED_INTENT_ACTION)) {
+            SharedPreferences.Editor ed = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit();
+            ed.putString(Global.TEMP_ORDER, DBHelper.COLUMN_PRODUCT_EXPIRE_DATE);
+            ed.putString(Global.TEMP_FLOW, Global.ASC_ORDER);
+            ed.apply();
+            populatePantryList(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE, Global.ASC_ORDER);
+            pantryAdapter.notifyDataSetChanged();
+        }
     }
 
     private void scrollPantryToPosition(int position){
@@ -292,6 +336,7 @@ public class ActivityMain extends AppCompatActivity
         pantryRecyclerView.getLayoutManager().findViewByPosition(position).setBackground(drawable);
         handler.postDelayed(() -> {
             drawable.start();
+            //
             // pantryRecyclerView.getLayoutManager().findViewByPosition(position).callOnClick();
 
         }, 100);
@@ -329,7 +374,8 @@ public class ActivityMain extends AppCompatActivity
                             DBHelper db = new DBHelper(getApplicationContext());
                             db.deleteAllProductsFromPantry();
                             db.close();
-                            pantryAdapter.notifyItemRangeRemoved(0, pantryAdapter.getItemCount());
+                            refreshPantry();
+
                             Toast.makeText(
                                 getApplicationContext(),
                                 getResources().getString(R.string.allProductsDeletedFromPantry),
@@ -406,7 +452,7 @@ public class ActivityMain extends AppCompatActivity
                     DBHelper db = new DBHelper(getApplicationContext());
                     db.dropAllTables();
                     db.close();
-                    pantryAdapter.notifyItemRangeRemoved(0, pantryAdapter.getItemCount());
+                    refreshPantry();
                     alert.dismiss();
                     Toast.makeText(
                         getApplicationContext(),
@@ -419,19 +465,24 @@ public class ActivityMain extends AppCompatActivity
         });
         alert.show();
     }
+    private void refreshPantry() {
+        SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER,MODE_PRIVATE);
+        String order = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
+        String flow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
+        populatePantryList(order, flow);
+        pantryAdapter.notifyDataSetChanged();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-            case CAMERA_ACTIVITY:
+            case Global.CAMERA_ACTIVITY:
                 if(resultCode == Activity.RESULT_OK){
                     String barcode = data.getStringExtra("barcode");
                     Log.println(ASSERT, "RESULT BARCODE", barcode);
                     getProductsByBarcode(barcode, true);
                 }
-                break;
-            default:
                 break;
         }
     }
@@ -548,15 +599,15 @@ public class ActivityMain extends AppCompatActivity
         SharedPreferences sp = getSharedPreferences(Global.LOGIN, MODE_PRIVATE);
         int status = status(sp);
         switch (status) {
-            case LOGIN_STATUS_SHOW_LOGIN:
+            case Global.LOGIN_STATUS_SHOW_LOGIN:
                Intent login = new Intent(this, ActivityLogin.class);
                startActivity(login);
                this.finish();
                break;
-            case LOGIN_STATUS_REQUEST_TOKEN:
+            case Global.LOGIN_STATUS_REQUEST_TOKEN:
                 updateToken();
                 break;
-            case LOGIN_STATUS_OK:
+            case Global.LOGIN_STATUS_OK:
             default:
                 break;
         }
@@ -569,25 +620,25 @@ public class ActivityMain extends AppCompatActivity
                 .putBoolean(Global.CURRENT_SESSION, false)
                 .commit();
             Log.println(ASSERT, "LOGIN", "OK - JUST LOGGED");
-            return LOGIN_STATUS_OK;
+            return Global.LOGIN_STATUS_OK;
         }
         //STAY LOGGED
         else if(sp.getBoolean(Global.STAY_LOGGED, false)) {
             //TOKEN IS VALID
             if(Global.isDateBeforeToday(sp.getString(Global.VALID_DATE, null))) {
                 Log.println(ASSERT, "LOGIN", "OK - REMEMBERED USER WITH VALID TOKEN");
-                return LOGIN_STATUS_OK;
+                return Global.LOGIN_STATUS_OK;
             }
             //TOKEN IS NOT VALID
             else {
                 Log.println(ASSERT, "LOGIN", "AUTOMATICALLY REQUEST NEW TOKEN");
-                return LOGIN_STATUS_REQUEST_TOKEN;
+                return Global.LOGIN_STATUS_REQUEST_TOKEN;
             }
         }
         //DON'T STAY LOGGED
         else {
             Log.println(ASSERT, "LOGIN", "ASK TO LOGIN AS USER DIDN'T REQUEST TO STAY LOGGED");
-            return LOGIN_STATUS_SHOW_LOGIN;
+            return Global.LOGIN_STATUS_SHOW_LOGIN;
         }
     }
 
@@ -695,13 +746,13 @@ public class ActivityMain extends AppCompatActivity
         ActivityCompat.requestPermissions(
             this,
             new String[]{Manifest.permission.CAMERA},
-            CAMERA_REQUEST_CODE
+            Global.CAMERA_REQUEST_CODE
         );
     }
 
     private void enableCamera() {
         Intent intent = new Intent(this, ActivityCamera.class);
-        startActivityForResult(intent, CAMERA_ACTIVITY);
+        startActivityForResult(intent, Global.CAMERA_ACTIVITY);
     }
 
     private boolean hasCameraPermission() {

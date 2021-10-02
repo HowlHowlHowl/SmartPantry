@@ -3,6 +3,7 @@ package com.example.smartpantry;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -44,22 +45,45 @@ SHARED PREFERENCES:
 **/
 
 public class Global {
+
+    //Request code for camera
+    static final int CAMERA_REQUEST_CODE = 1;
+    //Camera Activity ID
+    static final int CAMERA_ACTIVITY = 101;
+
+    //Status Response Codes for Login check
+    static final int LOGIN_STATUS_OK = 200;
+    static final int LOGIN_STATUS_SHOW_LOGIN = 201;
+    static final int LOGIN_STATUS_REQUEST_TOKEN = 202;
+
+    //Icons files path and default icon file name
     static final String DEFAULT_ICON = "shopping_basket.png";
     static final String ICON_DIRNAME = "groceries_icons";
 
-    static final String DB_DATE_FORMAT = "dd/MM/yyyy";
+    static final int REQUEST_CODE_CHECK = 5000;
+    //Notification EXPIRED_PRODUCTS ID
+    static final int NOTIFICATION_EXPIRED_ID = 6000;
+    //Intent action for showing expired products in main activity
+    static final String EXPIRED_INTENT_ACTION = "SHOW_EXPIRED";
+
+    //Notification Channel ID and NAME
+    static final String NOTIFICATION_CHANNEL = "EXPIRING_PRODUCTS";
+    static final String NOTIFICATION_NAME = "EXPIRING PRODUCTS";
+
+    //Date format used in the DB
+    static final String DB_DATE_FORMAT = "yyyy-MM-dd";
 
     //TODO: FOR DEBUG PURPOSE ONLY, CHANGE TO 6
     static final int LOGIN_TOKEN_VALID_DAYS = 1;
 
+    //Server APIs URLs
     static final String LOGIN_URL = "https://lam21.modron.network/auth/login";
     static final String REGISTER_URL = "https://lam21.modron.network/users";
-
     static final String LIST_PRODUCTS_URL = "https://lam21.modron.network/products?barcode=";
     static final String ADD_PRODUCT_URL = "https://lam21.modron.network/products";
     static final String VOTE_PRODUCT_URL = "https://lam21.modron.network/votes";
 
-
+    //DESC and ASC strings
     static final String DESC_ORDER = "DESC";
     static final String ASC_ORDER = "ASC";
 
@@ -127,7 +151,7 @@ public class Global {
             Date FDate = originalFormat.parse(inputDate);
             formattedDate = targetFormat.format(FDate);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.println(Log.INFO, "DATE FORMAT CHANGING FAILED", "INPUT = '" + inputDate +"'");
         }
         return formattedDate;
     }

@@ -86,7 +86,7 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
             );
         });
 
-        String expireDate = (pantryProducts.get(position).expire_date == null ?"" : pantryProducts.get(position).expire_date);
+        String expireDate = (pantryProducts.get(position).expire_date == null ? "" : pantryProducts.get(position).expire_date);
         String toDisplayDateLabel = "";
         //Write current expire date in expireDateField
         if(!expireDate.isEmpty()) {
@@ -97,17 +97,19 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
             holder.expireDateField.setText(formattedDate);
             //If an expire date is associated with the product it is written in the expire date label
             toDisplayDateLabel = (holder.cv.getContext().getResources().getString(R.string.pantryItemCardExpire) + formattedDate);
+
+            //Set expire date color to red if expired
+            if (!Global.isDateBeforeToday(expireDate)) {
+                holder.expireDate.setTextColor(
+                        ContextCompat.getColor(holder.cv.getContext(),
+                                R.color.design_default_color_error)
+                );
+            }
+
         } else {
             holder.expireDateField.setText("");
         }
         holder.expireDate.setText(toDisplayDateLabel);
-        //Set expire date color to red if expired
-        if (!expireDate.isEmpty() && !Global.isDateBeforeToday(expireDate)) {
-            holder.expireDate.setTextColor(
-                    ContextCompat.getColor(holder.cv.getContext(),
-                            R.color.design_default_color_error)
-            );
-        }
 
         //Date picker event
         holder.expireDateField.setOnClickListener(v -> {
@@ -227,17 +229,15 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override public void afterTextChanged(Editable s) {
-                if(!holder.expireDateField.getText().toString().isEmpty()) {
-                    DateFormat originalFormat =  DateFormat.getDateInstance();
-                    DateFormat targetFormat = new SimpleDateFormat(Global.DB_DATE_FORMAT, Locale.getDefault());
-                    String formattedDate = Global.changeDateFormat(
-                            holder.expireDateField.getText().toString(),
-                            originalFormat,
-                            targetFormat);
-                    holder.changeDateButton.setEnabled(
-                            !(formattedDate.equals(pantryProducts.get(position).expire_date))
-                    );
-                }
+                DateFormat originalFormat =  DateFormat.getDateInstance();
+                DateFormat targetFormat = new SimpleDateFormat(Global.DB_DATE_FORMAT, Locale.getDefault());
+                String formattedDate = Global.changeDateFormat(
+                        holder.expireDateField.getText().toString(),
+                        originalFormat,
+                        targetFormat);
+                holder.changeDateButton.setEnabled(
+                        !(formattedDate.equals(pantryProducts.get(position).expire_date))
+                );
             }
 
             @Override

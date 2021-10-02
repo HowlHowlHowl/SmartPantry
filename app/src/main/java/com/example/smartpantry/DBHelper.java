@@ -1,13 +1,23 @@
 package com.example.smartpantry;
 
 import static android.util.Log.ASSERT;
+import static android.util.Log.e;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
+
+import com.google.type.DateTime;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class DBHelper extends SQLiteOpenHelper {
     //TABLE OF PREFERENCES AND COLUMNS
@@ -95,7 +105,7 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_PRODUCT_BARCODE, barcode);
         cv.put(COLUMN_PRODUCT_NAME, name);
         cv.put(COLUMN_PRODUCT_DESCRIPTION, description);
-        cv.put(COLUMN_PRODUCT_EXPIRE_DATE, expire);
+        cv.put(COLUMN_PRODUCT_EXPIRE_DATE, (expire.isEmpty()? null: expire));
         cv.put(COLUMN_PRODUCT_QUANTITY, quantity);
         cv.put(COLUMN_PRODUCT_ICON, icon);
         cv.put(COLUMN_PRODUCT_IN_PANTRY, addToPantry ? 1: 0);
@@ -105,7 +115,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void changeExpireDate(String id, String expire) {
         ContentValues cv = new ContentValues();
-        cv.put(COLUMN_PRODUCT_EXPIRE_DATE, expire);
+        cv.put(COLUMN_PRODUCT_EXPIRE_DATE, (expire.isEmpty()? null: expire));
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?", new String[] {id});
     }
 
@@ -169,7 +179,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor getFavorites() {
         return getReadableDatabase().query(TABLE_PRODUCTS, null,
-                COLUMN_PRODUCT_IS_FAVORITE + "= 1", null,
+                COLUMN_PRODUCT_IS_FAVORITE + "=1", null,
                 null, null, null);
     }
 
@@ -178,5 +188,18 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREFERENCES);
         onCreate(db);
+    }
+
+    public int getExpiredProductsCount() {
+        String today = new SimpleDateFormat(Global.DB_DATE_FORMAT, Locale.CHINA).format(Calendar.getInstance().getTime());
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                TABLE_PRODUCTS, null,
+                COLUMN_PRODUCT_IN_PANTRY + "=1 AND Date(\"" +
+                COLUMN_PRODUCT_EXPIRE_DATE + "\") <= Date(\"" + today + "\")",
+                null, null, null, null);
+        int expiredItemsCount = cursor.getCount();
+        cursor.close();
+        return expiredItemsCount;
     }
 }

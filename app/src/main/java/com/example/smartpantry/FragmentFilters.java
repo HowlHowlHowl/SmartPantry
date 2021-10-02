@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -20,6 +22,7 @@ public class FragmentFilters extends Fragment {
 
     private String selectedOrderFlow;
     private String selectedOrder;
+    private ImageView flowIcon;
     private SwitchCompat orderFlowSwitch;
     private TextView flowLabel;
     private RadioGroup sortOptions;
@@ -45,7 +48,7 @@ public class FragmentFilters extends Fragment {
         orderFlowSwitch = view.findViewById(R.id.orderFlowSwitch);
         flowLabel = view.findViewById(R.id.orderFlowLabel);
         sortOptions = view.findViewById(R.id.sortingGroup);
-
+        flowIcon = view.findViewById(R.id.flowIcon);
         applyBtn = view.findViewById(R.id.applyFiltersBtn);
         saveApplyBtn = view.findViewById(R.id.saveANDapplyBtn);
 
@@ -94,9 +97,11 @@ public class FragmentFilters extends Fragment {
             if(orderFlowSwitch.isChecked()){
                 flowLabel.setText(getResources().getString(R.string.DESCText));
                 selectedOrderFlow = Global.DESC_ORDER;
+                flowIcon.setImageResource(R.drawable.descending_sorting);
             } else {
                 flowLabel.setText(getResources().getString(R.string.ASCText));
                 selectedOrderFlow = Global.ASC_ORDER;
+                flowIcon.setImageResource(R.drawable.ascending_sorting);
             }
         });
         sortOptions.setOnCheckedChangeListener((radioGroup, checkedID) -> {
@@ -123,7 +128,12 @@ public class FragmentFilters extends Fragment {
     public void setFragmentAppearance(String order, String flow) {
         flowLabel.setText(
                 flow.equals(Global.DESC_ORDER) ?
-                Global.DESC_ORDER : Global.ASC_ORDER);
+                R.string.DESCText : R.string.ASCText
+        );
+        flowIcon.setImageResource(
+                flow.equals(Global.DESC_ORDER) ?
+                R.drawable.descending_sorting : R.drawable.ascending_sorting
+        );
 
         orderFlowSwitch.setChecked(flow.equals(Global.DESC_ORDER));
 

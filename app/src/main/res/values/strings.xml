@@ -86,9 +86,16 @@
     <string name="quantityText">Quantità</string>
     <string name="expirationText">Scadenza</string>
     <string name="nameText">Nome</string>
-    <string name="ASCText" translatable="false">ASC</string>
-    <string name="DESCText" translatable="false">DESC</string>
-    <string name="directionText">Direzione</string>
+    <string name="ASCText">Ordine Crescente</string>
+    <string name="DESCText">Ordine Decrescente</string>
     <string name="orderText">Ordinamento</string>
     <string name="saveANDapplyText">Salva e Applica</string>
+    <string name="expireProductNotificationChannelName">Notifiche prodotti in scadenza</string>
+    <string name="expireProductNotificationChannelDescription">Questo canale di notifica serve ad avvisarti quando un prodotto è in scadenza</string>
+    <string name="expireProductNotificationTitle">Sembra che uno o più prodotti siano scaduti.</string>
+    <string name="expireProductNotificationDescription">Controlla la tua dispensa e gestici</string>
+    <string name="pluralArticle">i</string>
+    <string name="singularArticle">il</string>
+    <string name="productText">prodotto.</string>
+    <string name="productsText">prodotti.</string>
 </resources>

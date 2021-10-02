@@ -81,7 +81,16 @@
     <string name="quantityText">Quantity</string>
     <string name="expirationText">Expiration</string>
     <string name="nameText">Name</string>
-    <string name="directionText">Direction</string>
     <string name="orderText">Order</string>
     <string name="saveANDapplyText">Save &amp; Apply</string>
+    <string name="expireProductNotificationChannelName">Expiring products notifications</string>
+    <string name="expireProductNotificationChannelDescription">This notification channel is needed to warn you about expiring products</string>
+    <string name="expireProductNotificationTitle">It seems like that one or more products have expired.</string>
+    <string name="expireProductNotificationDescription">Check your pantry to manage</string>
+    <string name="pluralArticle">the</string>
+    <string name="singularArticle">the</string>
+    <string name="productText">product.</string>
+    <string name="productsText">products.</string>
+    <string name="ASCText">Sort Ascending</string>
+    <string name="DESCText">Sort Descending</string>
 </resources>

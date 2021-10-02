@@ -108,7 +108,7 @@ public class ActivityLogin extends AppCompatActivity {
     private void verifyUserIsTheSameOne(String email, String token, String password, boolean remember) {
         String savedEmail = getApplicationContext()
                 .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
-                .getString(Global.EMAIL, "");
+                .getString(Global.EMAIL, null);
         if(!email.equals(savedEmail) && savedEmail != null){
             askToDropTables(token, password, email, remember);
         } else {
@@ -124,6 +124,8 @@ public class ActivityLogin extends AppCompatActivity {
                         getResources().getString(R.string.yesText),
                         (dialog, id) -> {
                             login(token, password, email, remember);
+                            //TODO DELETE ALL SHARED PREFERENCES
+                            // deleteSharedPreferences();
                             DBHelper db = new DBHelper(getApplicationContext());
                             db.dropAllTables();
                             db.close();

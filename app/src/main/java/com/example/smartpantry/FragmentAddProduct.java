@@ -72,6 +72,7 @@ public class FragmentAddProduct extends Fragment {
         addProductButton = view.findViewById(R.id.viewProductBtn);
         cancelDateButton = view.findViewById(R.id.cancelDateButton);
         iconPicker = view.findViewById(R.id.productIconPreview);
+        view.findViewById(R.id.addProdFragBG).setOnClickListener(v->{});
 
         return view;
     }
@@ -109,7 +110,7 @@ public class FragmentAddProduct extends Fragment {
                     myCalendar.get(Calendar.YEAR),
                     myCalendar.get(Calendar.MONTH),
                     myCalendar.get(Calendar.DAY_OF_MONTH));
-            dpd.getDatePicker().setMinDate(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
+            //dpd.getDatePicker().setMinDate(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
             String expireDate = expireDateField.getText().toString();
             if(!expireDate.isEmpty()) {
                 try {
