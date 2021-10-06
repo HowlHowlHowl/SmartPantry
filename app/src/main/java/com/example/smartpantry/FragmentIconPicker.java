@@ -1,19 +1,37 @@
 package com.example.smartpantry;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.io.File;
+
 
 public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.ProcessIconSelection {
     String selectedIcon = null;
+    Button selectBtn;
+    onIconChosen iconChosenListener;
+
+    public interface onIconChosen {
+        void iconSelected(String icon, int position);
+    }
+
+    public FragmentIconPicker(onIconChosen listener) {
+        iconChosenListener = listener;
+    }
+
+    public FragmentIconPicker() {
+
+    }
 
     @Nullable
     @Override
@@ -23,17 +41,15 @@ public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.Pro
         AdapterIconsGrid gridAdapter = (new AdapterIconsGrid(getContext(), this));
         gridView.setAdapter(gridAdapter);
 
-        view.findViewById(R.id.setIconBtn).setOnClickListener(v -> {
+        selectBtn = view.findViewById(R.id.setIconBtn);
+        selectBtn.setOnClickListener(v -> {
             if(selectedIcon!=null) {
-                Log.println(Log.ASSERT, "FRAGMENT ICON PICKER", "ICON SELECTED: " + selectedIcon);
-                //Send selected icon from this fragment to the parent
-                FragmentAddProduct apf = (FragmentAddProduct)getActivity()
-                        .getSupportFragmentManager()
-                        .findFragmentByTag("addProductFragment");
-                apf.onSelectIconPressed(selectedIcon);
-                getActivity()
-                        .getSupportFragmentManager()
-                        .popBackStack();
+                int adapterPosition = -1;
+                if(getArguments()!=null) {
+                    adapterPosition = getArguments().getInt("position");
+                }
+                iconChosenListener.iconSelected(selectedIcon, adapterPosition);
+                getActivity().getSupportFragmentManager().popBackStack();
             }
         });
 
@@ -49,6 +65,18 @@ public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.Pro
     //Get the icon selected from the adapter
     @Override
     public void onIconSelected(String iconName) {
-        selectedIcon = iconName;
+        selectedIcon = Global.ICON_DIRNAME + File.separator + iconName;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if(iconChosenListener==null) {
+            try {
+                iconChosenListener = (FragmentIconPicker.onIconChosen) context;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString() + " must implement onIconChosen");
+            }
+        }
     }
 }

@@ -69,7 +69,7 @@
     <string name="alreadyRegisteredText">Sei già registrat*? Clicca qui per accedere.</string>
     <string name="noProductAddedError">Il prodotto non è stato aggiunto al server per mancanza di connessione.</string>
     <string name="warningText">Attenzione!</string>
-    <string name="dropTablesText">Eseguendo l\'accesso da un nuovo account, tutti i tuoi dati locali \nandranno persi per sempre! (prodotti nella dispensa, preferiti, ecc..) \n \n Sei sicuro di voler eseguire l\'accesso come nuovo utente?</string>
+    <string name="dropTablesText">Eseguendo l\'accesso da un nuovo account, tutti i tuoi dati locali \nandranno persi per sempre! (prodotti nella dispensa, preferiti, ecc…) \n \n Sei sicuro di voler eseguire l\'accesso come nuovo utente?</string>
     <string name="yesText">Si</string>
     <string name="noText">No</string>
     <string name="cancelText">Annulla</string>
@@ -79,10 +79,10 @@
     <string name="deleteAllProducts">Sei sicuro? L\'operazione è irreversibile e perderai tutte le informazioni sui prodotti salvati.   \n\nPer confermare digita la tua email nel campo di testo e conferma.</string>
     <string name="allProductsDeletedFromPantry">Tutti i prodotti sono stati rimossi dalla dispensa.</string>
     <string name="allProductsDeleted">Tutti i prodotti sono stati eliminati con successo.</string>
-    <string name="okText" translatable="false">Ok</string>
+    <string name="okText" translatable="false">OK</string>
     <string name="applyText">Applica</string>
     <string name="favoritesText">Preferiti</string>
-    <string name="iconsText">Icone</string>
+    <string name="iconsText">Icona</string>
     <string name="quantityText">Quantità</string>
     <string name="expirationText">Scadenza</string>
     <string name="nameText">Nome</string>
@@ -98,4 +98,9 @@
     <string name="singularArticle">il</string>
     <string name="productText">prodotto.</string>
     <string name="productsText">prodotti.</string>
+    <string name="productsTitle">I tuoi prodotti</string>
+    <string name="productNotInPantry">NON IN DISPENSA</string>
+    <string name="productInPantry">IN DISPENSA</string>
+    <string name="updateText">Aggiorna Prodotto</string>
+    <string name="deleteProduct">Sei sicuro di voler eliminare questo prodotto?</string>
 </resources>

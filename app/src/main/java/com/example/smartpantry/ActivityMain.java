@@ -3,6 +3,7 @@ package com.example.smartpantry;
 import static android.util.Log.ASSERT;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -16,6 +17,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,6 +46,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
@@ -66,7 +70,7 @@ public class ActivityMain extends AppCompatActivity
                 FragmentManuelEntryProduct.onManualEntryListener,
                 FragmentFilters.onApplyFilters,
                 NavigationView.OnNavigationItemSelectedListener,
-                AdapterPantryList.onCardClicked {
+        AdapterPantryList.onCardEvents {
 
     private DBHelper database;
 
@@ -76,27 +80,21 @@ public class ActivityMain extends AppCompatActivity
     private List<ProductPantryItem> pantryProducts;
     private RecyclerView pantryRecyclerView;
     private DrawerLayout drawerLayout;
-    /*TODO:
-        REFACTOR CODE USING THREADS FOR DB AND NETWORK OPERATIONS
-         ADD IMAGE TO USER
-         NOTIFY AND SET TEXT RED FOR EXPIRED ITEMS
-         EVENTUALLY ASK TO PUT EXPIRED ITEMS IN SHOPPING LIST (INSTEAD OF ASKING FOR CONFIRMATION?)
-         PRODUCTS ACTIVITY WITH SEARCH MECHANISM
-         SHOPPING LIST ACTIVITY WITH CHECKBOX, SEARCH AND DELETE MECHANISM
-
+    /*
+    TODO:
+         1. REFACTOR CODE USING THREADS FOR DB AND NETWORK OPERATIONS
+         2. ADD IMAGE TO USER
+         3. ASK WHEN MATCHING BARCODE IF USER WANT TO MODIFY ONE FO THE FOUND INSTEAD OF ADDING A NEW ONE
+         4. EVENTUALLY ASK TO PUT EXPIRED ITEMS IN SHOPPING LIST (INSTEAD OF ASKING FOR CONFIRMATION?)
+         5. SHOPPING LIST ACTIVITY WITH CHECKBOX, SEARCH AND DELETE MECHANISM
     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //TODO: DELETE THIS LINE MF.
-        getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).edit().putString(Global.ID, "cktx3ll3i3865020o8ook5ge5v").apply();
 
         database = new DBHelper(getApplicationContext());
         setContentView(R.layout.activity_main);
-
-        Log.println(ASSERT, "USER ID", "" +
-                getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).getString(Global.ID, null));
-
 
         //Stop adjustment of views when keyboard pops up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -127,6 +125,15 @@ public class ActivityMain extends AppCompatActivity
             drawerLayout.openDrawer(GravityCompat.START);
         });
 
+        //
+        //Products button
+        ImageButton productsButton = findViewById(R.id.productsBtn);
+        productsButton.setOnClickListener(v->{
+            Intent showProductsIntent =  new Intent(this, ActivityShowProducts.class);
+            startActivityForResult(showProductsIntent, Global.PRODUCTS_ACTIVITY);
+        });
+
+        //Scan central button
         ImageButton barcodeScan = findViewById(R.id.barcodeBtn);
         barcodeScan.setOnClickListener(v -> {
             if (hasCameraPermission()) {
@@ -159,14 +166,16 @@ public class ActivityMain extends AppCompatActivity
                     .addToBackStack(null)
                     .commit();
         });
+        setSearchBox();
+        setPantryRecyclerView();
+        handleLogin();
+        startPeriodicExpireCheck();
 
+        Log.println(ASSERT, "USER ID", getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).getString(Global.ID, null));
+    }
 
+    private void setSearchBox(){
         SearchView searchInPantryField = findViewById(R.id.searchProdField);
-        LinearLayout searchBox = findViewById(R.id.searchBox);
-        searchBox.setOnClickListener(v->{
-            searchInPantryField.callOnClick();
-        });
-
         SearchManager searchManager =  (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchInPantryField.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchInPantryField.setOnFocusChangeListener((view, hasFocus) -> {
@@ -181,6 +190,7 @@ public class ActivityMain extends AppCompatActivity
                 }
             }
         });
+
         searchInPantryField.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -189,16 +199,20 @@ public class ActivityMain extends AppCompatActivity
             @Override
             public boolean onQueryTextChange(String query) {
                 ListView resultsListView = findViewById(R.id.searchResultsList);
+                resultsListView.setDividerHeight(1);
                 List<SuggestionItem> matchingProducts = new ArrayList<>();
 
-                for(int i = 0; i<pantryProducts.size(); i++ ) {
+                for(int i = 0; i < pantryProducts.size(); i++ ) {
                     ProductPantryItem item = pantryProducts.get(i);
                     String itemName = item.name;
 
                     if(!query.isEmpty() &&
                             itemName.toLowerCase().contains(query.toLowerCase())) {
                         matchingProducts.add(new SuggestionItem(
-                                item.name, item.description, item.icon, i));
+                                item.name,
+                                item.description,
+                                item.icon,
+                                i));
                     }
                 }
 
@@ -240,27 +254,29 @@ public class ActivityMain extends AppCompatActivity
                 return true;
             }
         });
-        setPantryRecyclerView();
-        handleLogin();
-        startPeriodicExpireCheck();
     }
 
     protected void startPeriodicExpireCheck() {
         //This method set a repeating alarm to check if inside the pantry there are expired products.
         //If so, it notify the user thanks to the broadcast receiver "AlarmBroadcastReceiver"
-        Intent intent = new Intent(this, AlarmBroadcastReceiver.class);
-        intent.setAction(Global.EXPIRED_INTENT_ACTION);
+        Intent intentServiceSetAlarm = new Intent(this, IntentServiceSetAlarm.class);
+        startService(intentServiceSetAlarm);
+        /*
+        Intent alarmBroadcastIntent = new Intent(this, BroadcastReceiverExpireCheck.class);
+        alarmBroadcastIntent.setAction(Global.EXPIRED_INTENT_ACTION);
+
+        @SuppressLint("UnspecifiedImmutableFlag")
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 this.getApplicationContext(),
                 Global.REQUEST_CODE_CHECK,
-                intent, PendingIntent.FLAG_UPDATE_CURRENT); //The warning for the last parameter is due to a bug resolved
-                                                            // in the new alpha release but the alpha it's unstable
+                alarmBroadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT); //The warning for the last parameter is due to a bug resolved
+        // in the new alpha release but the alpha it's unstable
         //calendar will hold the time for the alarm to fire
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         //Set hour and minute, hardcoded values because a product always expire after midnight so there shouldn't be no need to change these numbers
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 15);
+        calendar.set(Calendar.HOUR_OF_DAY, 17);
+        calendar.set(Calendar.MINUTE, 21);
         calendar.set(Calendar.SECOND, 0);
         //If current hour is past 00:15 set the date to next day
         if (calendar.getTime().compareTo(new Date()) < 0) {
@@ -274,6 +290,7 @@ public class ActivityMain extends AppCompatActivity
                 AlarmManager.INTERVAL_DAY,
                 pendingIntent
         );
+         */
     }
     @Override
     protected void onStop() {
@@ -289,6 +306,8 @@ public class ActivityMain extends AppCompatActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (intent.getAction().equals(Global.EXPIRED_INTENT_ACTION)) {
+            //The notification for expired items has been touched and we display the products
+            //inside the pantry showing the expired ones first
             SharedPreferences.Editor ed = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit();
             ed.putString(Global.TEMP_ORDER, DBHelper.COLUMN_PRODUCT_EXPIRE_DATE);
             ed.putString(Global.TEMP_FLOW, Global.ASC_ORDER);
@@ -336,7 +355,6 @@ public class ActivityMain extends AppCompatActivity
         pantryRecyclerView.getLayoutManager().findViewByPosition(position).setBackground(drawable);
         handler.postDelayed(() -> {
             drawable.start();
-            //
             // pantryRecyclerView.getLayoutManager().findViewByPosition(position).callOnClick();
 
         }, 100);
@@ -465,6 +483,7 @@ public class ActivityMain extends AppCompatActivity
         });
         alert.show();
     }
+
     private void refreshPantry() {
         SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER,MODE_PRIVATE);
         String order = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
@@ -480,16 +499,21 @@ public class ActivityMain extends AppCompatActivity
             case Global.CAMERA_ACTIVITY:
                 if(resultCode == Activity.RESULT_OK){
                     String barcode = data.getStringExtra("barcode");
-                    Log.println(ASSERT, "RESULT BARCODE", barcode);
+                    Log.println(ASSERT, "ACTIVITY RESULT", "CAMERA ACTIVITY");
                     getProductsByBarcode(barcode, true);
                 }
                 break;
+            case Global.PRODUCTS_ACTIVITY:
+                if(resultCode == Activity.RESULT_OK){
+                    refreshPantry();
+                    Log.println(ASSERT, "ACTIVITY RESULT", "PRODUCTS ACTIVITY");
+                }
         }
     }
 
-    //Interface implementation of method to add product from addProductActivity
+    //Interface implementation of method to add product from addProduct fragment
     @Override
-    public void productAdded(String barcode, String name, String description, String expire, String quantity,
+    public void productAdded(String barcode, String name, String description, String expire, long quantity,
                              String icon, boolean test, boolean addToPantry, boolean isNew) {
         if(isNew) {
             addProductRemote(barcode, name, description, test);
@@ -499,7 +523,7 @@ public class ActivityMain extends AppCompatActivity
         AdapterPantryList.pantryProducts.add(new ProductPantryItem(
                 name, description, expire,
                 Long.toString(id), icon, 0,
-                Integer.parseInt(quantity)));
+                quantity));
         pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount());
     }
 
@@ -510,25 +534,30 @@ public class ActivityMain extends AppCompatActivity
     }
 
     @Override
-    public void cardClicked(int position, int height, int expandedPosition, int previouslyExpandedPosition) {
+    public void cardClicked(int position, int expandedPosition, int previouslyExpandedPosition) {
         pantryAdapter.notifyItemChanged(previouslyExpandedPosition);
         pantryAdapter.notifyItemChanged(expandedPosition);
 
         pantryRecyclerView.smoothScrollToPosition(position);
-        pantryRecyclerView.smoothScrollBy(0, height);
     }
 
+    @Override
+    public void deleteItem(int position) {
+        pantryProducts.remove(position);
+        pantryAdapter.notifyItemChanged(position);
+        refreshPantry();
+    }
     @Override
     public void applyFilters(String order, String flow) {
         populatePantryList(order, flow);
         pantryAdapter.notifyDataSetChanged();
     }
 
-    private long addProductLocal(String barcode, String name, String description, String expire, String quantity, String icon, boolean addToPantry) {
+    private long addProductLocal(String barcode, String name, String description, String expire, long quantity, String icon, boolean addToPantry) {
         long code = database.insertNewProduct(barcode, name, description, expire, quantity, icon, addToPantry);
         if (code == -1) {
             Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show();
-            Log.wtf("ADD LOCAL", "_____________ ERROR ADDING PRODUCT TO LOCAL DB _____________");
+            Log.wtf("ADD LOCAL", "ERROR ADDING PRODUCT TO LOCAL DB");
         }
         return code;
     }
@@ -538,9 +567,6 @@ public class ActivityMain extends AppCompatActivity
             JSONObject params = new JSONObject();
             try {
                 RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-                Log.println(ASSERT, "REMOTE ADD ", "SESSION TOKEN " + getApplicationContext()
-                        .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
-                        .getString(Global.SESSION_TOKEN, null));
                 //Add session token
                 params.put("token",
                         getApplicationContext()
@@ -551,7 +577,7 @@ public class ActivityMain extends AppCompatActivity
                 getApplicationContext()
                         .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
                         .edit()
-                        .putString(Global.SESSION_TOKEN, "")
+                        .putString(Global.SESSION_TOKEN, null)
                         .commit();
 
                 //add the remaining fields of the body
@@ -560,19 +586,21 @@ public class ActivityMain extends AppCompatActivity
                 params.put("barcode", barcode);
                 params.put("test", test);
                 Log.println(ASSERT, "REMOTE ADD ", "BODY CREATED" + params.toString());
-                StringRequest addProductRequest = new StringRequest(Request.Method.POST, Global.ADD_PRODUCT_URL,
+                JsonObjectRequest addProductRequest = new JsonObjectRequest(Request.Method.POST, Global.ADD_PRODUCT_URL, params,
                         response -> {
-                    Log.println(ASSERT, "PRODUCT ADD REMOTE RESPONSE:", response);
+                    Log.println(ASSERT, "REMOTE ADD RESPONSE", response.toString());
                         }, Throwable::printStackTrace)
                 {
                     @Override
                     public String getBodyContentType() {
                         return "application/json; charset=utf-8";
                     }
-
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> headers = new HashMap<>();
+                        Log.println(ASSERT, "PRODUCT ADD REMOTE AUTH", getApplicationContext()
+                                .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
+                                .getString(Global.ACCESS_TOKEN, null));
                         headers.put("Authorization", "Bearer "
                                 +getApplicationContext()
                                 .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
@@ -667,7 +695,7 @@ public class ActivityMain extends AppCompatActivity
                             Map<String, String> params = new HashMap<>();
                             SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.USER_DATA, MODE_PRIVATE);
                             params.put(Global.EMAIL, sp.getString(Global.EMAIL, null));
-                            params.put("password", sp.getString("password", null));
+                            params.put(Global.PASSWORD, sp.getString(Global.PASSWORD, null));
                             return params;
                 }
             };
@@ -705,7 +733,7 @@ public class ActivityMain extends AppCompatActivity
                                     .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
                                     .edit()
                                     .putString(Global.SESSION_TOKEN, sessionToken)
-                                    .commit();
+                                    .apply();
                             if(show) {
                                 showMatchProducts(barcode, productsList);
                             }
@@ -733,11 +761,11 @@ public class ActivityMain extends AppCompatActivity
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
         bundle.putString("productsString", products.toString());
-        FragmentListProducts fragmentListProducts = new FragmentListProducts();
-        fragmentListProducts.setArguments(bundle);
+        FragmentBarcodeListProducts fragmentBarcodeListProducts = new FragmentBarcodeListProducts();
+        fragmentBarcodeListProducts.setArguments(bundle);
         getSupportFragmentManager()
             .beginTransaction()
-            .add(R.id.activity_main, fragmentListProducts)
+            .add(R.id.activity_main, fragmentBarcodeListProducts)
             .addToBackStack(null)
             .commit();
     }
@@ -772,7 +800,7 @@ public class ActivityMain extends AppCompatActivity
         pantryProducts = new ArrayList<>();
         populatePantryList(
                 sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE),
-                sp.getString("flow", Global.DESC_ORDER)
+                sp.getString(Global.FLOW, Global.DESC_ORDER)
         );
         pantryAdapter = new AdapterPantryList(pantryProducts, this);
         pantryRecyclerView.setAdapter(pantryAdapter);

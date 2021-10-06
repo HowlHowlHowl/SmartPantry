@@ -41,17 +41,18 @@ import java.util.Locale;
 
 public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.PantryItemViewHolder>{
     public static List<ProductPantryItem> pantryProducts;
-    private onCardClicked cardClickedListener;
+    private onCardEvents cardClickedListener;
     private int expandedItem = -1;
     private int previouslyExpandedItem = -1;
 
-    AdapterPantryList(List<ProductPantryItem> pantryProducts, onCardClicked cardClickedListener) {
+    AdapterPantryList(List<ProductPantryItem> pantryProducts, onCardEvents cardClickedListener) {
         AdapterPantryList.pantryProducts = pantryProducts;
         this.cardClickedListener = cardClickedListener;
     }
 
-    public interface onCardClicked {
-        void cardClicked(int position, int height, int expandedItem, int previouslyExpandedItem);
+    public interface onCardEvents {
+        void cardClicked(int position, int expandedItem, int previouslyExpandedItem);
+        void deleteItem(int position);
     }
 
     @NonNull
@@ -64,30 +65,33 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PantryItemViewHolder holder, @SuppressLint("RecyclerView") int position) {
-        holder.cv.setId(Integer.parseInt(pantryProducts.get(position).id));
+    public void onBindViewHolder(@NonNull PantryItemViewHolder holder, int position) {
+        holder.cv.setId(Integer.parseInt(pantryProducts.get(holder.getAdapterPosition()).id));
         //isExpanded is true if the current item is expanded
-        final boolean isExpanded = (position == expandedItem);
+        final boolean isExpanded = (holder.getAdapterPosition() == expandedItem);
         holder.fullProduct.setVisibility(isExpanded ? VISIBLE : GONE);
         holder.expandableStateImage.setImageResource(isExpanded ? R.drawable.up_arrow : R.drawable.down_arrow);
         holder.cv.setActivated(isExpanded);
         if (isExpanded) {
-            previouslyExpandedItem = position;
+            previouslyExpandedItem = holder.getAdapterPosition();
         }
         holder.cv.setOnClickListener(v-> {
             //Logic to keep just one of the cards expanded
-            expandedItem = isExpanded ? -1 : position;
+            expandedItem = isExpanded ? -1 : holder.getAdapterPosition();
             //Delegate notify and scroll to the activity
             cardClickedListener.cardClicked(
-                    position,
-                    (isExpanded ? 0 : holder.cv.getHeight()),
+                    holder.getAdapterPosition(),
                     expandedItem,
                     previouslyExpandedItem
             );
         });
 
-        String expireDate = (pantryProducts.get(position).expire_date == null ? "" : pantryProducts.get(position).expire_date);
+        String expireDate = (pantryProducts.get(holder.getAdapterPosition()).expire_date == null ? "" :
+                pantryProducts.get(holder.getAdapterPosition()).expire_date);
         String toDisplayDateLabel = "";
+        holder.expireDate.setTextColor(ContextCompat.getColor(holder.cv.getContext(),
+                R.color.black)
+        );
         //Write current expire date in expireDateField
         if(!expireDate.isEmpty()) {
             //Show date in localFormat from fixed db format
@@ -105,7 +109,6 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                                 R.color.design_default_color_error)
                 );
             }
-
         } else {
             holder.expireDateField.setText("");
         }
@@ -117,7 +120,7 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         });
 
         //Disable change date button when date isn't changed
-        setDateTextObserver(holder, position);
+        setDateTextObserver(holder);
 
         //Change expire date event
         holder.changeDateButton.setOnClickListener(v->{
@@ -129,11 +132,11 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                     originalFormat,
                     targetFormat);
             holder.expireDateField.setText(holder.expireDateField.getText().toString());
-            pantryProducts.get(position).expire_date = formattedDate;
+            pantryProducts.get(holder.getAdapterPosition()).expire_date = formattedDate;
             DBHelper db = new DBHelper(holder.cv.getContext());
-            db.changeExpireDate(pantryProducts.get(position).id, formattedDate);
+            db.changeExpireDate(pantryProducts.get(holder.getAdapterPosition()).id, formattedDate);
             db.close();
-            notifyItemChanged(position);
+            notifyItemChanged(holder.getAdapterPosition());
         });
 
         //Clear date field
@@ -142,13 +145,13 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         });
 
         //Set quantity value
-        holder.quantity.setText("x" + pantryProducts.get(position).quantity);
+        holder.quantity.setText("x" + pantryProducts.get(holder.getAdapterPosition()).quantity);
 
         //Set quantity field value
-        holder.quantityField.setText(String.valueOf(pantryProducts.get(position).quantity));
+        holder.quantityField.setText(String.valueOf(pantryProducts.get(holder.getAdapterPosition()).quantity));
 
         //Disable change quantity button when quantity isn't changed
-        setQuantityTextObserver(holder, position);
+        setQuantityTextObserver(holder);
 
         //Change quantity event
         holder.changeQuantityButton.setOnClickListener(v->{
@@ -159,15 +162,15 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                 //Clear Focus
                 holder.quantityField.clearFocus();
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                int quantityValue = Integer.parseInt(holder.quantityField.getText().toString());
+                long quantityValue = Long.parseLong(holder.quantityField.getText().toString());
                 if(quantityValue >= 0) {
                     //Update quantity
-                    pantryProducts.get(position).quantity = quantityValue;
-                    holder.quantity.setText("x" + pantryProducts.get(position).quantity);
+                    pantryProducts.get(holder.getAdapterPosition()).quantity = quantityValue;
+                    holder.quantity.setText("x" + pantryProducts.get(holder.getAdapterPosition()).quantity);
                     DBHelper db = new DBHelper(holder.cv.getContext());
-                    db.changeQuantity(pantryProducts.get(position).id, pantryProducts.get(position).quantity);
+                    db.changeQuantity(pantryProducts.get(holder.getAdapterPosition()).id, pantryProducts.get(holder.getAdapterPosition()).quantity);
                     if(quantityValue==0) {
-                        db.deleteProductFromPantry(pantryProducts.get(position).id);
+                        db.deleteProductFromPantry(pantryProducts.get(holder.getAdapterPosition()).id);
                     } else {
                         holder.changeQuantityButton.setEnabled(false);
                     }
@@ -178,53 +181,55 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
 
         //Delete item from pantry event
         holder.deleteItemButton.setOnClickListener(v->{
-            askToDeleteProductFromPantry(position, holder.cv.getContext());
+            askToDeleteProductFromPantry(holder.getAdapterPosition(), holder.cv.getContext());
         });
 
         //Set favorite value
-        holder.fav.setChecked(pantryProducts.get(position).is_favorite);
+        holder.fav.setChecked(pantryProducts.get(holder.getAdapterPosition()).is_favorite);
         //Change Favorite event
         holder.fav.setOnClickListener(v -> {
             DBHelper db  = new DBHelper(holder.cv.getContext());
-            db.setFavorite(holder.fav.isChecked(), pantryProducts.get(position).id);
+            db.setFavorite(holder.fav.isChecked(), pantryProducts.get(holder.getAdapterPosition()).id);
             db.close();
+            pantryProducts.get(holder.getAdapterPosition()).is_favorite = holder.fav.isChecked();
+            notifyDataSetChanged();
         });
 
         //Load and show icon
         try {
             AssetManager assetManager = holder.cv.getContext().getAssets();
-            InputStream ims = assetManager.open(pantryProducts.get(position).icon);
+            InputStream ims = assetManager.open(pantryProducts.get(holder.getAdapterPosition()).icon);
             Bitmap bitmap = BitmapFactory.decodeStream(ims);
             ims.close();
             holder.icon.setImageBitmap(bitmap);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         //Set name value
-        holder.name.setText(pantryProducts.get(position).name);
+        holder.name.setText(pantryProducts.get(holder.getAdapterPosition()).name);
 
         //Set description value and listener to ignore touch
-        holder.description.setText(pantryProducts.get(position).description);
+        holder.description.setText(pantryProducts.get(holder.getAdapterPosition()).description);
         holder.description.setOnClickListener(v->{});
     }
 
-    private void setQuantityTextObserver(PantryItemViewHolder holder, int position) {
+    private void setQuantityTextObserver(PantryItemViewHolder holder) {
         holder.quantityField.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override public void afterTextChanged(Editable s) {
                 holder.changeQuantityButton.setEnabled(
-                        !s.toString().equals(String.valueOf(pantryProducts.get(position).quantity))
+                        !holder.quantityField.getText().toString().isEmpty() &&
+                        !s.toString().equals(String.valueOf(pantryProducts.get(holder.getAdapterPosition()).quantity))
                 );
             }
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
         });
     }
 
-    private void setDateTextObserver(PantryItemViewHolder holder, int position) {
+    private void setDateTextObserver(PantryItemViewHolder holder) {
         holder.expireDateField.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
@@ -236,14 +241,12 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                         originalFormat,
                         targetFormat);
                 holder.changeDateButton.setEnabled(
-                        !(formattedDate.equals(pantryProducts.get(position).expire_date))
+                        !(formattedDate.equals(pantryProducts.get(holder.getAdapterPosition()).expire_date))
                 );
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
         });
 
@@ -259,8 +262,9 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                             DBHelper db  = new DBHelper(context);
                             db.deleteProductFromPantry(pantryProducts.get(position).id);
                             db.close();
-                            pantryProducts.remove(position);
-                            notifyItemRemoved(position);
+                            //this line of code put -1 as the index of the expanded card so that no card appears expanded
+                            expandedItem = -1;
+                            cardClickedListener.deleteItem(position);
                         })
                 .setNegativeButton(
                         context.getResources().getString(R.string.cancelText),

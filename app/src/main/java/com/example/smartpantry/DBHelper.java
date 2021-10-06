@@ -100,7 +100,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public long insertNewProduct(String barcode, String name, String description, String expire, String quantity, String icon, boolean addToPantry) {
+    public long insertNewProduct(String barcode, String name, String description, String expire, long quantity, String icon, boolean addToPantry) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PRODUCT_BARCODE, barcode);
         cv.put(COLUMN_PRODUCT_NAME, name);
@@ -119,7 +119,7 @@ public class DBHelper extends SQLiteOpenHelper {
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?", new String[] {id});
     }
 
-    public void changeQuantity(String id, int quantity) {
+    public void changeQuantity(String id, long quantity) {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PRODUCT_QUANTITY, quantity);
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?", new String[] {id});
@@ -129,6 +129,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PRODUCT_IN_PANTRY, 0);
         cv.put(COLUMN_PRODUCT_QUANTITY, 0);
+        cv.put(COLUMN_PRODUCT_EXPIRE_DATE, (String) null);
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?", new String[] {id});
     }
 
@@ -136,6 +137,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(COLUMN_PRODUCT_IN_PANTRY, 0);
         cv.put(COLUMN_PRODUCT_QUANTITY, 0);
+        cv.put(COLUMN_PRODUCT_EXPIRE_DATE, (String) null);
         getWritableDatabase().update(TABLE_PRODUCTS, cv, null, null);
     }
 
@@ -156,31 +158,28 @@ public class DBHelper extends SQLiteOpenHelper {
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?",
                 new String[] {id});
     }
-/*
-    public Cursor searchMatchInProductsName(String selection) {
-        if(selection!=null && !selection.isEmpty()) {
-            return getReadableDatabase().query(
-                    TABLE_PRODUCTS,
-                    new String[]{COLUMN_PRODUCT_NAME, COLUMN_PRODUCT_DESCRIPTION, COLUMN_PRODUCT_ICON, COLUMN_PRODUCT_ID},
-                    COLUMN_PRODUCT_IN_PANTRY + "=1 AND " + COLUMN_PRODUCT_NAME + " LIKE ?",
-                    new String[]{"%" + selection + "%"}, null, null, null, null);
-        } else {
-            return getReadableDatabase().query(TABLE_PRODUCTS,
-                    new String[]{COLUMN_PRODUCT_NAME, COLUMN_PRODUCT_DESCRIPTION, COLUMN_PRODUCT_ICON, COLUMN_PRODUCT_ID},
-                    COLUMN_PRODUCT_IS_FAVORITE + "=-1", null, null, null, null);
+
+    public Cursor getAllProducts(String order, String flow) {
+        if(order.equals(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE)){
+            order = convertExpiredOrdering();
         }
-    }
-*/
-
-    public void deleteProduct(int id) {
-        getWritableDatabase().delete(TABLE_PRODUCTS, COLUMN_PRODUCT_ID + COLUMN_PRODUCT_ID + "=?",
-                new String[] { String.valueOf(id) });
+        return getReadableDatabase().query(TABLE_PRODUCTS, null, null,
+                null, null, null, order + " " + flow);
     }
 
-    public Cursor getFavorites() {
-        return getReadableDatabase().query(TABLE_PRODUCTS, null,
-                COLUMN_PRODUCT_IS_FAVORITE + "=1", null,
-                null, null, null);
+    //this function transform the order part of the query if the ordering is by expireDate
+    //to give the user a more user-friendly output
+    private String convertExpiredOrdering() {
+        return "CASE WHEN " + DBHelper.COLUMN_PRODUCT_EXPIRE_DATE + " IS NULL AND " + DBHelper.COLUMN_PRODUCT_IN_PANTRY + "=0 THEN 2 " +
+                "WHEN " + DBHelper.COLUMN_PRODUCT_EXPIRE_DATE + " IS NULL AND " + DBHelper.COLUMN_PRODUCT_IN_PANTRY + "=1 THEN 1 "+
+                "ELSE 0 END, " + DBHelper.COLUMN_PRODUCT_EXPIRE_DATE;
+
+    }
+
+
+    public void deleteProduct(String id) {
+        getWritableDatabase().delete(TABLE_PRODUCTS, COLUMN_PRODUCT_ID + "=?",
+                new String[] { id });
     }
 
     public void dropAllTables() {
@@ -201,5 +200,22 @@ public class DBHelper extends SQLiteOpenHelper {
         int expiredItemsCount = cursor.getCount();
         cursor.close();
         return expiredItemsCount;
+    }
+
+    public void updateProduct(String id, boolean toAdd, long quantity, String expireDate) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_PRODUCT_QUANTITY, quantity);
+        cv.put(COLUMN_PRODUCT_IN_PANTRY, toAdd ? 1 : 0);
+        cv.put(COLUMN_PRODUCT_EXPIRE_DATE, expireDate);
+        getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?",
+                new String[] {id});
+    }
+
+    public void changeIcon(String icon, String id) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_PRODUCT_ICON, icon);
+        getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?",
+                new String[] {id});
+
     }
 }

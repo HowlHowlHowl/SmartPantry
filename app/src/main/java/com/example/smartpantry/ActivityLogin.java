@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -30,8 +31,6 @@ public class ActivityLogin extends AppCompatActivity {
     private CheckBox rememberCheckBox;
     private TextView passwordField;
     private TextView emailField;
-
-    private final String loginURL = Global.LOGIN_URL;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +71,7 @@ public class ActivityLogin extends AppCompatActivity {
     public void authenticateUser() {
         if (Global.checkConnectionAvailability(getApplicationContext())) {
             RequestQueue queue = Volley.newRequestQueue(this);
-            StringRequest loginRequest = new StringRequest(Request.Method.POST, loginURL,
+            StringRequest loginRequest = new StringRequest(Request.Method.POST, Global.LOGIN_URL,
                     response -> {
                         try {
                             JSONObject credentials = new JSONObject(response);
@@ -92,9 +91,9 @@ public class ActivityLogin extends AppCompatActivity {
                     }) {
                 @Override
                 protected Map<String, String> getParams() {
-                    //password sent plain-text, lol
+                    //TODO password sent plain-text, lol
                     Map<String, String> params = new HashMap<String, String>();
-                    params.put("password", passwordField.getText().toString());
+                    params.put(Global.PASSWORD, passwordField.getText().toString());
                     params.put(Global.EMAIL, emailField.getText().toString());
                     return params;
                 }
@@ -109,7 +108,7 @@ public class ActivityLogin extends AppCompatActivity {
         String savedEmail = getApplicationContext()
                 .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
                 .getString(Global.EMAIL, null);
-        if(!email.equals(savedEmail) && savedEmail != null){
+        if(savedEmail != null && !email.equals(savedEmail)){
             askToDropTables(token, password, email, remember);
         } else {
             login(token, password, email, remember);
@@ -124,8 +123,7 @@ public class ActivityLogin extends AppCompatActivity {
                         getResources().getString(R.string.yesText),
                         (dialog, id) -> {
                             login(token, password, email, remember);
-                            //TODO DELETE ALL SHARED PREFERENCES
-                            // deleteSharedPreferences();
+                            deleteSharedPreferences();
                             DBHelper db = new DBHelper(getApplicationContext());
                             db.dropAllTables();
                             db.close();
@@ -149,26 +147,74 @@ public class ActivityLogin extends AppCompatActivity {
         alert.show();
     }
 
+    private void getUserID(String email, String password) {
+        if (Global.checkConnectionAvailability(getApplicationContext())) {
+            RequestQueue queue = Volley.newRequestQueue(this);
+            StringRequest idRequest = new StringRequest(Request.Method.GET, Global.USER_ID_URL,
+                    response -> {
+                        try {
+                            JSONObject credentials = new JSONObject(response);
+                            String id = credentials.get(Global.ID).toString();
+                            getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).edit().putString(Global.ID, id).apply();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    },
+                    error -> {
+                        error.printStackTrace();
+                        findViewById(R.id.errorDisplay).setVisibility(View.VISIBLE);
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    //TODO password sent plain-text, lol
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put(Global.PASSWORD, password);
+                    params.put(Global.EMAIL, email);
+                    return params;
+                }
+
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String> header = new HashMap<String, String>();
+                    String accessToken = getSharedPreferences(Global.LOGIN, MODE_PRIVATE).getString(Global.ACCESS_TOKEN, null);
+                    header.put("Authorization", "Bearer " + accessToken);
+                    return header;
+                }
+            };
+            queue.add(idRequest);
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void deleteSharedPreferences() {
+        getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences(Global.UTILITY, MODE_PRIVATE).edit().clear().apply();
+        getSharedPreferences(Global.LOGIN, MODE_PRIVATE).edit().clear().apply();
+    }
 
 
-    private void login (String token, String password, String email, boolean remember) {
+    private void login(String token, String password, String email, boolean remember) {
         SharedPreferences.Editor loginEdit = getApplicationContext()
                 .getSharedPreferences(Global.LOGIN, MODE_PRIVATE).edit();
-
         //Edit Login SharedPrefs.
         loginEdit.putBoolean(Global.STAY_LOGGED, remember);
         loginEdit.putString(Global.ACCESS_TOKEN, token);
         loginEdit.putBoolean(Global.CURRENT_SESSION, true);
         loginEdit.putString(Global.VALID_DATE, Global.getNewValidDate());
-        loginEdit.commit();
+        loginEdit.apply();
+
+        //Get user ID
+        getUserID(email, password);
 
         //Edit UserData SharedPrefs.
         SharedPreferences.Editor userDataEdit = getApplicationContext()
                 .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
                 .edit();
         userDataEdit.putString(Global.EMAIL, email);
-        userDataEdit.putString("password", password);
-        userDataEdit.commit();
+        userDataEdit.putString(Global.PASSWORD, password);
+        userDataEdit.apply();
 
         Intent main = new Intent(this, ActivityMain.class);
         startActivity(main);

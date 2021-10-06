@@ -175,8 +175,7 @@
                 android:orientation="vertical"
                 app:layout_constraintEnd_toStartOf="@+id/imageFilterButton"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/pantryHeader"
-                app:layout_constraintWidth_default="wrap">
+                app:layout_constraintTop_toBottomOf="@+id/pantryHeader">
 
                 <SearchView
                     android:id="@+id/searchProdField"
@@ -199,6 +198,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:layout_marginEnd="20dp"
+                android:backgroundTint="@color/button_filter"
                 app:layout_constraintBottom_toBottomOf="@+id/searchBox"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/searchBox"
@@ -218,9 +218,10 @@
                     android:id="@+id/pantryTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="casual"
                     android:text="@string/pantryTitle"
                     android:textAlignment="center"
-                    android:textColor="#EDECE5"
+                    android:textColor="@color/app_color_secondary"
                     android:textSize="26sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

@@ -36,10 +36,9 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class FragmentAddProduct extends Fragment {
+public class FragmentAddProduct extends Fragment implements FragmentIconPicker.onIconChosen{
 
-    static final String ICONS_DIR_NAME = Global.ICON_DIRNAME;
-    private String icon = Global.DEFAULT_ICON;
+    private String icon = Global.ICON_DIRNAME + File.separator + Global.DEFAULT_ICON;
 
     private ConstraintLayout expendable;
     private EditText nameField, descriptionField, expireDateField, quantityField;
@@ -51,10 +50,15 @@ public class FragmentAddProduct extends Fragment {
 
     onProductAddedListener productAddedListener;
 
+    @Override
+    public void iconSelected(String icon, int position) {
+        onSelectIconPressed(icon);
+    }
+
     public interface onProductAddedListener {
         void productAdded(String name, String barcode,
                           String description, String expire,
-                          String quantity, String icon, boolean test, boolean addLocal, boolean isNew);
+                          long quantity, String icon, boolean test, boolean addLocal, boolean isNew);
     }
 
     @Nullable
@@ -138,7 +142,7 @@ public class FragmentAddProduct extends Fragment {
 
         //Icon Picker Event
         iconPicker.setOnClickListener(v -> {
-            FragmentIconPicker fragmentIconPicker = new FragmentIconPicker();
+            FragmentIconPicker fragmentIconPicker = new FragmentIconPicker(this);
             //iconPickerFragment.setArguments();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
@@ -162,13 +166,12 @@ public class FragmentAddProduct extends Fragment {
                 DateFormat targetFormat = new SimpleDateFormat(Global.DB_DATE_FORMAT, Locale.getDefault());
                 formattedDate = Global.changeDateFormat(date, originalFormat, targetFormat);
             }
-            String fullIconFilename = ICONS_DIR_NAME + File.separator + icon;
             boolean test = testCheckBox.isChecked();
             boolean addLocal = switchExpand.isChecked();
             if (checkFields(name, description, quantity)) {
                 productAddedListener.productAdded(barcode, name, description,
-                        (formattedDate.isEmpty() ? null : formattedDate),
-                        quantity, fullIconFilename, test, addLocal,
+                        formattedDate,
+                        Long.parseLong(quantity), icon, test, addLocal,
                         !getArguments().getBoolean("alreadyExistingProduct", false));
                 getActivity()
                         .getSupportFragmentManager()
@@ -187,7 +190,7 @@ public class FragmentAddProduct extends Fragment {
             descriptionField.setError(getResources().getString(R.string.addProductDescriptionError));
             return false;
         }
-        if (Integer.parseInt(quantity) <= 0 ) {
+        if (Long.parseLong(quantity) <= 0 ) {
             quantityField.setError(getResources().getString(R.string.addProductQuantityError));
             return false;
         }
@@ -215,7 +218,7 @@ public class FragmentAddProduct extends Fragment {
         AssetManager assetsManager = getContext().getAssets();
         try {
             InputStream ims;
-            ims = assetsManager.open(ICONS_DIR_NAME + File.separator + iconFileName);
+            ims = assetsManager.open(icon);
             Bitmap bitmap = BitmapFactory.decodeStream(ims);
             ims.close();
             iconPicker.setImageBitmap(bitmap);

@@ -46,7 +46,7 @@ public class ProductListItem implements ProductListGeneric{
     public View getView(LayoutInflater inflater, View convertView) {
         View view;
         if (convertView == null) {
-            view = (View) inflater.inflate(R.layout.recycler_products_card, null);
+            view = (View) inflater.inflate(R.layout.recycler_barcode_products_card, null);
         } else {
             view = convertView;
         }

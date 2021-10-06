@@ -66,27 +66,27 @@ public class ActivityCamera extends AppCompatActivity {
 
         captureBtn.setOnClickListener(v -> {
             imageCapture.takePicture(executor,
-                    new ImageCapture.OnImageCapturedCallback() {
-                        @Override
-                        public void onCaptureSuccess(@NonNull ImageProxy image) {
-                            Log.println(Log.ASSERT,"capture","ok");
-                            scanBarcode(image);
-                            image.close();
-                        }
-
-                        @Override
-                        public void onError(ImageCaptureException error) {
-                            Log.println(Log.ERROR,"capture","error");
-                        }
+                new ImageCapture.OnImageCapturedCallback() {
+                    @Override
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
+                        Log.println(Log.ASSERT,"capture","ok");
+                        scanBarcode(image);
+                        image.close();
                     }
+
+                    @Override
+                    public void onError(ImageCaptureException error) {
+                        Log.println(Log.ERROR,"capture","error");
+                    }
+                }
             );
         });
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         camera.unbindAll();
+        super.onDestroy();
     }
 
     private void showResultFragment(String value) {
@@ -127,18 +127,15 @@ public class ActivityCamera extends AppCompatActivity {
                     InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
             BarcodeScanner scanner = BarcodeScanning.getClient(getScanOption());
             Task<List<Barcode>> result = scanner.process(image)
-                .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
-                    @Override
-                    public void onSuccess(List<Barcode> barcodes) {
-                        if(!barcodes.isEmpty()) {
-                            for (Barcode barcode: barcodes) {
-                                String rawValue = barcode.getRawValue();
-                                Log.println(Log.DEBUG, "SCAN", "RAW VALUE FOUND " + rawValue);
-                                showResultFragment(rawValue);
-                            }
-                        } else {
-                            showSnackbar();
+                .addOnSuccessListener(barcodes -> {
+                    if(!barcodes.isEmpty()) {
+                        for (Barcode barcode: barcodes) {
+                            String rawValue = barcode.getRawValue();
+                            Log.println(Log.DEBUG, "SCAN", "RAW VALUE FOUND " + rawValue);
+                            showResultFragment(rawValue);
                         }
+                    } else {
+                        showSnackbar();
                     }
                 })
                 .addOnFailureListener(e -> {

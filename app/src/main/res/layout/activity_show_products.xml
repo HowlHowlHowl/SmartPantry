@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_all_products"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/productsHeader"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="#2D2F31"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/productsTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="casual"
+            android:text="@string/productsTitle"
+            android:textAlignment="center"
+            android:textColor="@color/app_color_secondary"
+            android:textSize="26sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/backBtn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="5dp"
+            android:backgroundTint="@color/button_back"
+            android:cropToPadding="false"
+            android:foregroundTintMode="src_in"
+            android:tint="@color/app_color_secondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/back_arrow" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/searchBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@+id/imageFilterButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/productsHeader">
+
+        <SearchView
+            android:id="@+id/searchProdField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/app_color"
+            android:ems="10"
+            android:hint="@string/searchText"
+            android:iconifiedByDefault="false"
+            android:inputType="text"
+            android:textAlignment="viewStart"
+            android:textCursorDrawable="@drawable/colored_cursor"
+            android:textSize="16sp">
+
+        </SearchView>
+    </LinearLayout>
+
+    <androidx.constraintlayout.utils.widget.ImageFilterButton
+        android:id="@+id/imageFilterButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="@color/button_filter"
+        app:layout_constraintBottom_toBottomOf="@+id/searchBox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/searchBox"
+        app:layout_constraintTop_toTopOf="@+id/searchBox"
+        app:srcCompat="@drawable/filter" />
+    <ListView
+        android:id="@+id/searchResultsList"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/suggestions_dropdown"
+        android:elevation="5dp"
+        android:orientation="vertical"
+        android:outlineProvider="none"
+        app:layout_constraintEnd_toEndOf="@+id/imageFilterButton"
+        app:layout_constraintHeight_max="150dp"
+        app:layout_constraintStart_toStartOf="@+id/searchBox"
+        app:layout_constraintTop_toBottomOf="@+id/searchBox" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/productsRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/pantry_borders_and_background"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/footer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchBox">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <FrameLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="#2D2F31"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -48,8 +48,10 @@ public class Global {
 
     //Request code for camera
     static final int CAMERA_REQUEST_CODE = 1;
-    //Camera Activity ID
+
+    //Activities IDs
     static final int CAMERA_ACTIVITY = 101;
+    static final int PRODUCTS_ACTIVITY = 102;
 
     //Status Response Codes for Login check
     static final int LOGIN_STATUS_OK = 200;
@@ -79,6 +81,7 @@ public class Global {
     //Server APIs URLs
     static final String LOGIN_URL = "https://lam21.modron.network/auth/login";
     static final String REGISTER_URL = "https://lam21.modron.network/users";
+    static final String USER_ID_URL = "https://lam21.modron.network/users/me";
     static final String LIST_PRODUCTS_URL = "https://lam21.modron.network/products?barcode=";
     static final String ADD_PRODUCT_URL = "https://lam21.modron.network/products";
     static final String VOTE_PRODUCT_URL = "https://lam21.modron.network/votes";
@@ -104,6 +107,7 @@ public class Global {
     //USER DATA SHARED PREFERENCES STRUCTURE
     static final String USER_DATA = "UserData";
         static final String EMAIL = "email";
+        static final String PASSWORD = "password";
         static final String USERNAME = "username";
         static final String ID = "id";
 

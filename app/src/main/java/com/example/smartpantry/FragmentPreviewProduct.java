@@ -69,6 +69,8 @@ public class FragmentPreviewProduct extends Fragment {
             }
             name.setText(this.getArguments().getString("name"));
             description.setText(this.getArguments().getString("description"));
+
+            //TODO IF ITEM IS OWNED LET USER DELETE IT
         }
 
         voteUp.setOnClickListener(v -> {

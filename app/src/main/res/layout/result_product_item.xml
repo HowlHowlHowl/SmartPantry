@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:descendantFocusability="blocksDescendants"
-    android:background="@drawable/suggestion_items">
+    android:background="#00ffffff">
     <ImageView
         android:id="@+id/productSuggestionIcon"
         android:layout_width="35dip"

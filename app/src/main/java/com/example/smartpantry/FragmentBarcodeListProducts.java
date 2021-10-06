@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentListProducts extends Fragment {
+public class FragmentBarcodeListProducts extends Fragment {
     private TextView title;
     private TextView warning;
     private ListView listProducts;
@@ -58,7 +58,7 @@ public class FragmentListProducts extends Fragment {
         try {
             JSONArray products = new JSONArray(this.getArguments().getString("productsString"));
             List<ProductListGeneric> populatedProductsList = populateProductsList(products);
-            AdapterProductsList adapter = new AdapterProductsList(getContext(), populatedProductsList);
+            AdapterBarcodeProductsList adapter = new AdapterBarcodeProductsList(getContext(), populatedProductsList);
             listProducts.setAdapter(adapter);
             listProducts.setOnItemClickListener((parent, view1, position, id) -> {
                 ProductListGeneric item = populatedProductsList.get(position);
@@ -83,7 +83,6 @@ public class FragmentListProducts extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
     }
 
     private List<ProductListGeneric> populateProductsList(JSONArray products) {
@@ -103,7 +102,6 @@ public class FragmentListProducts extends Fragment {
             warning.setVisibility(View.VISIBLE);
         }
 
-        Log.println(Log.ASSERT, "LIST RAW", products.toString());
         Log.println(Log.ASSERT, "LIST", toShowProducts.toString());
 
         return toShowProducts;

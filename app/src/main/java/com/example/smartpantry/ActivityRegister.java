@@ -41,7 +41,7 @@ public class ActivityRegister extends AppCompatActivity {
         //Register user button
         findViewById(R.id.registerBtn).setOnClickListener(v -> {
             //IT WOULD BE GREAT TO HASH THE PASSWORD BUT TO DO SO
-            // WE NEED SERVER SIDE MODIFICATIONS TO IMPLEMENT SALT MECHANISMS AND CONSISTENT HASHING
+            //WE NEED SERVER SIDE MODIFICATIONS TO IMPLEMENT SALT MECHANISMS AND CONSISTENT HASHING
             if(checkFields()) {
                 registerUser();
             }
@@ -133,7 +133,7 @@ public class ActivityRegister extends AppCompatActivity {
                 Map<String, String> params = new HashMap<String, String>();
                 params.put(Global.USERNAME, usernameField.getText().toString());
                 params.put(Global.EMAIL, emailField.getText().toString());
-                params.put("password", passwordField.getText().toString());
+                params.put(Global.PASSWORD, passwordField.getText().toString());
                 return params;
             }
         };
