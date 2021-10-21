@@ -129,7 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:text="@string/saveANDapplyText"
+                android:text="@string/saveApplyText"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
         </LinearLayout>
@@ -165,6 +165,7 @@
 
             <ImageView
                 android:id="@+id/flowIcon"
+                android:contentDescription="@string/sortingIcon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 app:srcCompat="@drawable/ascending_sorting" />

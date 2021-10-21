@@ -10,6 +10,7 @@
 
     <TextView
         android:id="@+id/viewProductNameLabel"
+        android:labelFor="@+id/productNameField"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
@@ -20,6 +21,7 @@
 
     <EditText
         android:id="@+id/productNameField"
+        android:importantForAutofill="no"
         android:layout_width="330dp"
         android:layout_height="48dp"
         android:layout_marginTop="50dp"
@@ -35,6 +37,7 @@
 
     <TextView
         android:id="@+id/viewProductDescriptionLabel"
+        android:labelFor="@+id/productDescriptionField"
         android:layout_width="158dp"
         android:layout_height="22dp"
         android:layout_marginStart="4dp"
@@ -43,13 +46,18 @@
         app:layout_constraintBottom_toTopOf="@+id/productDescriptionField"
         app:layout_constraintStart_toStartOf="@+id/productDescriptionField" />
 
+    <!--FIXME FINAL RELEASE MUST NOT HAVE THIS CHECKBOX-->
     <CheckBox
         android:id="@+id/testCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="44dp"
         android:checked="true"
+
+        tools:ignore="HardcodedText"
         android:text="Articolo di Test"
+        android:visibility="invisible"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/productDescriptionField" />
 
@@ -102,6 +110,7 @@
 
         <TextView
             android:id="@+id/textView4"
+            android:labelFor="@+id/expireField"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
@@ -118,7 +127,9 @@
             app:layout_constraintTop_toBottomOf="@+id/textView4">
 
             <EditText
-                android:id="@+id/productExpireDateField"
+                android:id="@+id/expireField"
+                android:hint="@string/dateHint"
+                android:importantForAutofill="no"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/app_color"
@@ -132,6 +143,7 @@
 
             <ImageButton
                 android:id="@+id/cancelDateButton"
+                android:contentDescription="@string/deleteDateIcon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|end"
@@ -143,13 +155,14 @@
 
         <EditText
             android:id="@+id/productQuantity"
+            android:importantForAutofill="no"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@color/app_color"
             android:ems="10"
             android:inputType="number"
             android:minEms="5"
-            android:text="1"
+            android:hint="@string/quantityHint"
             android:textAlignment="center"
             android:textCursorDrawable="@drawable/colored_cursor"
             app:layout_constraintEnd_toEndOf="parent"
@@ -157,6 +170,7 @@
 
         <TextView
             android:id="@+id/textView"
+            android:labelFor="@+id/productQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
@@ -170,7 +184,7 @@
             android:id="@+id/selectProductIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Seleziona un'icona "
+            android:text="@string/selectIcon"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/productIconPreview"
@@ -179,6 +193,7 @@
 
         <ImageView
             android:id="@+id/productIconPreview"
+            android:contentDescription="@string/productIcon"
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_marginTop="20dp"
@@ -196,6 +211,7 @@
 
     <EditText
         android:id="@+id/productDescriptionField"
+        android:importantForAutofill="no"
         android:layout_width="330dp"
         android:layout_height="130dp"
         android:layout_marginTop="50dp"

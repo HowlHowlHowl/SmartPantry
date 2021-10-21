@@ -207,7 +207,7 @@ public class FragmentFilters extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             onApplyFiltersListener = (FragmentFilters.onApplyFilters) context;

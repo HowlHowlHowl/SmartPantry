@@ -33,6 +33,7 @@
 
         <ImageView
             android:id="@+id/shopIconView"
+            android:contentDescription="@string/productIcon"
             android:layout_width="50dp"
             android:layout_height="40dp"
             android:layout_marginStart="10dp"
@@ -45,6 +46,7 @@
 
         <EditText
             android:id="@+id/shopQuantityField"
+            android:importantForAutofill="no"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
@@ -57,10 +59,11 @@
 
         <TextView
             android:id="@+id/xSymbol"
+            android:labelFor="@+id/shopQuantityField"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            android:text="x"
+            android:text="@string/quantityHint"
             app:layout_constraintBottom_toBottomOf="@+id/shopQuantityField"
             app:layout_constraintEnd_toStartOf="@+id/shopQuantityField" />
         <LinearLayout

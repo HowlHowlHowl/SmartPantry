@@ -59,6 +59,7 @@
 
                 <ImageButton
                     android:id="@+id/optionsBtn"
+                    android:contentDescription="@string/optionsText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="15dp"
@@ -70,6 +71,7 @@
 
                 <ImageButton
                     android:id="@+id/productsBtn"
+                    android:contentDescription="@string/productsText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="15dp"
@@ -82,6 +84,7 @@
 
                 <ImageButton
                     android:id="@+id/barcodeBtn"
+                    android:contentDescription="@string/scanFrame"
                     android:layout_width="78dp"
                     android:layout_height="83dp"
                     android:layout_marginBottom="10dp"
@@ -98,6 +101,7 @@
 
                 <ImageButton
                     android:id="@+id/recipesBtn"
+                    android:contentDescription="@string/recipesText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#EDECE5"
@@ -109,6 +113,7 @@
 
                 <ImageButton
                     android:id="@+id/shoppingBtn"
+                    android:contentDescription="@string/shoppingText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#EDECE5"
@@ -284,11 +289,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
                 android:layout_gravity="bottom">
 
                 <ImageView
                     android:id="@+id/imageView2"
+                    android:contentDescription="@string/deleteAllProducts"
                     android:layout_width="wrap_content"
                     android:layout_height="25dp"
                     android:src="@drawable/delete_file"
@@ -300,7 +306,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
                     android:text="@string/deleteProducts"
                     android:textColor="#800000"
                     android:textSize="14sp"
@@ -309,9 +315,6 @@
                     app:layout_constraintStart_toEndOf="@+id/imageView2"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
-
         </LinearLayout>
-
     </com.google.android.material.navigation.NavigationView>
-<!--            -->
 </androidx.drawerlayout.widget.DrawerLayout>

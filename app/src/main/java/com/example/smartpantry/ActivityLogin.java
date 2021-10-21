@@ -90,7 +90,7 @@ public class ActivityLogin extends AppCompatActivity {
                     }) {
                 @Override
                 protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put(Global.PASSWORD, passwordField.getText().toString());
                     params.put(Global.EMAIL, emailField.getText().toString());
                     return params;
@@ -164,7 +164,7 @@ public class ActivityLogin extends AppCompatActivity {
                     }) {
                 @Override
                 protected Map<String, String> getParams() {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put(Global.PASSWORD, password);
                     params.put(Global.EMAIL, email);
                     return params;
@@ -172,7 +172,7 @@ public class ActivityLogin extends AppCompatActivity {
 
                 @Override
                 public Map<String, String> getHeaders() {
-                    Map<String, String> header = new HashMap<String, String>();
+                    Map<String, String> header = new HashMap<>();
                     String accessToken = getSharedPreferences(Global.LOGIN, MODE_PRIVATE).getString(Global.ACCESS_TOKEN, null);
                     header.put("Authorization", "Bearer " + accessToken);
                     return header;

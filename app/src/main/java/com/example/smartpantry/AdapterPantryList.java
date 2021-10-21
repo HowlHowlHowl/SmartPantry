@@ -384,7 +384,7 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
             changeDateButton = itemView.findViewById(R.id.confirmChangeDate);
             changeQuantityButton = itemView.findViewById(R.id.changeQuantityButton);
             deleteItemButton = itemView.findViewById(R.id.removeItemButton);
-            expireDateField = itemView.findViewById(R.id.productExpireDateField);
+            expireDateField = itemView.findViewById(R.id.expireHint);
             quantityField  = itemView.findViewById(R.id.changeQuantityField);
             addToShoppingButton  = itemView.findViewById(R.id.addToShoppingBtn);
         }

@@ -34,6 +34,7 @@
 
             <ImageButton
                 android:id="@+id/deleteItemFromServer"
+                android:contentDescription="@string/deleteProductIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="10dp"
@@ -49,7 +50,6 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="20dp"
-                android:text="TextView"
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="22sp"
@@ -67,7 +67,6 @@
                 android:background="@drawable/product_description_edittext"
                 android:ems="10"
                 android:gravity="start|top"
-                android:inputType="textMultiLine"
                 android:textCursorDrawable="@drawable/colored_cursor"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -80,73 +79,64 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="20dp"
-                android:orientation="vertical"
-                android:weightSum="2"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:weightSum="4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/previewProdAdd">
-
-                <LinearLayout
-                    android:id="@+id/previewVoteBlock"
-                    android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/previewProductVoteLabel"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:lines="2"
+                    android:text="@string/previewVoteLabel"
+                    android:textAlignment="center"
+                    android:textSize="16sp" />
 
-                    <TextView
-                        android:id="@+id/previewProductVoteLabel"
-                        android:layout_width="100dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="20dp"
-                        android:layout_weight="1"
-                        android:gravity="center"
-                        android:lines="2"
-                        android:text="@string/previewVoteLabel"
-                        android:textAlignment="center"
-                        android:textSize="16sp" />
+                <ToggleButton
+                    android:id="@+id/previewProductVoteUp"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:background="@drawable/thumb_up"
+                    android:contextClickable="false"
+                    android:includeFontPadding="false"
+                    android:padding="60dp"
+                    android:textOff=""
+                    android:textOn=""
+                    android:tintMode="src_in" />
 
-                    <ToggleButton
-                        android:id="@+id/previewProductVoteUp"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_gravity="center"
-                        android:layout_marginLeft="20dp"
-                        android:background="@drawable/thumb_up"
-                        android:contextClickable="false"
-                        android:includeFontPadding="false"
-                        android:padding="60dp"
-                        android:textOff=""
-                        android:textOn=""
-                        android:tintMode="src_in" />
+                <TextView
+                    android:id="@+id/previewProdVoteVal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:ems="2"
+                    android:gravity="center"
+                    android:textAlignment="center"
+                    android:textColor="@color/app_color"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/previewProdVoteVal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:ems="2"
-                        android:gravity="center"
-                        android:textAlignment="center"
-                        android:textColor="@color/app_color"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <ToggleButton
-                        android:id="@+id/previewProductVoteDown"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:layout_gravity="center"
-                        android:layout_marginRight="20dp"
-                        android:background="@drawable/thumb_down"
-                        android:contextClickable="false"
-                        android:padding="60dp"
-                        android:textOff=""
-                        android:textOn=""
-                        android:tintMode="src_in" />
-                </LinearLayout>
-
+                <ToggleButton
+                    android:id="@+id/previewProductVoteDown"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center"
+                    android:layout_marginEnd="20dp"
+                    android:background="@drawable/thumb_down"
+                    android:contextClickable="false"
+                    android:padding="60dp"
+                    android:textOff=""
+                    android:textOn=""
+                    android:tintMode="src_in" />
             </LinearLayout>
-
             <Button
                 android:id="@+id/previewProdVoteBtn"
                 android:layout_width="match_parent"

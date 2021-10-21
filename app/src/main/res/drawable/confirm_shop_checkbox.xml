@@ -3,37 +3,17 @@
     <item android:state_checked="true"
         android:drawable="@drawable/confirm_checkbox"
         android:state_focused="false">
-        <padding
-            android:left="10dp"
-            android:top="10dp"
-            android:right="10dp"
-            android:bottom="10dp" />
     </item>
     <item android:state_checked="true"
         android:drawable="@drawable/confirm_checkbox"
         android:state_focused="true">
-        <padding
-            android:left="10dp"
-            android:top="10dp"
-            android:right="10dp"
-            android:bottom="10dp" />
     </item>
     <item android:state_checked="false"
         android:drawable="@drawable/confirm_checkbox_empty"
         android:state_focused="false">
-        <padding
-            android:left="10dp"
-            android:top="10dp"
-            android:right="10dp"
-            android:bottom="10dp" />
     </item>
     <item android:state_checked="false"
         android:drawable="@drawable/confirm_checkbox_empty"
         android:state_focused="true">
-        <padding
-            android:left="10dp"
-            android:top="10dp"
-            android:right="10dp"
-            android:bottom="10dp" />
     </item>
 </selector>

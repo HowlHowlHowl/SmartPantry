@@ -71,7 +71,7 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
         descriptionField = view.findViewById(R.id.productDescriptionField);
         quantityField = view.findViewById(R.id.productQuantity);
         testCheckBox = view.findViewById(R.id.testCheckBox);
-        expireDateField = view.findViewById(R.id.productExpireDateField);
+        expireDateField = view.findViewById(R.id.expireField);
         switchExpand = view.findViewById(R.id.addToPantry);
         addProductButton = view.findViewById(R.id.viewProductBtn);
         cancelDateButton = view.findViewById(R.id.cancelDateButton);
@@ -97,7 +97,7 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
         switchExpand.setOnCheckedChangeListener((v, isChecked) -> {
             expendable.setVisibility(isChecked  ? View.VISIBLE : View.GONE);
         });
-
+        quantityField.setText("1");
         //Date picker event
         expireDateField.setOnClickListener(v -> {
             //Set date picker
@@ -204,7 +204,7 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             productAddedListener = (onProductAddedListener) context;

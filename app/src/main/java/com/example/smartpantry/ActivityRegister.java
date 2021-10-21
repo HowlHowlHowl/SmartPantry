@@ -130,7 +130,7 @@ public class ActivityRegister extends AppCompatActivity {
                 }) {
             @Override
             protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put(Global.USERNAME, usernameField.getText().toString());
                 params.put(Global.EMAIL, emailField.getText().toString());
                 params.put(Global.PASSWORD, passwordField.getText().toString());

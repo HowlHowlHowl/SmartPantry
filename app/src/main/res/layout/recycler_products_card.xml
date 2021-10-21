@@ -16,6 +16,7 @@
 
         <ImageView
             android:id="@+id/inShoppingListIcon"
+            android:contentDescription="@string/shoppingListIcon"
             android:layout_width="20dp"
             android:layout_height="20dp"
             app:layout_constraintBottom_toBottomOf="@+id/infoLabel"
@@ -32,7 +33,6 @@
             android:ellipsize="end"
             android:maxEms="10"
             android:maxLines="2"
-            android:text="Product Name"
             android:textSize="20sp"
             app:layout_constraintStart_toEndOf="@+id/iconView"
             app:layout_constraintTop_toTopOf="parent" />
@@ -82,12 +82,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="55dp"
             android:layout_marginEnd="15dp"
-            android:text="x86"
             app:layout_constraintEnd_toStartOf="@+id/favCheckbox"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/iconView"
+            android:contentDescription="@string/productIcon"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:padding="5dp"
@@ -100,6 +100,7 @@
 
         <ImageView
             android:id="@+id/expandableStateImageView"
+            android:contentDescription="@string/expandArrow"
             android:layout_width="30dp"
             android:layout_height="20dp"
             android:layout_marginTop="10dp"
@@ -142,12 +143,14 @@
                 app:layout_constraintTop_toBottomOf="@+id/productCardDescription">
 
                 <EditText
-                    android:id="@+id/productExpireDateField"
+                    android:id="@+id/expireHint"
+                    android:importantForAutofill="no"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/app_color"
                     android:clickable="false"
                     android:cursorVisible="false"
+                    android:hint="@string/dateHint"
                     android:ems="7"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
@@ -156,6 +159,7 @@
 
                 <ImageButton
                     android:id="@+id/cancelDateButton"
+                    android:contentDescription="@string/deleteDateIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical|end"
@@ -200,6 +204,7 @@
                         android:text="@string/deleteText" />
                     <ImageButton
                         android:id="@+id/addToShoppingBtn"
+                        android:contentDescription="@string/shoppingListIcon"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
@@ -235,6 +240,8 @@
 
                 <EditText
                     android:id="@+id/changeQuantityField"
+                    android:importantForAutofill="no"
+                    android:hint="@string/quantityHint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

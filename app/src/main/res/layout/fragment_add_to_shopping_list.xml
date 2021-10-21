@@ -46,13 +46,14 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/addToShoppingDescr"
+                android:id="@+id/addToShoppingDescription"
+                android:labelFor="@id/toAddQuantityField"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginEnd="25dp"
-                android:text="@string/addToShoppingDescr"
+                android:text="@string/addToShoppingDescription"
                 android:textAlignment="center"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -73,15 +74,15 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/addToShoppingDescr">
+                app:layout_constraintTop_toBottomOf="@+id/addToShoppingDescription">
 
                 <EditText
                     android:id="@+id/toAddQuantityField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:ems="4"
+                    android:importantForAutofill="no"
                     android:inputType="number"
-                    android:text="1"
                     android:textAlignment="center"
                     android:textSize="24sp" />
 
@@ -103,7 +104,9 @@
                         android:layout_marginEnd="10dp"
                         android:layout_weight="1"
                         android:text="@string/dontAddToShoppingBtn" />
-
+                    <Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
                     <Button
                         android:id="@+id/addShoppingBtn"
                         android:layout_width="0dp"

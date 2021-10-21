@@ -71,8 +71,8 @@
     <string name="cancelText">Cancel</string>
     <string name="deleteProductFromPantry">Are you sure you want to delete\nthis product from the pantry?</string>
     <string name="emptySuggestions">No product\nthat matches the query.</string>
-    <string name="deleteItemsFromPantry">You are going to delete all the products in the pantry, you can always view and manage them in the Products Page,anyway this operation cannot be undone.\n\nTo confirme type your email in the field below and confirm.</string>
-    <string name="deleteAllProducts">Are you sure?\nThe operation cannot be undone and you are going to lose every information on theproducts you saved.\n\nTo confirme type your email in the field below and confirm.</string>
+    <string name="deleteItemsFromPantry">You are going to delete all the products in the pantry, you can always view and manage them in the Products Page,anyway this operation cannot be undone.\n\nTo confirm type your email in the field below and press confirm.</string>
+    <string name="deleteAllProducts">Are you sure?\nThe operation cannot be undone and you are going to lose every information on the products you saved.\n\nTo confirm type your email in the field below and confirm.</string>
     <string name="allProductsDeletedFromPantry">All products have been removed from the pantry.</string>
     <string name="allProductsDeleted">All products have been successfully deleted.</string>
     <string name="applyText">Apply</string>
@@ -82,7 +82,7 @@
     <string name="expirationText">Expiration</string>
     <string name="nameText">Name</string>
     <string name="orderText">Order</string>
-    <string name="saveANDapplyText">Save &amp; Apply</string>
+    <string name="saveApplyText">Save &amp; Apply</string>
     <string name="expireProductNotificationChannelName">Expiring products notifications</string>
     <string name="expireProductNotificationChannelDescription">This notification channel is needed to warn you about expiring products</string>
     <string name="expireProductNotificationTitle">It seems like that one or more products have expired.</string>
@@ -101,7 +101,7 @@
     <string name="shoppingTitleText">Shopping List</string>
     <string name="updateShoppingList">Update</string>
     <string name="addToShoppingTitle">Add to shopping list?</string>
-    <string name="addToShoppingDescr">Insert the quantty to add to the shopping list.</string>
+    <string name="addToShoppingDescription">Insert the quantity to add to the shopping list.</string>
     <string name="closeText">Close</string>
     <string name="addShoppingBtn">Add</string>
     <string name="dontAddToShoppingBtn">Don\'t Add</string>
@@ -109,7 +109,7 @@
     <string name="manageNotifications">Manage notifications</string>
     <string name="notificationManageTitle">Notification Management</string>
     <string name="notificationExpiredOpt">Notify me when a product expires.</string>
-    <string name="notificationFavoriteOpt">Noitify me when one of my favorites products is missing in the pantry.</string>
+    <string name="notificationFavoriteOpt">Notify me when one of my favorites products is missing in the pantry.</string>
     <string name="missingFavNotificationDescription">of your favorite products isn\'t in your pantry.</string>
     <string name="favProductNotificationTitle">Some of yours favorite products aren\'t in your pantry</string>
     <string name="favProductNotificationChannelName">Notification favorite products not in pantry</string>
@@ -117,5 +117,18 @@
     <string name="showOnlyMissingProds">Show only products not in pantry</string>
     <string name="productAlreadySaved">The barcode you are searching for appears to be already associated to a saved product. \nClick one of the underlying products to view it in the products page.</string>
     <string name="searchAnywayText">Search anyway?</string>
-    <string name="productDeletedError">An error has occured deleting the product. Try again.</string>
+    <string name="productDeletedError">An error has occurred deleting the product. Try again.</string>
+    <string name="selectIcon">Select an icon</string>
+    <string name="selectText">Select</string>
+    <string name="scanFrame">Image of barcode</string>
+    <string name="shoppingListIcon">Shopping list icon</string>
+    <string name="productIcon">Product icon</string>
+    <string name="expandArrow">Expand arrow</string>
+    <string name="dateHint">Expire date</string>
+    <string name="deleteDateIcon">Clear date</string>
+    <string name="productNameHint">Name</string>
+    <string name="yourProducts">Yout Products</string>
+    <string name="deleteProductIcon">Delete product icon</string>
+    <string name="backButtonIcon">Back icon</string>
+    <string name="sortingIcon">Sorting icon</string>
 </resources>

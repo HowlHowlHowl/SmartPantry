@@ -6,53 +6,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ActivityCamera">
-
-    <FrameLayout
-        android:id="@+id/camContainer"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.camera.view.PreviewView
-            android:id="@+id/previewView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    </androidx.camera.view.PreviewView>
 
-        </androidx.camera.view.PreviewView>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/barcodeBig"
+            android:contentDescription="@string/scanFrame"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            app:layout_constraintBottom_toTopOf="@+id/captureBtn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/qr_scan"
+            app:tint="#33FFFFFF" />
 
-            <ImageView
-                android:id="@+id/barcodeBig"
-                android:layout_width="200dp"
-                android:layout_height="150dp"
-                app:layout_constraintBottom_toTopOf="@+id/captureBtn"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/qr_scan"
-                app:tint="#33FFFFFF" />
+        <ImageButton
+            android:id="@+id/captureBtn"
+            android:contentDescription="@string/scanFrame"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="60dp"
+            android:background="@drawable/button_scan"
+            android:padding="1dp"
+            android:src="@drawable/barcode"
+            android:textAlignment="center"
+            android:tint="#FFFFFF"
+            app:icon="@android:drawable/ic_menu_camera"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:strokeWidth="3dp" />
 
-            <ImageButton
-                android:id="@+id/captureBtn"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_marginBottom="60dp"
-                android:background="@drawable/button_scan"
-                android:padding="1dp"
-                android:src="@drawable/barcode"
-                android:textAlignment="center"
-                android:tint="#FFFFFF"
-                app:icon="@android:drawable/ic_menu_camera"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:strokeWidth="3dp" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </FrameLayout>
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

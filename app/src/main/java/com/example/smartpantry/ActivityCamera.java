@@ -74,7 +74,7 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
                     }
 
                     @Override
-                    public void onError(ImageCaptureException error) {
+                    public void onError(@NonNull ImageCaptureException error) {
                         Log.println(Log.ERROR,"capture","error");
                     }
                 }
@@ -96,8 +96,7 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
 
     private void showResultFragment(String value) {
         Bundle bundle = new Bundle();
-        String barcodeValue = value;
-        bundle.putString("barcode", barcodeValue);
+        bundle.putString("barcode", value);
         FragmentBarcodeDialog fragInfo = new FragmentBarcodeDialog();
         fragInfo.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
@@ -107,7 +106,7 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
     }
 
     private BarcodeScannerOptions getScanOption() {
-         BarcodeScannerOptions options =
+        return
                  new BarcodeScannerOptions.Builder()
                         .setBarcodeFormats(
                                 Barcode.FORMAT_CODABAR,
@@ -120,7 +119,6 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
                                 Barcode.FORMAT_UPC_A,
                                 Barcode.FORMAT_UPC_E)
                         .build();
-         return options;
     }
 
     private void scanBarcode(ImageProxy imageProxy) {
@@ -161,7 +159,7 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder().setTargetResolution(new Size(1280, 720))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
-        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), image -> image.close());
+        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), ImageProxy::close);
         Preview preview = new Preview.Builder().build();
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK).build();

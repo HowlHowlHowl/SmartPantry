@@ -33,7 +33,6 @@ public class AdapterIconsGrid extends BaseAdapter {
         callbackInstance = callback;
         try {
             list = context.getAssets().list(ICONS_DIR_NAME);
-            Log.println(Log.ASSERT, "ICONS LIST", list.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }

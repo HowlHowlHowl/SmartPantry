@@ -89,7 +89,7 @@
     <string name="ASCText">Ordine Crescente</string>
     <string name="DESCText">Ordine Decrescente</string>
     <string name="orderText">Ordinamento</string>
-    <string name="saveANDapplyText">Salva e Applica</string>
+    <string name="saveApplyText">Salva e Applica</string>
     <string name="expireProductNotificationChannelName">Notifiche prodotti in scadenza</string>
     <string name="expireProductNotificationChannelDescription">Questo canale di notifica serve ad avvisarti quando un prodotto è in scadenza</string>
     <string name="expireProductNotificationTitle">Sembra che uno o più prodotti siano scaduti.</string>
@@ -106,7 +106,7 @@
     <string name="shoppingTitleText">Lista della Spesa</string>
     <string name="updateShoppingList">Aggiorna</string>
     <string name="addToShoppingTitle">Aggiungere alla lista della spesa?</string>
-    <string name="addToShoppingDescr">Inserisci la quantità da aggiungere alla lista della spesa.</string>
+    <string name="addToShoppingDescription">Inserisci la quantità da aggiungere alla lista della spesa.</string>
     <string name="closeText">Chiudi</string>
     <string name="addShoppingBtn">Aggiungi</string>
     <string name="dontAddToShoppingBtn">Non Aggiungere</string>
@@ -124,4 +124,19 @@
     <string name="productAlreadySaved">Il codice a barre che cerchi risulta già associato ad uno dei tuoi prodotti salvati.\nClicca uno dei prodotti sottostanti per visualizzarli nella pagina prodotti.</string>
     <string name="searchAnywayText">Cercare comunque?</string>
     <string name="productDeletedError">Si è verificato un errore durante l\'eliminazione del prodotto. Riprovare.</string>
+    <string name="selectIcon">Seleziona un\'icona</string>
+    <string name="selectText">Seleziona</string>
+    <string name="scanFrame">Immagine barcode</string>
+    <string name="shoppingListIcon">Icona lista della spesa</string>
+    <string name="productIcon">Icona del prodotto</string>
+    <string name="expandArrow">freccia di espansione</string>
+    <string name="dateHint">Scadenza</string>
+    <string name="deleteDateIcon">Cancella la data</string>
+    <string name="quantityHint" translatable="false">x</string>
+    <string name="productNameHint">Nome</string>
+    <string name="yourProducts">I tuoi prodotti</string>
+    <string name="deleteProductIcon">Elimina prodotto icona</string>
+    <string name="backButtonIcon">Icona indietro</string>
+    <string name="barcodeHint" translatable="false">0000 0000 0000</string>
+    <string name="sortingIcon">Icona di ordinamento</string>
 </resources>

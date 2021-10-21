@@ -24,7 +24,6 @@
             android:ellipsize="end"
             android:maxEms="10"
             android:maxLines="2"
-            android:text="Product Name"
             android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@+id/iconView"
             app:layout_constraintTop_toTopOf="@+id/iconView" />
@@ -35,7 +34,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="@string/pantryItemCardExpire"
-            android:textSize="10sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="@+id/productName"
             app:layout_constraintTop_toBottomOf="@+id/productName" />
@@ -51,6 +49,7 @@
 
         <ImageView
             android:id="@+id/iconView"
+            android:contentDescription="@string/productIcon"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"

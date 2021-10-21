@@ -102,7 +102,7 @@ public class FragmentPreviewProduct extends Fragment {
             errorMsg.setVisibility(View.GONE);
             if(voteDown.isChecked()){
             tempPreference = -1;
-            preferenceValue.setText("" + tempPreference);
+            preferenceValue.setText(String.valueOf(tempPreference));
         } else {
             tempPreference = 0;
             preferenceValue.setText("");
@@ -134,7 +134,7 @@ public class FragmentPreviewProduct extends Fragment {
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         try {
             listener = (onPreviewActionListener) context;

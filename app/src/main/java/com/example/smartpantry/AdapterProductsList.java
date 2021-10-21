@@ -451,7 +451,7 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
             addToShoppingButton = itemView.findViewById(R.id.addToShoppingBtn);
             deleteItemButton = itemView.findViewById(R.id.removeItemButton);
             updateItemButton = itemView.findViewById(R.id.updateProduct);
-            expireDateField = itemView.findViewById(R.id.productExpireDateField);
+            expireDateField = itemView.findViewById(R.id.expireHint);
             quantityField  = itemView.findViewById(R.id.changeQuantityField);
         }
     }

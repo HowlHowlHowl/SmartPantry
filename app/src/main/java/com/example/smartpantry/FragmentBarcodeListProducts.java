@@ -87,7 +87,7 @@ public class FragmentBarcodeListProducts extends Fragment {
     }
 
     private List<ProductListGeneric> populateProductsList(JSONArray products) {
-        List<ProductListGeneric> toShowProducts = new ArrayList<ProductListGeneric>();
+        List<ProductListGeneric> toShowProducts = new ArrayList<>();
 
         String userID = getActivity()
                 .getSharedPreferences(Global.USER_DATA, Context.MODE_PRIVATE)

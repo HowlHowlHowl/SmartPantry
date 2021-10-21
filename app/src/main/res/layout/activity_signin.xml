@@ -60,6 +60,7 @@
 
             <EditText
                 android:id="@+id/usernameField"
+                android:autofillHints="username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
@@ -69,6 +70,7 @@
 
             <EditText
                 android:id="@+id/emailField"
+                android:autofillHints="emailAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -78,6 +80,7 @@
 
             <EditText
                 android:id="@+id/passwordField"
+                android:autofillHints="password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
@@ -87,6 +90,7 @@
 
             <EditText
                 android:id="@+id/confirmPasswordField"
+                android:autofillHints="password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"

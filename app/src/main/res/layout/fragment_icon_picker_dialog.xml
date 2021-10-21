@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:elevation="20dp"
+    android:focusable="true"
     android:clickable="true">
 
     <FrameLayout
@@ -37,7 +38,7 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
                     android:layout_marginRight="20dp"
-                    android:text="Seleziona un'icona"
+                    android:text="@string/selectIcon"
                     android:textAlignment="center"
                     android:textColor="@color/dark_gray"
                     android:textSize="24sp"
@@ -65,7 +66,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="5dp"
-                    android:text="Seleziona"
+                    android:text="@string/selectText"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent" />
 
