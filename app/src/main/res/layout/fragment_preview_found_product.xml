@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/previewProduct"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +11,7 @@
     app:layout_constraintTop_toTopOf="parent">
 
     <FrameLayout
-        android:id="@+id/previewBackground"
+        android:id="@+id/notificationManagerBg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#99000000"
@@ -25,7 +24,7 @@
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/popUpWindow"
+            android:id="@+id/bgPopUp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -33,6 +32,16 @@
             android:layout_marginRight="10dp"
             android:background="#FFFFFF">
 
+            <ImageButton
+                android:id="@+id/deleteItemFromServer"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:visibility="invisible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/delete_product" />
             <TextView
                 android:id="@+id/previewProductName"
                 android:layout_width="wrap_content"
@@ -91,7 +100,7 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginRight="20dp"
                         android:layout_weight="1"
-                        android:gravity="center_vertical"
+                        android:gravity="center"
                         android:lines="2"
                         android:text="@string/previewVoteLabel"
                         android:textAlignment="center"

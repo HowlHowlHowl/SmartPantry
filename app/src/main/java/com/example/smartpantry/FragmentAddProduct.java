@@ -56,9 +56,9 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
     }
 
     public interface onProductAddedListener {
-        void productAdded(String name, String barcode,
-                          String description, String expire,
-                          long quantity, String icon, boolean test, boolean addLocal, boolean isNew);
+        void onProductAdded(String id, String name, String barcode,
+                            String description, String expire,
+                            long quantity, String icon, boolean test, boolean addLocal, boolean isNew);
     }
 
     @Nullable
@@ -84,7 +84,8 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(getArguments().getBoolean("alreadyExistingProduct", false)) {
+        boolean alreadyExistingProduct = getArguments().getBoolean("alreadyExistingProduct", false);
+        if(alreadyExistingProduct) {
             fillFormData(
                     getArguments().getString("name"),
                     getArguments().getString("description"));
@@ -114,7 +115,7 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
                     myCalendar.get(Calendar.YEAR),
                     myCalendar.get(Calendar.MONTH),
                     myCalendar.get(Calendar.DAY_OF_MONTH));
-            //dpd.getDatePicker().setMinDate(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
+            dpd.getDatePicker().setMinDate(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
             String expireDate = expireDateField.getText().toString();
             if(!expireDate.isEmpty()) {
                 try {
@@ -153,6 +154,11 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
 
         //Add product event
         addProductButton.setOnClickListener(v -> {
+
+            String productID = null;
+            if(getArguments().getBoolean("alreadyExistingProduct", false)){
+                productID = getArguments().getString("id");
+            }
             String barcode = getArguments().getString("barcode");
             String name = nameField.getText().toString();
             String description = descriptionField.getText().toString();
@@ -169,10 +175,10 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
             boolean test = testCheckBox.isChecked();
             boolean addLocal = switchExpand.isChecked();
             if (checkFields(name, description, quantity)) {
-                productAddedListener.productAdded(barcode, name, description,
+                productAddedListener.onProductAdded(productID, barcode, name, description,
                         formattedDate,
                         Long.parseLong(quantity), icon, test, addLocal,
-                        !getArguments().getBoolean("alreadyExistingProduct", false));
+                        !alreadyExistingProduct);
                 getActivity()
                         .getSupportFragmentManager()
                         .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);

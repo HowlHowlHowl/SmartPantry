@@ -1,22 +1,16 @@
 package com.example.smartpantry;
 
 import static android.util.Log.ASSERT;
-import static android.util.Log.e;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 
-import com.google.type.DateTime;
-
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -34,20 +28,22 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PRODUCT_EXPIRE_DATE = "expireDate";
     public static final String COLUMN_PRODUCT_ICON = "icon";
     public static final String COLUMN_PRODUCT_QUANTITY = "quantity";
+    public static final String COLUMN_PRODUCT_TO_BUY_QUANTITY = "toBuyQnt";
     public static final String COLUMN_PRODUCT_IN_PANTRY = "inPantry";
     public static final String COLUMN_PRODUCT_IS_FAVORITE = "favorite";
 
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 15;
 
     // Products Database creation sql statement
     private static final String PRODUCTS_DATABASE_CREATE = "create table "
             + TABLE_PRODUCTS + "( "
-            + COLUMN_PRODUCT_ID + " integer primary key autoincrement, "
+            + COLUMN_PRODUCT_ID + " text primary key, "
             + COLUMN_PRODUCT_BARCODE + " text not null, "
             + COLUMN_PRODUCT_NAME	+ " text not null, "
             + COLUMN_PRODUCT_DESCRIPTION + " text not null, "
             + COLUMN_PRODUCT_QUANTITY + " integer not null, "
+            + COLUMN_PRODUCT_TO_BUY_QUANTITY + " integer not null default 0, "
             + COLUMN_PRODUCT_EXPIRE_DATE + " text, "
             + COLUMN_PRODUCT_ICON + " text not null, "
             + COLUMN_PRODUCT_IN_PANTRY + " integer not null default 1, "
@@ -100,8 +96,9 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public long insertNewProduct(String barcode, String name, String description, String expire, long quantity, String icon, boolean addToPantry) {
+    public long insertNewProduct(String id, String barcode, String name, String description, String expire, long quantity, String icon, boolean addToPantry) {
         ContentValues cv = new ContentValues();
+        cv.put(COLUMN_PRODUCT_ID, id);
         cv.put(COLUMN_PRODUCT_BARCODE, barcode);
         cv.put(COLUMN_PRODUCT_NAME, name);
         cv.put(COLUMN_PRODUCT_DESCRIPTION, description);
@@ -159,11 +156,16 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[] {id});
     }
 
-    public Cursor getAllProducts(String order, String flow) {
+    public Cursor getAllProducts(boolean notInPantry, String order, String flow) {
         if(order.equals(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE)){
             order = convertExpiredOrdering();
         }
-        return getReadableDatabase().query(TABLE_PRODUCTS, null, null,
+        return getReadableDatabase().query(TABLE_PRODUCTS, null, notInPantry ? COLUMN_PRODUCT_IN_PANTRY +"=0" : null,
+                null, null, null, order + " " + flow);
+    }
+
+    public Cursor getShoppingListProducts(String order, String flow) {
+        return getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_TO_BUY_QUANTITY + ">0",
                 null, null, null, order + " " + flow);
     }
 
@@ -176,7 +178,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-
     public void deleteProduct(String id) {
         getWritableDatabase().delete(TABLE_PRODUCTS, COLUMN_PRODUCT_ID + "=?",
                 new String[] { id });
@@ -187,19 +188,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREFERENCES);
         onCreate(db);
-    }
-
-    public int getExpiredProductsCount() {
-        String today = new SimpleDateFormat(Global.DB_DATE_FORMAT, Locale.CHINA).format(Calendar.getInstance().getTime());
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(
-                TABLE_PRODUCTS, null,
-                COLUMN_PRODUCT_IN_PANTRY + "=1 AND Date(\"" +
-                COLUMN_PRODUCT_EXPIRE_DATE + "\") <= Date(\"" + today + "\")",
-                null, null, null, null);
-        int expiredItemsCount = cursor.getCount();
-        cursor.close();
-        return expiredItemsCount;
     }
 
     public void updateProduct(String id, boolean toAdd, long quantity, String expireDate) {
@@ -217,5 +205,55 @@ public class DBHelper extends SQLiteOpenHelper {
         getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?",
                 new String[] {id});
 
+    }
+
+    public void addToShoppingList(String id, long addQuantity) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_PRODUCT_TO_BUY_QUANTITY, addQuantity);
+        getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?",
+                new String[] {id});
+    }
+
+    public void updateShoppingProduct(String id, long toBuyQnt) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_PRODUCT_TO_BUY_QUANTITY, 0);
+        cv.put(COLUMN_PRODUCT_QUANTITY, toBuyQnt);
+        cv.put(COLUMN_PRODUCT_IN_PANTRY, toBuyQnt>0 ? 1 : 0);
+        getWritableDatabase().update(TABLE_PRODUCTS, cv, COLUMN_PRODUCT_ID + "=?",
+                new String[] {id});
+    }
+
+    public int checkProductExistence(String barcode) {
+        Cursor cursor =  getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_BARCODE + "=?", new String[] {barcode},
+                null, null, null);
+        int matchingBarcodeCount = cursor.getCount();
+        cursor.close();
+        return matchingBarcodeCount;
+    }
+
+    //Get number of expired items
+    public int getExpiredProductsCount() {
+        String today = new SimpleDateFormat(Global.DB_DATE_FORMAT, Locale.CHINA).format(Calendar.getInstance().getTime());
+        Cursor cursor = getReadableDatabase().query(
+                TABLE_PRODUCTS, null,
+                COLUMN_PRODUCT_IN_PANTRY + "=1 AND Date(\"" +
+                        COLUMN_PRODUCT_EXPIRE_DATE + "\") <= Date(\"" + today + "\")",
+                null, null, null, null);
+        int expiredItemsCount = cursor.getCount();
+        cursor.close();
+        return expiredItemsCount;
+    }
+
+    //Get number of favorite products missing in the pantry and not in the shopping list
+    public int getMissingFavoritesCount() {
+        Cursor cursor = getReadableDatabase().query(
+                TABLE_PRODUCTS, null,
+                COLUMN_PRODUCT_IN_PANTRY + "=0 AND " +
+                        COLUMN_PRODUCT_TO_BUY_QUANTITY + "<=0 AND " +
+                        COLUMN_PRODUCT_IS_FAVORITE +"=1",
+                null, null, null, null);
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 }

@@ -107,7 +107,7 @@ public class ActivityRegister extends AppCompatActivity {
                         Ed.putString(Global.EMAIL, credentials.get(Global.EMAIL).toString());
                         Ed.putString(Global.USERNAME, credentials.get(Global.USERNAME).toString());
                         Ed.putString(Global.ID, credentials.get(Global.ID).toString());
-                        Ed.commit();
+                        Ed.apply();
 
                         Intent login = new Intent(this, ActivityLogin.class);
                         startActivity(login);

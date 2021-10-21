@@ -45,6 +45,7 @@ public class FragmentBarcodeListProducts extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         title.append("\"" + barcode + "\"");
         warning.setVisibility(View.INVISIBLE);
+        //Add new product Button
         addProduct.setOnClickListener(v -> {
             Bundle bundle = new Bundle();
             bundle.putString("barcode", barcode);
@@ -67,7 +68,7 @@ public class FragmentBarcodeListProducts extends Fragment {
                     ProductListItem castedItem  = ((ProductListItem) item);
                     Bundle bundle = new Bundle();
                     bundle.putBoolean("isUserOwned", castedItem.isUserOwned);
-                    bundle.putString(Global.ID, castedItem.id);
+                    bundle.putString("id", castedItem.id);
                     bundle.putString("name", castedItem.name);
                     bundle.putString("barcode", castedItem.barcode);
                     bundle.putString("description", castedItem.description);
@@ -89,7 +90,7 @@ public class FragmentBarcodeListProducts extends Fragment {
         List<ProductListGeneric> toShowProducts = new ArrayList<ProductListGeneric>();
 
         String userID = getActivity()
-                .getSharedPreferences("UserDara", Context.MODE_PRIVATE)
+                .getSharedPreferences(Global.USER_DATA, Context.MODE_PRIVATE)
                 .getString(Global.ID,"");
 
         //Add user owned items first w/ relative header
@@ -111,16 +112,15 @@ public class FragmentBarcodeListProducts extends Fragment {
         for (int i = 0; i < products.length(); i++) {
             try {
                 JSONObject item = products.getJSONObject(i);
-                if(item.getString(Global.ID).equals(userID)) {
+                if(item.getString("userId").equals(userID)) {
                     ownedItemsList.add(new ProductListItem(
-                            item.getString(Global.ID),
+                            item.getString("id"),
                             item.getString("name"),
                             item.getString("description"),
                             item.getString("barcode"),
                             item.getString("userId"),
                             item.getString("createdAt"),
                             item.getString("updatedAt"),
-                            item.getBoolean("test"),
                             true
                     ));
                 }
@@ -140,16 +140,15 @@ public class FragmentBarcodeListProducts extends Fragment {
         for (int i = 0; i < products.length(); i++) {
             try {
                 JSONObject item = products.getJSONObject(i);
-                if(!item.getString(Global.ID).equals(userID)) {
+                if(!item.getString("userId").equals(userID)) {
                     otherItemsList.add(new ProductListItem(
-                            item.getString(Global.ID),
+                            item.getString("id"),
                             item.getString("name"),
                             item.getString("description"),
                             item.getString("barcode"),
                             item.getString("userId"),
                             item.getString("createdAt"),
                             item.getString("updatedAt"),
-                            item.getBoolean("test"),
                             false
                     ));
                 }

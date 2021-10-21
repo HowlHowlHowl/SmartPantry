@@ -22,7 +22,7 @@
     <string name="prodText">Products</string>
     <string name="recipesText">Recipes</string>
     <string name="shoppingText">Shopping</string>
-    <string name="searchText">Search a product in the pantry</string>
+    <string name="searchText">Search a product</string>
     <string name="addProductBtnText">Add product</string>
     <string name="foundProductsTitle">Results for\n</string>
     <string name="noProductsFoundText">No products found.\n\n You can add a your own product by clicking the button.</string>
@@ -98,4 +98,24 @@
     <string name="productInPantry">IN PANTRY</string>
     <string name="updateText">Update Product</string>
     <string name="deleteProduct">Are you sure you want to delete this product?</string>
+    <string name="shoppingTitleText">Shopping List</string>
+    <string name="updateShoppingList">Update</string>
+    <string name="addToShoppingTitle">Add to shopping list?</string>
+    <string name="addToShoppingDescr">Insert the quantty to add to the shopping list.</string>
+    <string name="closeText">Close</string>
+    <string name="addShoppingBtn">Add</string>
+    <string name="dontAddToShoppingBtn">Don\'t Add</string>
+    <string name="deleteProductFromServer">You are about to delete this product forever, are you sure?</string>
+    <string name="manageNotifications">Manage notifications</string>
+    <string name="notificationManageTitle">Notification Management</string>
+    <string name="notificationExpiredOpt">Notify me when a product expires.</string>
+    <string name="notificationFavoriteOpt">Noitify me when one of my favorites products is missing in the pantry.</string>
+    <string name="missingFavNotificationDescription">of your favorite products isn\'t in your pantry.</string>
+    <string name="favProductNotificationTitle">Some of yours favorite products aren\'t in your pantry</string>
+    <string name="favProductNotificationChannelName">Notification favorite products not in pantry</string>
+    <string name="favProductNotificationChannelDescription">This notification channel it\'s used to warn you when some of your favorite product isn\'t in your pantry.</string>
+    <string name="showOnlyMissingProds">Show only products not in pantry</string>
+    <string name="productAlreadySaved">The barcode you are searching for appears to be already associated to a saved product. \nClick one of the underlying products to view it in the products page.</string>
+    <string name="searchAnywayText">Search anyway?</string>
+    <string name="productDeletedError">An error has occured deleting the product. Try again.</string>
 </resources>

@@ -20,7 +20,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -35,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class ActivityCamera extends AppCompatActivity {
+public class ActivityCamera extends AppCompatActivity implements FragmentBarcodeDialog.onToggleButtonListener {
     private PreviewView previewView;
     private ListenableFuture<ProcessCameraProvider>                                                                                                                                                                                                                                                                                                                                                                                                 cameraProviderFuture;
     private ImageCapture imageCapture;
@@ -89,6 +88,12 @@ public class ActivityCamera extends AppCompatActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onToggleButton() {
+        if(captureBtn!=null)
+            captureBtn.setEnabled(!captureBtn.isEnabled());
+    }
+
     private void showResultFragment(String value) {
         Bundle bundle = new Bundle();
         String barcodeValue = value;
@@ -96,13 +101,11 @@ public class ActivityCamera extends AppCompatActivity {
         FragmentBarcodeDialog fragInfo = new FragmentBarcodeDialog();
         fragInfo.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_camera, fragInfo)
+                .add(R.id.activity_camera, fragInfo, "barcodeScanResult")
                 .addToBackStack(null)
                 .commit();
     }
-    public void toggleCaptureBtn() {
-        captureBtn.setEnabled(!captureBtn.isEnabled());
-    }
+
     private BarcodeScannerOptions getScanOption() {
          BarcodeScannerOptions options =
                  new BarcodeScannerOptions.Builder()
@@ -132,20 +135,21 @@ public class ActivityCamera extends AppCompatActivity {
                         for (Barcode barcode: barcodes) {
                             String rawValue = barcode.getRawValue();
                             Log.println(Log.DEBUG, "SCAN", "RAW VALUE FOUND " + rawValue);
-                            showResultFragment(rawValue);
+                            if(getSupportFragmentManager().findFragmentByTag("barcodeScanResult")==null)
+                                showResultFragment(rawValue);
                         }
                     } else {
-                        showSnackbar();
+                        showErrorOnCapturing();
                     }
                 })
                 .addOnFailureListener(e -> {
                     e.printStackTrace();
-                    showSnackbar();
+                    showErrorOnCapturing();
                 });
         }
     }
 
-    private void showSnackbar() {
+    private void showErrorOnCapturing() {
         Snackbar.make(findViewById(R.id.captureBtn),
                 getResources().getString(R.string.retryToastText),
                 Snackbar.LENGTH_SHORT)
@@ -162,7 +166,9 @@ public class ActivityCamera extends AppCompatActivity {
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
         preview.setSurfaceProvider(previewView.createSurfaceProvider());
-        imageCapture = new ImageCapture.Builder().build();
+        imageCapture = new ImageCapture.Builder()
+                .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
+                .build();
         cameraProvider.bindToLifecycle(
                 this, cameraSelector, imageCapture, imageAnalysis, preview);
         camera = cameraProvider;

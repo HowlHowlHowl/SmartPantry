@@ -15,7 +15,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -91,7 +90,6 @@ public class ActivityLogin extends AppCompatActivity {
                     }) {
                 @Override
                 protected Map<String, String> getParams() {
-                    //TODO password sent plain-text, lol
                     Map<String, String> params = new HashMap<String, String>();
                     params.put(Global.PASSWORD, passwordField.getText().toString());
                     params.put(Global.EMAIL, emailField.getText().toString());
@@ -166,7 +164,6 @@ public class ActivityLogin extends AppCompatActivity {
                     }) {
                 @Override
                 protected Map<String, String> getParams() {
-                    //TODO password sent plain-text, lol
                     Map<String, String> params = new HashMap<String, String>();
                     params.put(Global.PASSWORD, password);
                     params.put(Global.EMAIL, email);
@@ -174,7 +171,7 @@ public class ActivityLogin extends AppCompatActivity {
                 }
 
                 @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
+                public Map<String, String> getHeaders() {
                     Map<String, String> header = new HashMap<String, String>();
                     String accessToken = getSharedPreferences(Global.LOGIN, MODE_PRIVATE).getString(Global.ACCESS_TOKEN, null);
                     header.put("Authorization", "Bearer " + accessToken);

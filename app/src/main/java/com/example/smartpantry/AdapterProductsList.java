@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,15 +39,26 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsList.ProductItemViewHolder>{
-    public static List<Product> productsList;
-    private AdapterProductsList.onCardEvents cardEvents;
+public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsList.ProductItemViewHolder>
+        implements FragmentAddToShoppingList.AddToShoppingListEvent{
+    public static List<ProductComplete> productsList;
+    private final AdapterProductsList.onCardEvents cardEvents;
     private int expandedItem = -1;
     private int previouslyExpandedItem = -1;
 
-    AdapterProductsList(List<Product> productsList, onCardEvents cardEvents) {
+    AdapterProductsList(List<ProductComplete> productsList, onCardEvents cardEvents) {
         AdapterProductsList.productsList = productsList;
         this.cardEvents = cardEvents;
+    }
+
+    //In the show products activity it isn't needed the implementation of this method
+    @Override
+    public void deleteProductFromPantry(int position, Context context) {}
+
+    @Override
+    public void updateProductShoppingQuantity(int position, long toBuyQnt) {
+        productsList.get(position).shopping_qnt = toBuyQnt;
+        notifyItemChanged(position);
     }
 
     public interface onCardEvents {
@@ -68,7 +78,7 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
 
     @Override
     public void onBindViewHolder(@NonNull AdapterProductsList.ProductItemViewHolder holder, int position) {
-        holder.cv.setId(Integer.parseInt(productsList.get(holder.getAdapterPosition()).id));
+        //holder.cv.setId(Integer.parseInt(productsList.get(holder.getAdapterPosition()).id));
         //isExpanded is true if the current item is expanded
         final boolean isExpanded = (holder.getAdapterPosition() == expandedItem);
         holder.fullProduct.setVisibility(isExpanded ? VISIBLE : GONE);
@@ -77,6 +87,23 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         if (isExpanded) {
             previouslyExpandedItem = holder.getAdapterPosition();
         }
+
+        //If item already in the shopping list, an icon is showed and the button is disabled
+        holder.inShoppingIcon.setVisibility(
+                productsList.get(holder.getAdapterPosition()).shopping_qnt > 0 ?
+                        VISIBLE : GONE
+        );
+        holder.addToShoppingButton.setEnabled(productsList.get(holder.getAdapterPosition()).shopping_qnt <= 0);
+
+        //Set expire date
+        String expireDate = (productsList.get(holder.getAdapterPosition()).expire_date == null ? "" :
+                productsList.get(holder.getAdapterPosition()).expire_date);
+
+        //Date picker event
+        holder.expireDateField.setOnClickListener(v -> {
+            initializeDatePicker(v.getContext(), holder, expireDate);
+        });
+
         holder.cv.setOnClickListener(v->{
             //Logic to keep just one of the cards expanded
             expandedItem = isExpanded ? -1 : holder.getAdapterPosition();
@@ -88,9 +115,6 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
             );
         });
 
-        //Set expire date
-        String expireDate = (productsList.get(holder.getAdapterPosition()).expire_date == null ? "" :
-                productsList.get(holder.getAdapterPosition()).expire_date);
 
         //Set favorite value
         holder.fav.setChecked(productsList.get(holder.getAdapterPosition()).is_favorite);
@@ -102,11 +126,6 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
             productsList.get(holder.getAdapterPosition()).is_favorite = holder.fav.isChecked();
             notifyDataSetChanged();
             cardEvents.productUpdated();
-        });
-
-        //Date picker event
-        holder.expireDateField.setOnClickListener(v -> {
-            initializeDatePicker(v.getContext(), holder, expireDate);
         });
 
         //Clear date field
@@ -144,8 +163,17 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         holder.updateItemButton.setEnabled(false);
 
         holder.deleteItemButton.setOnClickListener(v->{
-            //Delete item from pantry event
             askToDeleteProduct(holder.getAdapterPosition(), holder.cv.getContext());
+        });
+
+        //Add to shopping list
+        holder.addToShoppingButton.setOnClickListener(v->{
+            askToAddInShoppingList(
+                    holder.cv.getContext(),
+                    productsList.get(holder.getAdapterPosition()).quantity,
+                    holder.getAdapterPosition(),
+                    productsList.get(holder.getAdapterPosition()).id
+            );
         });
 
         //Load and show icon
@@ -156,7 +184,7 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
             ims.close();
             holder.icon.setImageBitmap(bitmap);
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         //Icon click event to change icon
@@ -174,15 +202,16 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
                     .commit();
         });
 
-        //This label is displayed  if the expire date isn't specified but the product is in pantry
-        String toDisplayDateLabel = holder.cv.getContext().getString(R.string.productInPantry);;
-
         //If in pantry without date color set to green
         holder.infoLabel.setTextColor(
                 ContextCompat.getColor(holder.cv.getContext(),
                         R.color.black)
         );
         holder.expireDateField.setText("");
+
+        //This label is displayed  if the expire date isn't specified but the product is in pantry
+        String toDisplayDateLabel = holder.cv.getContext().getString(R.string.productInPantry);
+
         //Write current expire date in expireDateField
         if(!expireDate.isEmpty()) {
             //Show date in localFormat from fixed db format
@@ -225,6 +254,19 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         //Set description value and listener to ignore touch
         holder.description.setText(productsList.get(holder.getAdapterPosition()).description);
         holder.description.setOnClickListener(v->{});
+    }
+
+    private void askToAddInShoppingList(Context context, long quantity, int position, String id) {
+        Bundle bundle = new Bundle();
+        bundle.putString("id", id);
+        bundle.putLong("quantity", quantity);
+        bundle.putInt("position", position);
+        FragmentAddToShoppingList fragmentAddToShoppingList = new FragmentAddToShoppingList(this);
+        fragmentAddToShoppingList.setArguments(bundle);
+        ((ActivityShowProducts)context).getSupportFragmentManager().beginTransaction()
+                .add(R.id.activity_all_products, fragmentAddToShoppingList)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void askToDeleteProduct(int position, Context context) {
@@ -383,12 +425,12 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         return productsList.size();
     }
 
-    public class ProductItemViewHolder extends RecyclerView.ViewHolder {
+    public static class ProductItemViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         TextView name, description, infoLabel, quantity;
-        ImageView icon, expandableStateImage;
+        ImageView icon, expandableStateImage, inShoppingIcon;
         ToggleButton fav;
-        ImageButton clearDateButton;
+        ImageButton clearDateButton, addToShoppingButton;
         Button deleteItemButton, updateItemButton;
         ConstraintLayout fullProduct;
         EditText expireDateField, quantityField;
@@ -401,10 +443,12 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
             infoLabel = itemView.findViewById(R.id.infoLabel);
             quantity  = itemView.findViewById(R.id.productQuantity);
             icon = itemView.findViewById(R.id.iconView);
+            inShoppingIcon = itemView.findViewById(R.id.inShoppingListIcon);
             expandableStateImage = itemView.findViewById(R.id.expandableStateImageView);
             fav = itemView.findViewById(R.id.favCheckbox);
             fullProduct = itemView.findViewById(R.id.fullDetails);
             clearDateButton = itemView.findViewById(R.id.cancelDateButton);
+            addToShoppingButton = itemView.findViewById(R.id.addToShoppingBtn);
             deleteItemButton = itemView.findViewById(R.id.removeItemButton);
             updateItemButton = itemView.findViewById(R.id.updateProduct);
             expireDateField = itemView.findViewById(R.id.productExpireDateField);

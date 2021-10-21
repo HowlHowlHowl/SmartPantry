@@ -25,10 +25,10 @@
 
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:id="@+id/popUpWindow"
+            android:id="@+id/bgPopUp"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:layout_marginTop="229dp"
+            android:layout_marginTop="230dp"
             android:layout_marginBottom="300dp"
             android:background="#FFFFFF">
 
@@ -62,7 +62,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/manualEntryTitle" />
 
             <TextView
-                android:id="@+id/scanResultDescr"
+                android:id="@+id/addToShoppingDescr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="25dp"
@@ -86,7 +86,7 @@
                 app:layout_constraintStart_toStartOf="parent">
 
                 <Button
-                    android:id="@+id/retryBtn"
+                    android:id="@+id/closeAddShoppingBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/retryBtnText"
@@ -103,12 +103,12 @@
                     android:layout_height="match_parent"
                     android:layout_marginBottom="6dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/confirmBtn"
+                    app:layout_constraintEnd_toStartOf="@+id/addShoppingBtn"
                     app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toEndOf="@+id/retryBtn" />
+                    app:layout_constraintStart_toEndOf="@+id/closeAddShoppingBtn" />
 
                 <Button
-                    android:id="@+id/confirmBtn"
+                    android:id="@+id/addShoppingBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/button_confirm"

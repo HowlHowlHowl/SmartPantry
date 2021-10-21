@@ -3,10 +3,8 @@ package com.example.smartpantry;
 import static android.util.Log.ASSERT;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -17,7 +15,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,7 +32,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -43,11 +39,11 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.navigation.NavigationView;
@@ -58,35 +54,30 @@ import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ActivityMain extends AppCompatActivity
         implements
-                FragmentAddProduct.onProductAddedListener,
-                FragmentManuelEntryProduct.onManualEntryListener,
-                FragmentFilters.onApplyFilters,
-                NavigationView.OnNavigationItemSelectedListener,
-        AdapterPantryList.onCardEvents {
+            SwipeRefreshLayout.OnRefreshListener,
+            FragmentAddProduct.onProductAddedListener,
+            FragmentManualEntryProduct.onManualEntryListener,
+        FragmentPreviewProduct.onPreviewActionListener,
+            FragmentFilters.onApplyFilters,
+            FragmentAlreadySavedBarcode.onConfirmSearchPressedListener,
+            NavigationView.OnNavigationItemSelectedListener,
+            AdapterPantryList.onCardEvents {
 
     private DBHelper database;
-
     private AdapterPantryList pantryAdapter;
-
-
     private List<ProductPantryItem> pantryProducts;
     private RecyclerView pantryRecyclerView;
     private DrawerLayout drawerLayout;
+    private SwipeRefreshLayout swipeRefresh;
     /*
     TODO:
          1. REFACTOR CODE USING THREADS FOR DB AND NETWORK OPERATIONS
-         2. ADD IMAGE TO USER
-         3. ASK WHEN MATCHING BARCODE IF USER WANT TO MODIFY ONE FO THE FOUND INSTEAD OF ADDING A NEW ONE
-         4. EVENTUALLY ASK TO PUT EXPIRED ITEMS IN SHOPPING LIST (INSTEAD OF ASKING FOR CONFIRMATION?)
-         5. SHOPPING LIST ACTIVITY WITH CHECKBOX, SEARCH AND DELETE MECHANISM
     */
 
     @Override
@@ -109,6 +100,9 @@ public class ActivityMain extends AppCompatActivity
         //Title of drawer: if available the username it's written
         TextView navUsername = headerView.findViewById(R.id.username_view);
 
+        swipeRefresh = findViewById(R.id.swipe_layout);
+        swipeRefresh.setOnRefreshListener(this);
+
         navUsername.setText(getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
                 .getString(Global.USERNAME, getResources().getString(R.string.accountText))
         );
@@ -125,7 +119,6 @@ public class ActivityMain extends AppCompatActivity
             drawerLayout.openDrawer(GravityCompat.START);
         });
 
-        //
         //Products button
         ImageButton productsButton = findViewById(R.id.productsBtn);
         productsButton.setOnClickListener(v->{
@@ -143,6 +136,19 @@ public class ActivityMain extends AppCompatActivity
             }
         });
 
+        //Shopping list button
+        ImageButton shoppingBtn =  findViewById(R.id.shoppingBtn);
+        shoppingBtn.setOnClickListener(v->{
+            Intent shoppingListIntent =  new Intent(this, ActivityShoppingList.class);
+            startActivityForResult(shoppingListIntent, Global.SHOPPING_ACTIVITY);
+        });
+
+        //Recipes button
+        ImageButton recipesButton =  findViewById(R.id.recipesBtn);
+        recipesButton.setOnClickListener(v->{
+            Toast.makeText(getApplicationContext(), "NOT YET AVAILABLE", Toast.LENGTH_LONG).show();
+        });
+
         LinearLayout deleteAllProducts = findViewById(R.id.deleteAllProducts);
         deleteAllProducts.setOnClickListener(v->{
             askToDeleteAllProducts();
@@ -150,7 +156,7 @@ public class ActivityMain extends AppCompatActivity
 
         Button barcodeManualEntry = findViewById(R.id.manualEntryBtn);
         barcodeManualEntry.setOnClickListener(v -> {
-            FragmentManuelEntryProduct fragManualEntry = new FragmentManuelEntryProduct();
+            FragmentManualEntryProduct fragManualEntry = new FragmentManualEntryProduct();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.activity_main, fragManualEntry)
                     .addToBackStack(null)
@@ -171,7 +177,7 @@ public class ActivityMain extends AppCompatActivity
         handleLogin();
         startPeriodicExpireCheck();
 
-        Log.println(ASSERT, "USER ID", getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).getString(Global.ID, null));
+        Log.println(ASSERT, "USER ID", getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).getString(Global.ID, "null"));
     }
 
     private void setSearchBox(){
@@ -194,6 +200,12 @@ public class ActivityMain extends AppCompatActivity
         searchInPantryField.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                //Hide keyboard
+                InputMethodManager imm = (InputMethodManager) ActivityMain.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(ActivityMain.this.getWindow().getDecorView().getWindowToken(), 0);
+                }
+
                 return true;
             }
             @Override
@@ -256,65 +268,251 @@ public class ActivityMain extends AppCompatActivity
         });
     }
 
-    protected void startPeriodicExpireCheck() {
-        //This method set a repeating alarm to check if inside the pantry there are expired products.
-        //If so, it notify the user thanks to the broadcast receiver "AlarmBroadcastReceiver"
-        Intent intentServiceSetAlarm = new Intent(this, IntentServiceSetAlarm.class);
-        startService(intentServiceSetAlarm);
-        /*
-        Intent alarmBroadcastIntent = new Intent(this, BroadcastReceiverExpireCheck.class);
-        alarmBroadcastIntent.setAction(Global.EXPIRED_INTENT_ACTION);
-
-        @SuppressLint("UnspecifiedImmutableFlag")
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this.getApplicationContext(),
-                Global.REQUEST_CODE_CHECK,
-                alarmBroadcastIntent, PendingIntent.FLAG_UPDATE_CURRENT); //The warning for the last parameter is due to a bug resolved
-        // in the new alpha release but the alpha it's unstable
-        //calendar will hold the time for the alarm to fire
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        //Set hour and minute, hardcoded values because a product always expire after midnight so there shouldn't be no need to change these numbers
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
-        calendar.set(Calendar.MINUTE, 21);
-        calendar.set(Calendar.SECOND, 0);
-        //If current hour is past 00:15 set the date to next day
-        if (calendar.getTime().compareTo(new Date()) < 0) {
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-        }
-        //Hour of the day
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY,
-                pendingIntent
-        );
-         */
-    }
-    @Override
-    protected void onStop() {
-        //Clear temporary sorting preferences
-        SharedPreferences.Editor ed = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit();
-        ed.putString(Global.TEMP_ORDER, null);
-        ed.putString(Global.TEMP_FLOW, null);
-        ed.commit();
-        super.onStop();
-    }
-
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getAction().equals(Global.EXPIRED_INTENT_ACTION)) {
-            //The notification for expired items has been touched and we display the products
-            //inside the pantry showing the expired ones first
-            SharedPreferences.Editor ed = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit();
-            ed.putString(Global.TEMP_ORDER, DBHelper.COLUMN_PRODUCT_EXPIRE_DATE);
-            ed.putString(Global.TEMP_FLOW, Global.ASC_ORDER);
-            ed.apply();
-            populatePantryList(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE, Global.ASC_ORDER);
-            pantryAdapter.notifyDataSetChanged();
+        switch (intent.getAction()) {
+            case Global.EXPIRED_INTENT_ACTION: {
+                //The Intent has been issued by the touch of a notification about
+                //some items in the pantry are expired
+                SharedPreferences.Editor ed = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit();
+                ed.putString(Global.TEMP_ORDER, DBHelper.COLUMN_PRODUCT_EXPIRE_DATE);
+                ed.putString(Global.TEMP_FLOW, Global.ASC_ORDER);
+                ed.apply();
+                populatePantryList(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE, Global.ASC_ORDER);
+                pantryAdapter.notifyDataSetChanged();
+            }
+            case Global.FAVORITES_INTENT_ACTION: {
+                //The Intent has been issued by the touch of a notification about
+                //some favorite items missing in the pantry
+                Intent showProductsIntent =  new Intent(this, ActivityShowProducts.class);
+                showProductsIntent.putExtra(Global.FAVORITES_INTENT_ACTION, true);
+                startActivityForResult(showProductsIntent, Global.PRODUCTS_ACTIVITY);
+            }
         }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        // Handle navigation view item clicks here.
+        switch(item.getItemId()) {
+            case R.id.logoutBtn:
+                logout();
+                break;
+            case R.id.clearPantry:
+                askToClearPantry();
+                break;
+            case R.id.manageNotifications:
+                showNotificationManager();
+                break;
+
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case Global.CAMERA_ACTIVITY:
+                if(resultCode == Activity.RESULT_OK){
+                    Log.println(ASSERT, "ACTIVITY RESULT", "CAMERA ACTIVITY");
+                    String barcode = data.getStringExtra("barcode");
+                    if(productNeverSaved(barcode)) {
+                        //TODO TEST AND CHANGE EVERYWHERE new Handler(Looper.getMainLooper()).post(() -> getProductsByBarcode(barcode, true));
+                        getProductsByBarcode(barcode, true);
+
+                    }
+                }
+                break;
+            case Global.PRODUCTS_ACTIVITY:
+            case Global.SHOPPING_ACTIVITY:
+                if(resultCode == Activity.RESULT_OK){
+                    Log.println(ASSERT, "ACTIVITY RESULT", "PRODUCTS ACTIVITY");
+                    refreshPantry();
+                }
+        }
+    }
+
+    //Override of the method to refresh the SwipeRefreshLayout
+    @Override
+    public void onRefresh() {
+        refreshPantry();
+        swipeRefresh.setRefreshing(false);
+    }
+
+    //Interface Override of FragmentAddProduct method to add the product on the local db
+    //and on the remote server
+    @Override
+    public void onProductAdded(String id, String barcode, String name, String description, String expire, long quantity,
+                               String icon, boolean test, boolean addToPantry, boolean isNew) {
+        if(isNew) {
+            //If the item is new after being inserted in the server
+            //it's added to the local db with the ID returned by the server
+             addProductRemote(barcode, name, description, test, expire, quantity, icon, addToPantry);
+        } else {
+            //Else we already have the id and we can update the local db
+            addProductLocal(id, barcode, name, description, expire, quantity, icon, addToPantry);
+        }
+        AdapterPantryList.pantryProducts.add(new ProductPantryItem(
+                name, description, expire,
+                id, icon, 0,
+                quantity, 0));
+        pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount());
+    }
+
+    //Interface Override of FragmentManualEntryProduct method to receive the barcode from the fragment
+    @Override
+    public void onManualEntry(String barcode) {
+        if(productNeverSaved(barcode)) {
+            getProductsByBarcode(barcode, true);
+        }
+    }
+
+    //Interface Override of AdapterPantryList method to open and close cards on touch
+    @Override
+    public void cardClicked(int position, int expandedPosition, int previouslyExpandedPosition) {
+        pantryAdapter.notifyItemChanged(previouslyExpandedPosition);
+        pantryAdapter.notifyItemChanged(expandedPosition);
+        pantryRecyclerView.smoothScrollToPosition(position);
+    }
+
+    //Interface Override of FragmentPreviewProduct method to delete product from the server
+    @Override
+    public void onDeleteFromServer(String id, String barcode) {
+        deleteProductFromServer(id, barcode);
+    }
+
+    @Override
+    public void onVoteProduct(int preference, String id, String barcode) {
+        voteProduct(preference, id, barcode);
+    }
+
+    //Interface Override of AdapterPantryList method to delete items from the pantry
+    @Override
+    public void deleteItem(int position) {
+        pantryProducts.remove(position);
+        pantryAdapter.notifyItemChanged(position);
+        refreshPantry();
+    }
+
+    //Interface Override of 'apply button' pressed from FragmentFilters to apply filters to the pantry
+    @Override
+    public void applyFilters(boolean notInPantry, String order, String flow) {
+        populatePantryList(order, flow);
+        pantryAdapter.notifyDataSetChanged();
+    }
+
+    //Interface Override of 'confirm button' pressed from FragmentAlreadySavedBarcode to search the barcode
+    @Override
+    public void onConfirmSearchPressed(String barcode) {
+        getProductsByBarcode(barcode, true);
+    }
+
+    private void refreshPantry() {
+        SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER,MODE_PRIVATE);
+        String order = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
+        String flow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
+        populatePantryList(order, flow);
+        pantryAdapter.notifyDataSetChanged();
+    }
+
+    protected void startPeriodicExpireCheck() {
+        //This method set a repeating alarm to check if inside the pantry there are expired products.
+        //If so, it notify the user thanks to the broadcast receiver "AlarmBroadcastReceiver"
+        IntentServiceSetAlarm.enqueueWork(getApplicationContext(), new Intent());
+    }
+
+    private boolean productNeverSaved(String barcode) {
+        int matchingBarcodeCount = database.checkProductExistence(barcode);
+        if(matchingBarcodeCount > 0) {
+            askToPickFromProducts(barcode);
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void askToPickFromProducts(String barcode) {
+        FragmentAlreadySavedBarcode alreadySavedBarcode = new FragmentAlreadySavedBarcode();
+        Bundle bundle = new Bundle();
+        bundle.putString("barcode", barcode);
+        alreadySavedBarcode.setArguments(bundle);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, alreadySavedBarcode)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void askToClearPantry() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
+        EditText confirmationEmail =  new EditText(getApplicationContext());
+        confirmationEmail.setHint(R.string.emailText);
+        FrameLayout frame = new FrameLayout(getApplicationContext());
+        frame.addView(confirmationEmail);
+        frame.setPadding(70, 15, 70, 0);
+        builder.setTitle(getResources().getString(R.string.warningText));
+        builder.setView(frame);
+        builder.setMessage(getResources().getString(R.string.deleteItemsFromPantry))
+                .setPositiveButton(
+                        getResources().getString(R.string.confirmBtnText),
+                        (dialog, id) -> {
+                            DBHelper db = new DBHelper(getApplicationContext());
+                            db.deleteAllProductsFromPantry();
+                            db.close();
+                            refreshPantry();
+
+                            Toast.makeText(
+                                    getApplicationContext(),
+                                    getResources().getString(R.string.allProductsDeletedFromPantry),
+                                    Toast.LENGTH_LONG)
+                                    .show();
+                        })
+                .setNegativeButton(
+                        getResources().getString(R.string.cancelText),
+                        (dialog, id) -> dialog.cancel());
+        AlertDialog alert = builder.create();
+        alert.setOnShowListener(arg0 -> {
+            alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                    ContextCompat.getColor(
+                            getApplicationContext(),
+                            R.color.button_confirm));
+
+            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                    ContextCompat.getColor(
+                            getApplicationContext(),
+                            R.color.app_color));
+            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                if(confirmationEmail.getText().toString()
+                        .equals(getApplicationContext()
+                                .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
+                                .getString(Global.EMAIL, ""))) {
+                    DBHelper db = new DBHelper(getApplicationContext());
+                    db.deleteAllProductsFromPantry();
+                    db.close();
+                    pantryAdapter.notifyItemRangeRemoved(0, pantryAdapter.getItemCount());
+                    Toast.makeText(
+                            getApplicationContext(),
+                            getResources().getString(R.string.allProductsDeletedFromPantry),
+                            Toast.LENGTH_LONG)
+                            .show();
+                } else {
+                    confirmationEmail.setError(getResources().getString(R.string.emailMissingErrorText));
+                }
+            });
+        });
+        alert.show();
+    }
+
+    private void showNotificationManager() {
+        FragmentNotificationManager fragmentNotificationManager = new FragmentNotificationManager();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragmentNotificationManager)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void scrollPantryToPosition(int position){
@@ -353,87 +551,7 @@ public class ActivityMain extends AppCompatActivity
         drawable.setOneShot(true);
 
         pantryRecyclerView.getLayoutManager().findViewByPosition(position).setBackground(drawable);
-        handler.postDelayed(() -> {
-            drawable.start();
-            // pantryRecyclerView.getLayoutManager().findViewByPosition(position).callOnClick();
-
-        }, 100);
-    }
-
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        switch(item.getItemId()) {
-            case R.id.logoutBtn:
-                logout();
-                break;
-            case R.id.clearPantry:
-                askToClearPantry();
-                break;
-
-        }
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
-    }
-
-    private void askToClearPantry() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
-        EditText confirmationEmail =  new EditText(getApplicationContext());
-        confirmationEmail.setHint(R.string.emailText);
-        FrameLayout frame = new FrameLayout(getApplicationContext());
-        frame.addView(confirmationEmail);
-        frame.setPadding(70, 15, 70, 0);
-        builder.setTitle(getResources().getString(R.string.warningText));
-        builder.setView(frame);
-        builder.setMessage(getResources().getString(R.string.deleteItemsFromPantry))
-                .setPositiveButton(
-                        getResources().getString(R.string.confirmBtnText),
-                        (dialog, id) -> {
-                            DBHelper db = new DBHelper(getApplicationContext());
-                            db.deleteAllProductsFromPantry();
-                            db.close();
-                            refreshPantry();
-
-                            Toast.makeText(
-                                getApplicationContext(),
-                                getResources().getString(R.string.allProductsDeletedFromPantry),
-                                Toast.LENGTH_LONG)
-                            .show();
-                        })
-                .setNegativeButton(
-                        getResources().getString(R.string.cancelText),
-                        (dialog, id) -> dialog.cancel());
-        AlertDialog alert = builder.create();
-        alert.setOnShowListener(arg0 -> {
-            alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
-                    ContextCompat.getColor(
-                            getApplicationContext(),
-                            R.color.button_confirm));
-
-            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
-                    ContextCompat.getColor(
-                            getApplicationContext(),
-                            R.color.app_color));
-            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-                if(confirmationEmail.getText().toString()
-                        .equals(getApplicationContext()
-                                .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
-                                .getString(Global.EMAIL, ""))) {
-                DBHelper db = new DBHelper(getApplicationContext());
-                db.deleteAllProductsFromPantry();
-                db.close();
-                pantryAdapter.notifyItemRangeRemoved(0, pantryAdapter.getItemCount());
-                Toast.makeText(
-                        getApplicationContext(),
-                        getResources().getString(R.string.allProductsDeletedFromPantry),
-                        Toast.LENGTH_LONG)
-                        .show();
-                } else {
-                    confirmationEmail.setError(getResources().getString(R.string.emailMissingErrorText));
-                }
-            });
-        });
-        alert.show();
+        handler.postDelayed(drawable::start, 100);
     }
 
     private void askToDeleteAllProducts() {
@@ -473,9 +591,9 @@ public class ActivityMain extends AppCompatActivity
                     refreshPantry();
                     alert.dismiss();
                     Toast.makeText(
-                        getApplicationContext(),
-                        getResources().getString(R.string.allProductsDeleted),
-                        Toast.LENGTH_LONG).show();
+                            getApplicationContext(),
+                            getResources().getString(R.string.allProductsDeleted),
+                            Toast.LENGTH_LONG).show();
                 } else {
                     confirmationEmail.setError(getResources().getString(R.string.emailMissingErrorText));
                 }
@@ -484,141 +602,12 @@ public class ActivityMain extends AppCompatActivity
         alert.show();
     }
 
-    private void refreshPantry() {
-        SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER,MODE_PRIVATE);
-        String order = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
-        String flow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
-        populatePantryList(order, flow);
-        pantryAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch(requestCode) {
-            case Global.CAMERA_ACTIVITY:
-                if(resultCode == Activity.RESULT_OK){
-                    String barcode = data.getStringExtra("barcode");
-                    Log.println(ASSERT, "ACTIVITY RESULT", "CAMERA ACTIVITY");
-                    getProductsByBarcode(barcode, true);
-                }
-                break;
-            case Global.PRODUCTS_ACTIVITY:
-                if(resultCode == Activity.RESULT_OK){
-                    refreshPantry();
-                    Log.println(ASSERT, "ACTIVITY RESULT", "PRODUCTS ACTIVITY");
-                }
-        }
-    }
-
-    //Interface implementation of method to add product from addProduct fragment
-    @Override
-    public void productAdded(String barcode, String name, String description, String expire, long quantity,
-                             String icon, boolean test, boolean addToPantry, boolean isNew) {
-        if(isNew) {
-            addProductRemote(barcode, name, description, test);
-        }
-
-        long id = addProductLocal(barcode, name, description, expire, quantity, icon, addToPantry);
-        AdapterPantryList.pantryProducts.add(new ProductPantryItem(
-                name, description, expire,
-                Long.toString(id), icon, 0,
-                quantity));
-        pantryAdapter.notifyItemInserted(pantryAdapter.getItemCount());
-    }
-
-    //Interface implementation of method to receive barcode from manual entry
-    @Override
-    public void manualEntry(String barcode) {
-        getProductsByBarcode(barcode, true);
-    }
-
-    @Override
-    public void cardClicked(int position, int expandedPosition, int previouslyExpandedPosition) {
-        pantryAdapter.notifyItemChanged(previouslyExpandedPosition);
-        pantryAdapter.notifyItemChanged(expandedPosition);
-
-        pantryRecyclerView.smoothScrollToPosition(position);
-    }
-
-    @Override
-    public void deleteItem(int position) {
-        pantryProducts.remove(position);
-        pantryAdapter.notifyItemChanged(position);
-        refreshPantry();
-    }
-    @Override
-    public void applyFilters(String order, String flow) {
-        populatePantryList(order, flow);
-        pantryAdapter.notifyDataSetChanged();
-    }
-
-    private long addProductLocal(String barcode, String name, String description, String expire, long quantity, String icon, boolean addToPantry) {
-        long code = database.insertNewProduct(barcode, name, description, expire, quantity, icon, addToPantry);
+    private void addProductLocal(String id, String barcode, String name, String description,
+                                 String expire, long quantity, String icon, boolean addToPantry) {
+        long code = database.insertNewProduct(id, barcode, name, description, expire, quantity, icon, addToPantry);
         if (code == -1) {
             Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show();
             Log.wtf("ADD LOCAL", "ERROR ADDING PRODUCT TO LOCAL DB");
-        }
-        return code;
-    }
-
-    private void addProductRemote(String barcode, String name, String description, boolean test) {
-        if(Global.checkConnectionAvailability(getApplicationContext())){
-            JSONObject params = new JSONObject();
-            try {
-                RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
-                //Add session token
-                params.put("token",
-                        getApplicationContext()
-                                .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
-                                .getString(Global.SESSION_TOKEN, null));
-
-                //Delete used session token
-                getApplicationContext()
-                        .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
-                        .edit()
-                        .putString(Global.SESSION_TOKEN, null)
-                        .commit();
-
-                //add the remaining fields of the body
-                params.put("name", name);
-                params.put("description", description);
-                params.put("barcode", barcode);
-                params.put("test", test);
-                Log.println(ASSERT, "REMOTE ADD ", "BODY CREATED" + params.toString());
-                JsonObjectRequest addProductRequest = new JsonObjectRequest(Request.Method.POST, Global.ADD_PRODUCT_URL, params,
-                        response -> {
-                    Log.println(ASSERT, "REMOTE ADD RESPONSE", response.toString());
-                        }, Throwable::printStackTrace)
-                {
-                    @Override
-                    public String getBodyContentType() {
-                        return "application/json; charset=utf-8";
-                    }
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        Map<String, String> headers = new HashMap<>();
-                        Log.println(ASSERT, "PRODUCT ADD REMOTE AUTH", getApplicationContext()
-                                .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
-                                .getString(Global.ACCESS_TOKEN, null));
-                        headers.put("Authorization", "Bearer "
-                                +getApplicationContext()
-                                .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
-                                .getString(Global.ACCESS_TOKEN, null));
-                        return headers;
-                    }
-                };
-                queue.add(addProductRequest);
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.println(ASSERT, "REMOTE ADD ERROR", "EXCEPTION");
-            }
-
-
-        } else {
-            Toast.makeText(this, getResources().getString(R.string.noProductAddedError), Toast.LENGTH_LONG).show();
-            Log.println(ASSERT, "REMOTE ADD ERROR", "NO CONNECTION AVAILABLE");
         }
     }
 
@@ -641,12 +630,12 @@ public class ActivityMain extends AppCompatActivity
         }
     }
 
-    public int status(SharedPreferences sp){
+    public int status(@NonNull SharedPreferences sp){
         //JUST LOGGED
         if(sp.getBoolean(Global.CURRENT_SESSION, false)) {
             sp.edit()
                 .putBoolean(Global.CURRENT_SESSION, false)
-                .commit();
+                .apply();
             Log.println(ASSERT, "LOGIN", "OK - JUST LOGGED");
             return Global.LOGIN_STATUS_OK;
         }
@@ -670,94 +659,26 @@ public class ActivityMain extends AppCompatActivity
         }
     }
 
-    private void updateToken() {
-        if (Global.checkConnectionAvailability(getApplicationContext())) {
-            RequestQueue queue = Volley.newRequestQueue(this);
-            StringRequest loginRequest = new StringRequest(Request.Method.POST, Global.LOGIN_URL,
-                    response -> {
-                        try {
-                            JSONObject credentials = new JSONObject(response);
-                            String token = credentials.get(Global.ACCESS_TOKEN).toString();
-                            SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.LOGIN, MODE_PRIVATE);
-                            SharedPreferences.Editor Ed = sp.edit();
-                            Ed.putString(Global.ACCESS_TOKEN, token);
-                            Ed.putString(Global.VALID_DATE, Global.getNewValidDate());
-                            Ed.commit();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    },
-                    error -> {
-                        error.printStackTrace();
-                    }) {
-                        @Override
-                        protected Map<String, String> getParams() {
-                            Map<String, String> params = new HashMap<>();
-                            SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.USER_DATA, MODE_PRIVATE);
-                            params.put(Global.EMAIL, sp.getString(Global.EMAIL, null));
-                            params.put(Global.PASSWORD, sp.getString(Global.PASSWORD, null));
-                            return params;
-                }
-            };
-            queue.add(loginRequest);
-        } else {
-            logout();
-        }
-    }
-
     private void logout() {
         SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.LOGIN, MODE_PRIVATE);
         SharedPreferences.Editor Ed = sp.edit();
         Ed.putBoolean(Global.STAY_LOGGED, false);
-        Ed.commit();
+        Ed.apply();
         Intent login = new Intent(this, ActivityLogin.class);
         startActivity(login);
         this.finish();
     }
 
-    private void getProductsByBarcode(String barcode, boolean show) {
-        //TODO check in pantry and in products? Eventually show a pop up saying so
-        if (Global.checkConnectionAvailability(getApplicationContext())) {
-            RequestQueue queue = Volley.newRequestQueue(this);
-            StringRequest showProductsByCodeRequest =
-                    new StringRequest(Request.Method.GET, Global.LIST_PRODUCTS_URL + barcode,
-                    response -> {
-                        try {
-                            JSONObject responseObject = new JSONObject(response);
-                            String sessionToken = responseObject.getString("token");
-                            Log.println(ASSERT,"responseOBJECT", responseObject.toString() );
-                            Log.println(ASSERT,"SESSION TOKEN", sessionToken );
-
-                            JSONArray productsList = responseObject.getJSONArray("products");
-                            getApplicationContext()
-                                    .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
-                                    .edit()
-                                    .putString(Global.SESSION_TOKEN, sessionToken)
-                                    .apply();
-                            if(show) {
-                                showMatchProducts(barcode, productsList);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }, Throwable::printStackTrace) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> headers = new HashMap<>();
-                    headers.put("Authorization", "Bearer "
-                            +getApplicationContext()
-                            .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
-                            .getString(Global.ACCESS_TOKEN, null));
-                    return headers;
-                }
-            };
-            queue.add(showProductsByCodeRequest);
-        } else {
-            Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show();
+    private void showMatchProducts(String barcode, @NonNull JSONArray products) {
+        FragmentBarcodeListProducts oldFragment =
+                (FragmentBarcodeListProducts) getSupportFragmentManager()
+                        .findFragmentByTag("fragmentBarcodeListProducts");
+        if(oldFragment != null){
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(oldFragment)
+                    .commit();
         }
-    }
-
-    private void showMatchProducts(String barcode, JSONArray products) {
         Bundle bundle = new Bundle();
         bundle.putString("barcode", barcode);
         bundle.putString("productsString", products.toString());
@@ -765,7 +686,7 @@ public class ActivityMain extends AppCompatActivity
         fragmentBarcodeListProducts.setArguments(bundle);
         getSupportFragmentManager()
             .beginTransaction()
-            .add(R.id.activity_main, fragmentBarcodeListProducts)
+            .add(R.id.activity_main, fragmentBarcodeListProducts, "fragmentBarcodeListProducts")
             .addToBackStack(null)
             .commit();
     }
@@ -818,13 +739,100 @@ public class ActivityMain extends AppCompatActivity
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_ID)),
                 cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_ICON)),
                 cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_IS_FAVORITE)),
-                cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_QUANTITY))
+                cursor.getLong(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_QUANTITY)),
+                cursor.getLong(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_TO_BUY_QUANTITY))
             ));
             cursor.moveToNext();
         }
         cursor.close();
     }
 
+    /** HTTP CALLS */
+
+    //UPDATE ACCESS TOKEN
+    private void updateToken() {
+        if (Global.checkConnectionAvailability(getApplicationContext())) {
+            Log.println(ASSERT, "UPDATE TOKEN", "WE CONNECTED");
+            RequestQueue queue = Volley.newRequestQueue(this);
+            StringRequest loginRequest = new StringRequest(Request.Method.POST, Global.LOGIN_URL,
+                    response -> {
+                        try {
+                            Log.println(ASSERT, "UPDATE TOKEN", "TRYING");
+                            JSONObject credentials = new JSONObject(response);
+                            String token = credentials.get(Global.ACCESS_TOKEN).toString();
+                            SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.LOGIN, MODE_PRIVATE);
+                            SharedPreferences.Editor Ed = sp.edit();
+                            Ed.putString(Global.ACCESS_TOKEN, token);
+                            Ed.putString(Global.VALID_DATE, Global.getNewValidDate());
+                            Ed.apply();
+
+                            Log.println(ASSERT, "UPDATE TOKEN", "TOKEN " + token + " VALID UNTIL " + Global.getNewValidDate());
+                        } catch (JSONException e) {
+                            Log.println(ASSERT, "UPDATE TOKEN", "EXCEPTION");
+                            e.printStackTrace();
+                        }
+                    },
+                    Throwable::printStackTrace) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.USER_DATA, MODE_PRIVATE);
+                    params.put(Global.EMAIL, sp.getString(Global.EMAIL, null));
+                    params.put(Global.PASSWORD, sp.getString(Global.PASSWORD, null));
+                    return params;
+                }
+            };
+            queue.add(loginRequest);
+        } else {
+            logout();
+        }
+    }
+
+    //IF SHOW IS TRUE GET AND SHOW PRODUCTS BY BARCODE
+    //ELSE IT'S USED TO GET A NEW SESSION TOKEN
+    private void getProductsByBarcode(String barcode, boolean show) {
+        if (Global.checkConnectionAvailability(getApplicationContext())) {
+            RequestQueue queue = Volley.newRequestQueue(this);
+            StringRequest showProductsByCodeRequest =
+                    new StringRequest(Request.Method.GET, Global.LIST_PRODUCTS_URL + barcode,
+                            response -> {
+                                try {
+                                    JSONObject responseObject = new JSONObject(response);
+                                    String sessionToken = responseObject.getString("token");
+                                    Log.println(ASSERT,"PRODS BY BARCODE","responseOBJECT " + responseObject.toString() );
+                                    Log.println(ASSERT,"PRODS BY BARCODE","SESSION TOKEN " + sessionToken );
+
+                                    JSONArray productsList = responseObject.getJSONArray("products");
+                                    getApplicationContext()
+                                            .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
+                                            .edit()
+                                            .putString(Global.SESSION_TOKEN, sessionToken)
+                                            .apply();
+                                    if(show) {
+                                        showMatchProducts(barcode, productsList);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }, Throwable::printStackTrace) {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("Authorization", "Bearer "
+                                    +getApplicationContext()
+                                    .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
+                                    .getString(Global.ACCESS_TOKEN, null));
+                            return headers;
+                        }
+                    };
+            queue.add(showProductsByCodeRequest);
+        } else {
+            Log.println(ASSERT, "PRODS BY BARCODE", "NO CONNECTION");
+            Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    //VOTE PRODUCT GIVING RATING, PRODUCT ID AND BARCODE
     public void voteProduct(int rating, String productID, String barcode) {
         if (Global.checkConnectionAvailability(getApplicationContext())) {
             JSONObject params = new JSONObject();
@@ -848,7 +856,7 @@ public class ActivityMain extends AppCompatActivity
                             if(preview != null) {
                                 preview.showRatingResult(respObj.getInt("rating"));
                             }
-                            //This refresh the session token
+                            //This call with parameter 'show=false' refresh the session token
                             getProductsByBarcode(barcode, false);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -891,4 +899,111 @@ public class ActivityMain extends AppCompatActivity
         }
     }
 
+    //METHOD TO DELETE PRODUCT FROM SERVER
+    private void deleteProductFromServer(String id, String barcode) {
+        Log.println(ASSERT, "DELETING", "id=" + id);
+        if(Global.checkConnectionAvailability(getApplicationContext())){
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            StringRequest deleteProductRequest = new StringRequest(Request.Method.DELETE, Global.DELETE_PRODUCT_URL + id,
+                    response -> {
+                        getProductsByBarcode(barcode, true);
+                    }, Throwable::printStackTrace)
+            {
+                @Override
+                public String getBodyContentType() {
+                    return "application/json; charset=utf-8";
+                }
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", "Bearer "
+                            +getApplicationContext()
+                            .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
+                            .getString(Global.ACCESS_TOKEN, null));
+                    return headers;
+                }
+            };
+            queue.add(deleteProductRequest);
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.productDeletedError), Toast.LENGTH_LONG).show();
+            Log.println(ASSERT, "REMOTE DELETE ERROR", "NO CONNECTION AVAILABLE");
+        }
+    }
+
+    //SEND PRODUCT TO ADD TO THE SERVER
+    private void addProductRemote(String barcode, String name, String description, boolean test,
+                                  String expire, long quantity, String icon, boolean addToPantry) {
+        if(Global.checkConnectionAvailability(getApplicationContext())){
+            JSONObject params = new JSONObject();
+            try {
+                RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                //Add session token
+                params.put("token",
+                        getApplicationContext()
+                                .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
+                                .getString(Global.SESSION_TOKEN, null));
+
+                //Delete used session token
+                getApplicationContext()
+                        .getSharedPreferences(Global.UTILITY, MODE_PRIVATE)
+                        .edit()
+                        .putString(Global.SESSION_TOKEN, null)
+                        .apply();
+
+                //add the remaining fields of the body
+                params.put("name", name);
+                params.put("description", description);
+                params.put("barcode", barcode);
+                params.put("test", test);
+
+                JsonObjectRequest addProductRequest = new JsonObjectRequest(Request.Method.POST, Global.ADD_PRODUCT_URL, params,
+                        response -> {
+                            try {
+                                String newID = response.getString("id");
+                                Log.println(ASSERT, "REMOTE ADD RESPONSE", newID);
+                                addProductLocal(newID, barcode, name, description, expire, quantity, icon, addToPantry);
+                            } catch (JSONException e) {
+                                //the upload of the new product has failed
+                                Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show();
+                                e.printStackTrace();
+                            }
+
+                        }, Throwable::printStackTrace)
+                {
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json; charset=utf-8";
+                    }
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> headers = new HashMap<>();
+                        Log.println(ASSERT, "PRODUCT ADD REMOTE AUTH", getApplicationContext()
+                                .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
+                                .getString(Global.ACCESS_TOKEN, null));
+                        headers.put("Authorization", "Bearer "
+                                +getApplicationContext()
+                                .getSharedPreferences(Global.LOGIN, MODE_PRIVATE)
+                                .getString(Global.ACCESS_TOKEN, null));
+                        return headers;
+                    }
+                };
+                queue.add(addProductRequest);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.println(ASSERT, "REMOTE ADD ERROR", "EXCEPTION");
+            }
+
+
+        } else {
+            Toast.makeText(this, getResources().getString(R.string.noProductAddedError), Toast.LENGTH_LONG).show();
+            Log.println(ASSERT, "REMOTE ADD ERROR", "NO CONNECTION AVAILABLE");
+        }
+    }
+
+/*
+    DELETE PRODUCT FROM SERVER
+    public void deleteFromServer() {
+    }
+ */
 }

@@ -6,18 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Rect;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -30,35 +26,71 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class ActivityShowProducts extends AppCompatActivity
         implements AdapterProductsList.onCardEvents, FragmentIconPicker.onIconChosen,
         FragmentFilters.onApplyFilters {
     private RecyclerView productsRecyclerView;
     private AdapterProductsList productsAdapter;
-    private List<Product> productsList;
+    private List<ProductComplete> productsList;
     private String productsOrder, productsFlow;
+    private boolean productsNotInPantry = false;
     private boolean resultIsSet = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_products);
+
+        //Stop adjustment of views when keyboard pops up
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+        findViewById(R.id.backBtnLayout).setOnClickListener(v->{
+            finish();
+        });
+
         findViewById(R.id.backBtn).setOnClickListener(v->{
             finish();
         });
+
         ImageButton filterButton = findViewById(R.id.imageFilterButton);
         filterButton.setOnClickListener(v->{
             FragmentFilters fragmentFilters = new FragmentFilters();
+            Bundle bundle = new Bundle();
+            bundle.putInt(
+                    "activity",
+                    Global.PRODUCTS_ACTIVITY
+            );
+            fragmentFilters.setArguments(bundle);
             getSupportFragmentManager()
                     .beginTransaction()
                     .add(R.id.activity_all_products, fragmentFilters)
                     .addToBackStack(null)
                     .commit();
         });
+        if(getIntent().getBooleanExtra(Global.FAVORITES_INTENT_ACTION, false)) {
+            SharedPreferences.Editor ed = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit();
+            ed.putString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE);
+            ed.putString(Global.FLOW, Global.DESC_ORDER);
+            ed.putBoolean(Global.NOT_IN_PANTRY, true);
+            ed.apply();
+        }
         setProductsRecyclerView();
         setSearchBox();
+        if(getIntent().getExtras() != null) {
+            productsRecyclerView.postDelayed(()->{
+                int pos = getIntent().getExtras().getInt("position");
+                LinearLayoutManager llm = (LinearLayoutManager)productsRecyclerView.getLayoutManager();
+                //If the item is fully visible flash it else scroll to it and then flash it
+                if( llm.findFirstCompletelyVisibleItemPosition() <= pos &&
+                        llm.findLastCompletelyVisibleItemPosition() >= pos){
+                    flashSearchedView(pos);
+                } else {
+                    scrollPantryToPosition(pos);
+                }
+
+            }, 50);
+        }
     }
 
     private void setProductsRecyclerView() {
@@ -68,21 +100,24 @@ public class ActivityShowProducts extends AppCompatActivity
         productsList = new ArrayList<>();
 
         SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE);
-        productsOrder = sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE);
-        productsFlow = sp.getString(Global.FLOW, Global.DESC_ORDER);
-        populateProductsList(productsOrder, productsFlow);
+
+        productsOrder = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
+        productsFlow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
+
+        productsNotInPantry = sp.getBoolean(Global.NOT_IN_PANTRY, false);
+        populateProductsList(productsNotInPantry, productsOrder, productsFlow);
 
         productsAdapter = new AdapterProductsList(productsList, this);
         productsRecyclerView.setAdapter(productsAdapter);
     }
 
-    private void populateProductsList(String order, String flow ) {
+    private void populateProductsList(boolean notInPantry, String order, String flow ) {
         productsList.clear();
         DBHelper database = new DBHelper(getApplicationContext());
-        Cursor cursor = database.getAllProducts(order, flow);
+        Cursor cursor = database.getAllProducts(notInPantry, order, flow);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            productsList.add(new Product(
+            productsList.add(new ProductComplete(
                     cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_NAME)),
                     cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_DESCRIPTION)),
                     cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE)),
@@ -90,6 +125,7 @@ public class ActivityShowProducts extends AppCompatActivity
                     cursor.getString(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_ICON)),
                     cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_IS_FAVORITE)),
                     cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_QUANTITY)),
+                    cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_TO_BUY_QUANTITY)),
                     cursor.getInt(cursor.getColumnIndex(DBHelper.COLUMN_PRODUCT_IN_PANTRY))
             ));
             cursor.moveToNext();
@@ -113,14 +149,16 @@ public class ActivityShowProducts extends AppCompatActivity
                 }
             }
         });
-
         //When the user clicks on the search-box the products list is refreshed
         //this way the positions match
-
-
         searchInProductsField.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                //Hide keyboard
+                InputMethodManager imm = (InputMethodManager) ActivityShowProducts.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(ActivityShowProducts.this.getWindow().getDecorView().getWindowToken(), 0);
+                }
                 return true;
             }
             @Override
@@ -128,7 +166,7 @@ public class ActivityShowProducts extends AppCompatActivity
                 ListView resultsListView = findViewById(R.id.searchResultsList);
                 List<SuggestionItem> matchingProducts = new ArrayList<>();
                 for(int i = 0; i < productsList.size(); i++ ) {
-                    Product item = productsList.get(i);
+                    ProductComplete item = productsList.get(i);
                     String itemName = item.name;
                     if(!query.isEmpty() &&
                             itemName.toLowerCase().contains(query.toLowerCase())) {
@@ -185,14 +223,14 @@ public class ActivityShowProducts extends AppCompatActivity
         RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
+            super.onScrollStateChanged(recyclerView, newState);
 
-                if (newState == RecyclerView.SCROLL_STATE_IDLE &&
-                        llm.findFirstVisibleItemPosition() <= position &&
-                        llm.findLastVisibleItemPosition() >= position) {
-                    flashSearchedView(position);
-                    recyclerView.removeOnScrollListener(this);
-                }
+            if (newState == RecyclerView.SCROLL_STATE_IDLE &&
+                    llm.findFirstVisibleItemPosition() <= position &&
+                    llm.findLastVisibleItemPosition() >= position) {
+                flashSearchedView(position);
+                recyclerView.removeOnScrollListener(this);
+            }
             }
         };
         productsRecyclerView.removeOnScrollListener(onScrollListener);
@@ -216,18 +254,13 @@ public class ActivityShowProducts extends AppCompatActivity
         drawable.setOneShot(true);
 
         productsRecyclerView.getLayoutManager().findViewByPosition(position).setBackground(drawable);
-        handler.postDelayed(() -> {
-            drawable.start();
-            // pantryRecyclerView.getLayoutManager().findViewByPosition(position).callOnClick();
-
-        }, 100);
+        handler.postDelayed(drawable::start, 100);
     }
 
     @Override
     public void cardClicked(int position, int expandedPosition, int previouslyExpandedPosition) {
         productsAdapter.notifyItemChanged(previouslyExpandedPosition);
         productsAdapter.notifyItemChanged(expandedPosition);
-
         productsRecyclerView.smoothScrollToPosition(position);
     }
     @Override
@@ -250,15 +283,17 @@ public class ActivityShowProducts extends AppCompatActivity
         SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER,MODE_PRIVATE);
         String order = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
         String flow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
-        populateProductsList(order, flow);
+        boolean notInPantry = sp.getBoolean(Global.NOT_IN_PANTRY, false);
+        populateProductsList(notInPantry, order, flow);
         productsAdapter.notifyDataSetChanged();
     }
 
     @Override
-    public void applyFilters(String order, String flow) {
+    public void applyFilters(boolean notInPantry, String order, String flow) {
         productsOrder = order;
         productsFlow = flow;
-        populateProductsList(productsOrder, productsFlow);
+        productsNotInPantry = notInPantry;
+        populateProductsList(productsNotInPantry, productsOrder, productsFlow);
         productsAdapter.notifyDataSetChanged();
     }
 

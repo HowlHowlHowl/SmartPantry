@@ -1,6 +1,139 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_shopping_list"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#EDECE5"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/shoppingHeader"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="#2D2F31"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/shoppingTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/shoppingTitleText"
+            android:textAlignment="center"
+            android:textColor="@color/app_color_secondary"
+            android:textSize="26sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/backBtnLayout"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <ImageButton
+                android:id="@+id/backBtn"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:backgroundTint="@color/button_back"
+                android:padding="10dp"
+                android:foregroundTintMode="src_in"
+                android:tint="@color/app_color_secondary"
+                app:srcCompat="@drawable/back_arrow" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/searchBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toStartOf="@+id/imageFilterButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/shoppingHeader">
+
+        <SearchView
+            android:id="@+id/searchProdField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/app_color"
+            android:ems="10"
+            android:queryHint="@string/searchText"
+            android:iconifiedByDefault="false"
+            android:focusable="false"
+            android:inputType="text"
+            android:textAlignment="viewStart"
+            android:textCursorDrawable="@drawable/colored_cursor"
+            android:textSize="16sp">
+
+        </SearchView>
+    </LinearLayout>
+
+    <androidx.constraintlayout.utils.widget.ImageFilterButton
+        android:id="@+id/imageFilterButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="@color/button_filter"
+        app:layout_constraintBottom_toBottomOf="@+id/searchBox"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/searchBox"
+        app:layout_constraintTop_toTopOf="@+id/searchBox"
+        app:srcCompat="@drawable/filter" />
+    <ListView
+        android:id="@+id/searchResultsList"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/suggestions_dropdown"
+        android:elevation="5dp"
+        android:orientation="vertical"
+        android:outlineProvider="none"
+        app:layout_constraintEnd_toEndOf="@+id/imageFilterButton"
+        app:layout_constraintHeight_max="150dp"
+        app:layout_constraintStart_toStartOf="@+id/searchBox"
+        app:layout_constraintTop_toBottomOf="@+id/searchBox" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/shoppingRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@drawable/pantry_borders_and_background"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/footer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchBox">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <FrameLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#2D2F31"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/shoppingRecycler">
+
+        <Button
+            android:id="@+id/updateShoppingListBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/updateShoppingList"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

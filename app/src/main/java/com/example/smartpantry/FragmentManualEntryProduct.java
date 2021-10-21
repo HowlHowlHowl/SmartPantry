@@ -14,14 +14,14 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-public class FragmentManuelEntryProduct extends Fragment {
+public class FragmentManualEntryProduct extends Fragment {
     EditText barcode;
     Button confirmBtn;
     ConstraintLayout bg, window;
     onManualEntryListener manualEntryListener;
 
     public interface onManualEntryListener {
-        void manualEntry(String barcodeString);
+        void onManualEntry(String barcodeString);
     }
 
     @Nullable
@@ -29,9 +29,9 @@ public class FragmentManuelEntryProduct extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_manual_entry, container, false);
         barcode = view.findViewById(R.id.scanResultCode);
-        confirmBtn = view.findViewById(R.id.confirmBtn);
+        confirmBtn = view.findViewById(R.id.addShoppingBtn);
         bg = view.findViewById(R.id.manualEntryFragment);
-        window = view.findViewById(R.id.popUpWindow);
+        window = view.findViewById(R.id.bgPopUp);
         Log.println(Log.ASSERT, "FRAGMENT MANUAL ENTRY", "CREATED");
         return view;
     }
@@ -48,21 +48,13 @@ public class FragmentManuelEntryProduct extends Fragment {
         //Trigger MainActivity listener and close itself
         confirmBtn.setOnClickListener(v -> {
             String correctBarcode = barcode.getText().toString();
-            manualEntryListener.manualEntry(correctBarcode);
+            manualEntryListener.onManualEntry(correctBarcode);
             getActivity()
-                    .getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(FragmentManuelEntryProduct.this)
-                    .commit();
-        });
-    }
-
-    public void closeFragment() {
-        getActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()
-                .remove(FragmentManuelEntryProduct.this)
+                .remove(FragmentManualEntryProduct.this)
                 .commit();
+        });
     }
 
     @Override
@@ -71,7 +63,15 @@ public class FragmentManuelEntryProduct extends Fragment {
         try {
             manualEntryListener = (onManualEntryListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement onProductAddedListener");
+            throw new ClassCastException(context.toString() + " must implement onManualEntryListener");
         }
+    }
+
+    public void closeFragment() {
+        getActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .remove(FragmentManualEntryProduct.this)
+                .commit();
     }
 }

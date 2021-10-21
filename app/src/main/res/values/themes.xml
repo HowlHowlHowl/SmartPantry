@@ -16,7 +16,7 @@
     <style name="SnackbarStyle" parent="@style/Widget.MaterialComponents.Snackbar">
         <item name="android:background">@drawable/snackbar_background</item>
         <item name="android:text">center</item>
-        <item name="android:textColor">@color/app_gray</item>
+        <item name="android:textColor">@color/dark_gray</item>
     </style>
     <style name="MySnackbarTextView" parent="@style/Widget.MaterialComponents.Snackbar.TextView">
         <item name="android:gravity">center_horizontal</item>

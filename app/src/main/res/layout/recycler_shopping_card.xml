@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shoppingCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/shoppingProductName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:ems="8"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/shopIconView"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/shopIconView"
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/shopping_basket" />
+
+        <EditText
+            android:id="@+id/shopQuantityField"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:ems="2"
+            android:gravity="center"
+            android:inputType="number"
+            app:layout_constraintBottom_toBottomOf="@+id/shoppingProductName"
+            app:layout_constraintEnd_toStartOf="@+id/removeFromShoppingLayout"
+            app:layout_constraintTop_toTopOf="@+id/shoppingProductName" />
+
+        <TextView
+            android:id="@+id/xSymbol"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="x"
+            app:layout_constraintBottom_toBottomOf="@+id/shopQuantityField"
+            app:layout_constraintEnd_toStartOf="@+id/shopQuantityField" />
+        <LinearLayout
+            android:id="@+id/removeFromShoppingLayout"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/confirmShoppingLayout"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ToggleButton
+                android:id="@+id/removeFromShopping"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/delete_shop_checkbox"
+                android:textOff=""
+                android:textOn="" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/confirmShoppingLayout"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ToggleButton
+                android:id="@+id/confirmShopping"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/confirm_shop_checkbox"
+                android:textOff=""
+                android:textOn="" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

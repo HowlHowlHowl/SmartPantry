@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import java.util.List;
 
 public class AdapterBarcodeProductsList extends ArrayAdapter<ProductListGeneric> {
-    private LayoutInflater mInflater;
+    private final LayoutInflater mInflater;
 
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_SEPARATOR = 1;
@@ -32,11 +32,7 @@ public class AdapterBarcodeProductsList extends ArrayAdapter<ProductListGeneric>
 
     @Override
     public boolean isEnabled(int position) {
-        if(getItemViewType(position) == TYPE_SEPARATOR){
-            return false;
-        } else {
-            return true;
-        }
+        return getItemViewType(position) != TYPE_SEPARATOR;
     }
 
     @Override

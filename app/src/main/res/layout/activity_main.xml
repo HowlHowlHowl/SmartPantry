@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout
-    tools:context=".ActivityMain"
-    android:id="@+id/drawer_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ActivityMain"
+    tools:openDrawer="left"
+    android:id="@+id/drawer_layout"
     android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    tools:openDrawer="left">
+    android:layout_width="match_parent">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
     android:id="@+id/activity_main"
@@ -18,22 +18,24 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#EDECE5">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/pantryRecycler"
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_layout"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/pantry_borders_and_background"
-                android:scrollbars="vertical"
                 app:layout_constraintBottom_toTopOf="@+id/bottomBackground"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/manualEntryBtn">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/pantryRecycler"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/pantry_borders_and_background"
+                    android:scrollbars="vertical">
+                </androidx.recyclerview.widget.RecyclerView>
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
             <FrameLayout
                 android:id="@+id/bottomBackground"
                 android:layout_width="match_parent"
@@ -59,10 +61,10 @@
                     android:id="@+id/optionsBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="15dp"
                     android:backgroundTint="#EDECE5"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/gears" />
 
@@ -70,11 +72,12 @@
                     android:id="@+id/productsBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="15dp"
                     android:backgroundTint="#EDECE5"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/barcodeBtn"
-                    app:layout_constraintStart_toEndOf="@+id/optionsBtn"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.51"
                     app:srcCompat="@drawable/grocery" />
 
                 <ImageButton
@@ -97,21 +100,21 @@
                     android:id="@+id/recipesBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
                     android:backgroundTint="#EDECE5"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/optionsBtn"
+                    app:layout_constraintStart_toEndOf="@+id/barcodeBtn"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/recipe" />
 
                 <ImageButton
-                    android:id="@+id/listBtn"
+                    android:id="@+id/shoppingBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:backgroundTint="#EDECE5"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/recipesBtn"
-                    app:layout_constraintStart_toEndOf="@+id/barcodeBtn"
+                    app:layout_constraintEnd_toStartOf="@+id/barcodeBtn"
+                    app:layout_constraintStart_toEndOf="@+id/productsBtn"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/document__2_" />
 
@@ -143,13 +146,13 @@
                     android:id="@+id/listLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:labelFor="@id/listBtn"
+                    android:labelFor="@id/shoppingBtn"
                     android:text="@string/shoppingText"
                     android:textColor="#EDECE5"
                     android:textSize="12sp"
-                    app:layout_constraintEnd_toEndOf="@+id/listBtn"
-                    app:layout_constraintStart_toStartOf="@+id/listBtn"
-                    app:layout_constraintTop_toBottomOf="@+id/listBtn" />
+                    app:layout_constraintEnd_toEndOf="@+id/shoppingBtn"
+                    app:layout_constraintStart_toStartOf="@+id/shoppingBtn"
+                    app:layout_constraintTop_toBottomOf="@+id/shoppingBtn" />
 
                 <TextView
                     android:id="@+id/productsLabel"
@@ -183,9 +186,10 @@
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/app_color"
                     android:ems="10"
-                    android:hint="@string/searchText"
+                    android:queryHint="@string/searchText"
                     android:iconifiedByDefault="false"
                     android:inputType="text"
+                    android:focusable="false"
                     android:textAlignment="viewStart"
                     android:textCursorDrawable="@drawable/colored_cursor"
                     android:textSize="16sp">
@@ -218,7 +222,6 @@
                     android:id="@+id/pantryTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="casual"
                     android:text="@string/pantryTitle"
                     android:textAlignment="center"
                     android:textColor="@color/app_color_secondary"

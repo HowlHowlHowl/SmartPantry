@@ -3,13 +3,12 @@ package com.example.smartpantry;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -39,15 +38,33 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.PantryItemViewHolder>{
+public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.PantryItemViewHolder>
+        implements FragmentAddToShoppingList.AddToShoppingListEvent{
     public static List<ProductPantryItem> pantryProducts;
-    private onCardEvents cardClickedListener;
+    private final onCardEvents cardClickedListener;
     private int expandedItem = -1;
     private int previouslyExpandedItem = -1;
 
     AdapterPantryList(List<ProductPantryItem> pantryProducts, onCardEvents cardClickedListener) {
         AdapterPantryList.pantryProducts = pantryProducts;
         this.cardClickedListener = cardClickedListener;
+    }
+
+    @Override
+    public void deleteProductFromPantry(int position, Context context) {
+        //Delete item from pantry event
+        DBHelper db  = new DBHelper(context);
+        db.deleteProductFromPantry(pantryProducts.get(position).id);
+        db.close();
+        //this line of code put -1 as the index of the expanded card so that no card appears expanded
+        expandedItem = -1;
+        cardClickedListener.deleteItem(position);
+    }
+
+    @Override
+    public void updateProductShoppingQuantity(int position, long toBuyQnt) {
+        pantryProducts.get(position).shopping_qnt = toBuyQnt;
+        notifyItemChanged(position);
     }
 
     public interface onCardEvents {
@@ -66,7 +83,7 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
 
     @Override
     public void onBindViewHolder(@NonNull PantryItemViewHolder holder, int position) {
-        holder.cv.setId(Integer.parseInt(pantryProducts.get(holder.getAdapterPosition()).id));
+        //holder.cv.setId(pantryProducts.get(holder.getAdapterPosition()).id);
         //isExpanded is true if the current item is expanded
         final boolean isExpanded = (holder.getAdapterPosition() == expandedItem);
         holder.fullProduct.setVisibility(isExpanded ? VISIBLE : GONE);
@@ -75,6 +92,14 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         if (isExpanded) {
             previouslyExpandedItem = holder.getAdapterPosition();
         }
+
+        //If item already in the shopping list, an icon is showed and the button is disabled
+        holder.inShoppingIcon.setVisibility(
+                pantryProducts.get(holder.getAdapterPosition()).shopping_qnt > 0 ?
+                        VISIBLE : GONE
+        );
+        holder.addToShoppingButton.setEnabled(pantryProducts.get(holder.getAdapterPosition()).shopping_qnt <= 0);
+
         holder.cv.setOnClickListener(v-> {
             //Logic to keep just one of the cards expanded
             expandedItem = isExpanded ? -1 : holder.getAdapterPosition();
@@ -92,6 +117,7 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         holder.expireDate.setTextColor(ContextCompat.getColor(holder.cv.getContext(),
                 R.color.black)
         );
+
         //Write current expire date in expireDateField
         if(!expireDate.isEmpty()) {
             //Show date in localFormat from fixed db format
@@ -181,8 +207,28 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
 
         //Delete item from pantry event
         holder.deleteItemButton.setOnClickListener(v->{
-            askToDeleteProductFromPantry(holder.getAdapterPosition(), holder.cv.getContext());
+            //Ask to add in shopping list
+            askToAddInShoppingList(
+                    holder.cv.getContext(),
+                    pantryProducts.get(holder.getAdapterPosition()).quantity,
+                    pantryProducts.get(holder.getAdapterPosition()).id,
+                    holder.getAdapterPosition(),
+                    true
+            );
+
         });
+
+        //Add to shopping list
+        holder.addToShoppingButton.setOnClickListener(view -> {
+            askToAddInShoppingList(
+                    holder.cv.getContext(),
+                    pantryProducts.get(holder.getAdapterPosition()).quantity,
+                    pantryProducts.get(holder.getAdapterPosition()).id,
+                    holder.getAdapterPosition(),
+                    false
+            );
+        });
+
 
         //Set favorite value
         holder.fav.setChecked(pantryProducts.get(holder.getAdapterPosition()).is_favorite);
@@ -212,6 +258,23 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         //Set description value and listener to ignore touch
         holder.description.setText(pantryProducts.get(holder.getAdapterPosition()).description);
         holder.description.setOnClickListener(v->{});
+    }
+
+    private void askToAddInShoppingList(Context context, long quantity, String id, int position, boolean deleteAfter) {
+        Bundle bundle = new Bundle();
+        bundle.putString("id", id);
+        bundle.putLong("quantity", quantity);
+        //If deleteAfter is true, it is transmitted to the fragment so that
+        //the fragment can handle the delete of the product from the pantry
+        bundle.putBoolean("delete", deleteAfter);
+        bundle.putInt("position", position);
+        FragmentAddToShoppingList fragmentAddToShoppingList = new FragmentAddToShoppingList(this);
+
+        fragmentAddToShoppingList.setArguments(bundle);
+        ((ActivityMain)context).getSupportFragmentManager().beginTransaction()
+                .add(R.id.activity_main, fragmentAddToShoppingList)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void setQuantityTextObserver(PantryItemViewHolder holder) {
@@ -251,40 +314,6 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         });
 
     }
-
-    private void askToDeleteProductFromPantry(int position, Context context) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.CustomAlertDialog)
-                .setTitle(context.getResources().getString(R.string.warningText))
-                .setMessage(context.getResources().getString(R.string.deleteProductFromPantry))
-                .setPositiveButton(
-                        context.getResources().getString(R.string.confirmBtnText),
-                        (dialog, id) -> {
-                            DBHelper db  = new DBHelper(context);
-                            db.deleteProductFromPantry(pantryProducts.get(position).id);
-                            db.close();
-                            //this line of code put -1 as the index of the expanded card so that no card appears expanded
-                            expandedItem = -1;
-                            cardClickedListener.deleteItem(position);
-                        })
-                .setNegativeButton(
-                        context.getResources().getString(R.string.cancelText),
-                        (dialog, id) -> dialog.cancel());
-        AlertDialog alert = builder.create();
-        alert.setOnShowListener(arg0 -> {
-            alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
-                    ContextCompat.getColor(
-                            context,
-                            R.color.button_confirm));
-
-            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
-                    ContextCompat.getColor(
-                            context,
-                            R.color.app_color));
-        });
-
-        alert.show();
-    }
-
     public void initializeDatePicker(Context context, PantryItemViewHolder holder, String expireDate){
         //Set date picker
         Calendar myCalendar = Calendar.getInstance();
@@ -329,12 +358,12 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         return pantryProducts.size();
     }
 
-    public class PantryItemViewHolder extends RecyclerView.ViewHolder {
+    public static class PantryItemViewHolder extends RecyclerView.ViewHolder {
         CardView cv;
         TextView name, description, expireDate, quantity;
-        ImageView icon, expandableStateImage;
+        ImageView icon, expandableStateImage, inShoppingIcon;
         ToggleButton fav;
-        ImageButton clearDateButton;
+        ImageButton clearDateButton, addToShoppingButton;
         Button changeDateButton, changeQuantityButton, deleteItemButton;
         ConstraintLayout fullProduct;
         EditText expireDateField, quantityField;
@@ -348,14 +377,16 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
             quantity  = itemView.findViewById(R.id.productQuantity);
             icon = itemView.findViewById(R.id.iconView);
             expandableStateImage = itemView.findViewById(R.id.expandableStateImageView);
+            inShoppingIcon = itemView.findViewById(R.id.inShoppingListIcon);
             fav = itemView.findViewById(R.id.favCheckbox);
             fullProduct = itemView.findViewById(R.id.fullDetails);
             clearDateButton = itemView.findViewById(R.id.cancelDateButton);
             changeDateButton = itemView.findViewById(R.id.confirmChangeDate);
-            changeQuantityButton =itemView.findViewById(R.id.changeQuantityButton);
+            changeQuantityButton = itemView.findViewById(R.id.changeQuantityButton);
             deleteItemButton = itemView.findViewById(R.id.removeItemButton);
             expireDateField = itemView.findViewById(R.id.productExpireDateField);
             quantityField  = itemView.findViewById(R.id.changeQuantityField);
+            addToShoppingButton  = itemView.findViewById(R.id.addToShoppingBtn);
         }
     }
 }

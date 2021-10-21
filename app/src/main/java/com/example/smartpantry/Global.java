@@ -11,38 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-/**
-SHARED PREFERENCES:
-
-        *LOGIN FIELDS* - CHECK  IF NEEDED
-        Login {
-            stayLogged  - User asked to stay logged in
-            accessToken - Access Token for the current session
-            currentSession - User just logged in
-            validDate - Date until accessToken is valid
-        }
-
-        *USER DATA FIELDS*
-        UserData {
-            email
-            password_ENC - Encrypted user password by server: NEVER USED
-            username
-            id
-        }
-
-        *UTILITY*
-        Utils {
-            sessionToken - Token given to the user once s/he requires the products
-        }
-
-        *ORDERING PREFERENCES*
-        ListsOrder {
-            flow [ASC, DESC]
-            order [DBHelper.COLUMN_PRODUCT_*] where * is a choosen column to sort by
-            tempOrder
-            tempFlow
-        }
-**/
 
 public class Global {
 
@@ -52,6 +20,7 @@ public class Global {
     //Activities IDs
     static final int CAMERA_ACTIVITY = 101;
     static final int PRODUCTS_ACTIVITY = 102;
+    static final int SHOPPING_ACTIVITY = 103;
 
     //Status Response Codes for Login check
     static final int LOGIN_STATUS_OK = 200;
@@ -59,32 +28,40 @@ public class Global {
     static final int LOGIN_STATUS_REQUEST_TOKEN = 202;
 
     //Icons files path and default icon file name
-    static final String DEFAULT_ICON = "shopping_basket.png";
+    static final String DEFAULT_ICON = "0_shopping_basket.png";
     static final String ICON_DIRNAME = "groceries_icons";
 
-    static final int REQUEST_CODE_CHECK = 5000;
-    //Notification EXPIRED_PRODUCTS ID
+    //Request codes
+    static final int REQUEST_CODE_CHECK_EXPIRED = 5000;
+    static final int REQUEST_CODE_CHECK_FAVORITES = 5001;
+    //Notification EXPIRED_PRODUCTS IDs
     static final int NOTIFICATION_EXPIRED_ID = 6000;
+    static final int NOTIFICATION_FAVORITES_ID = 6001;
+
     //Intent action for showing expired products in main activity
     static final String EXPIRED_INTENT_ACTION = "SHOW_EXPIRED";
+    //Intent action for showing favorites products missing in products activity
+    static final String FAVORITES_INTENT_ACTION = "SHOW_FAVORITES";
 
     //Notification Channel ID and NAME
-    static final String NOTIFICATION_CHANNEL = "EXPIRING_PRODUCTS";
+    static final String NOTIFICATION_EXP_CHANNEL = "EXPIRING_PRODUCTS";
+    static final String NOTIFICATION_FAV_CHANNEL = "FAV_MISSING_PRODUCTS";
     static final String NOTIFICATION_NAME = "EXPIRING PRODUCTS";
 
     //Date format used in the DB
     static final String DB_DATE_FORMAT = "yyyy-MM-dd";
 
-    //TODO: FOR DEBUG PURPOSE ONLY, CHANGE TO 6
+    //FIXME: FOR DEBUG PURPOSE ONLY, CHANGE TO 6
     static final int LOGIN_TOKEN_VALID_DAYS = 1;
 
     //Server APIs URLs
-    static final String LOGIN_URL = "https://lam21.modron.network/auth/login";
-    static final String REGISTER_URL = "https://lam21.modron.network/users";
-    static final String USER_ID_URL = "https://lam21.modron.network/users/me";
-    static final String LIST_PRODUCTS_URL = "https://lam21.modron.network/products?barcode=";
-    static final String ADD_PRODUCT_URL = "https://lam21.modron.network/products";
-    static final String VOTE_PRODUCT_URL = "https://lam21.modron.network/votes";
+    static final String LOGIN_URL = "https://lam21.iot-prism-lab.cs.unibo.it/auth/login";
+    static final String REGISTER_URL = "https://lam21.iot-prism-lab.cs.unibo.it/users";
+    static final String USER_ID_URL = "https://lam21.iot-prism-lab.cs.unibo.it/users/me";
+    static final String LIST_PRODUCTS_URL = "https://lam21.iot-prism-lab.cs.unibo.it/products?barcode=";
+    static final String ADD_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/products";
+    static final String DELETE_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/products/";
+    static final String VOTE_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/votes";
 
     //DESC and ASC strings
     static final String DESC_ORDER = "DESC";
@@ -96,6 +73,7 @@ public class Global {
         static final String FLOW = "flow";
         static final String TEMP_ORDER = "tempOrder";
         static final String TEMP_FLOW = "tempFlow";
+        static final String NOT_IN_PANTRY = "notInPantry";
 
     //LOGIN SHARED PREFERENCES STRUCTURE
     static final String LOGIN = "Login";
@@ -114,6 +92,8 @@ public class Global {
     //UTILITY SHARED PREFERENCES STRUCTURE
     static final String UTILITY = "Utils";
         static final String SESSION_TOKEN = "sessionToken";
+        static final String NOTIFY_EXPIRED = "notifyExpire";
+        static final String NOTIFY_FAVORITES = "notifyFavorites";
 
 
     static protected boolean checkConnectionAvailability(Context context) {

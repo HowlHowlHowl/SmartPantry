@@ -5,7 +5,7 @@
     </item>
     <item android:state_checked="false" android:state_enabled="false">
         <bitmap android:src="@drawable/thumb_down_icon"
-            android:tint="@color/app_gray"/>
+            android:tint="@color/dark_gray"/>
     </item>
     <item android:state_checked="true" android:state_enabled="true">
         <bitmap android:src="@drawable/thumb_down_icon"

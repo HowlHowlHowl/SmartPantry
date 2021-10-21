@@ -7,7 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -22,17 +22,19 @@ public class FragmentFilters extends Fragment {
 
     private String selectedOrderFlow;
     private String selectedOrder;
+    private boolean notInPantryOnly;
     private ImageView flowIcon;
     private SwitchCompat orderFlowSwitch;
     private TextView flowLabel;
     private RadioGroup sortOptions;
     private Button applyBtn;
     private Button saveApplyBtn;
+    private CheckBox showNotInPantryOnly;
 
     onApplyFilters onApplyFiltersListener;
 
     public interface onApplyFilters {
-        void applyFilters(String order, String flow);
+        void applyFilters(boolean notInPantry, String order, String flow);
     }
 
     @Override
@@ -40,18 +42,32 @@ public class FragmentFilters extends Fragment {
         View view =  inflater.inflate(R.layout.fragment_filters, container, false);
         getCurrentOrderPreferences();
 
-        view.findViewById(R.id.popUpWindow).setOnClickListener(v->{
-            closeFragment();
-        });
-        view.findViewById(R.id.filtersPopUp).setOnClickListener(v->{});
+        view.findViewById(R.id.bgPopUp).setOnClickListener(v-> closeFragment());
+        view.findViewById(R.id.windowPopUp).setOnClickListener(v->{});
 
         orderFlowSwitch = view.findViewById(R.id.orderFlowSwitch);
         flowLabel = view.findViewById(R.id.orderFlowLabel);
         sortOptions = view.findViewById(R.id.sortingGroup);
         flowIcon = view.findViewById(R.id.flowIcon);
         applyBtn = view.findViewById(R.id.applyFiltersBtn);
-        saveApplyBtn = view.findViewById(R.id.saveANDapplyBtn);
+        saveApplyBtn = view.findViewById(R.id.saveAndApplyBtn);
+        showNotInPantryOnly = view.findViewById(R.id.showOnlyMissingProds);
 
+        if(getArguments()!=null) {
+            //If calling activity is SHOPPING_ACT the order by expire date is hidden
+            if(getArguments().getInt("activity",0) == Global.SHOPPING_ACTIVITY) {
+                view.findViewById(R.id.expireSortBy).setVisibility(View.GONE);
+            }
+            //If calling activity is SHOW PRODS the option to show only not in pantry items is shown
+            if(getArguments().getInt("activity",0) == Global.PRODUCTS_ACTIVITY) {
+                showNotInPantryOnly.setVisibility(View.VISIBLE);
+                showNotInPantryOnly.setChecked(
+                        getContext()
+                                .getSharedPreferences(Global.LISTS_ORDER, Context.MODE_PRIVATE)
+                                .getBoolean(Global.NOT_IN_PANTRY, false)
+                );
+            }
+        }
         setOrderFlowEventsListeners();
         return view;
     }
@@ -71,7 +87,11 @@ public class FragmentFilters extends Fragment {
         applyBtn.setOnClickListener(v->{
             setTempOrderPreferences();
             closeFragment();
-            onApplyFiltersListener.applyFilters(selectedOrder, selectedOrderFlow);
+            onApplyFiltersListener.applyFilters(
+                    showNotInPantryOnly.isChecked(),
+                    selectedOrder,
+                    selectedOrderFlow
+            );
         });
 
         //Apply and Save button to sort list in calling activity
@@ -80,8 +100,12 @@ public class FragmentFilters extends Fragment {
             setTempOrderPreferences();
             setOrderPreferences();
             closeFragment();
-            onApplyFiltersListener.applyFilters(selectedOrder, selectedOrderFlow);
+            onApplyFiltersListener.applyFilters(
+                    showNotInPantryOnly.isChecked(),
+                    selectedOrder,
+                    selectedOrderFlow);
         });
+
     }
 
     private void setTempOrderPreferences() {
@@ -89,10 +113,14 @@ public class FragmentFilters extends Fragment {
                 .getSharedPreferences(Global.LISTS_ORDER, Context.MODE_PRIVATE).edit();
         ed.putString(Global.TEMP_FLOW, selectedOrderFlow);
         ed.putString(Global.TEMP_ORDER, selectedOrder);
-        ed.commit();
+        ed.putBoolean(Global.NOT_IN_PANTRY, notInPantryOnly);
+        ed.apply();
     }
 
     private void setOrderFlowEventsListeners() {
+        showNotInPantryOnly.setOnClickListener(v->{
+            notInPantryOnly= showNotInPantryOnly.isChecked();
+        });
         orderFlowSwitch.setOnClickListener(v->{
             if(orderFlowSwitch.isChecked()){
                 flowLabel.setText(getResources().getString(R.string.DESCText));
@@ -130,6 +158,7 @@ public class FragmentFilters extends Fragment {
                 flow.equals(Global.DESC_ORDER) ?
                 R.string.DESCText : R.string.ASCText
         );
+
         flowIcon.setImageResource(
                 flow.equals(Global.DESC_ORDER) ?
                 R.drawable.descending_sorting : R.drawable.ascending_sorting
@@ -162,7 +191,7 @@ public class FragmentFilters extends Fragment {
                 getContext().getSharedPreferences(Global.LISTS_ORDER, Context.MODE_PRIVATE).edit();
         ed.putString(Global.ORDER, selectedOrder);
         ed.putString(Global.FLOW, selectedOrderFlow);
-        ed.commit();
+        ed.apply();
     }
 
     public void closeFragment() {

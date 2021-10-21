@@ -24,7 +24,7 @@
     <string name="prodText">Prodotti</string>
     <string name="recipesText">Ricettario</string>
     <string name="shoppingText">Spesa</string>
-    <string name="searchText">Cerca un prodotto nella dispensa</string>
+    <string name="searchText">Cerca un prodotto</string>
     <string name="addProductBtnText">Aggiungi un prodotto</string>
     <string name="foundProductsTitle">Risultati per\n</string>
     <string name="noProductsFoundText">Nessun prodotto trovato.\n\nPuoi aggiungerne uno nuovo tramite il pulsante.</string>
@@ -57,7 +57,7 @@
     <string name="ratingResult">"Punteggio\ndel prodotto: "</string>
     <string name="alreadyRatedProduct">Sembra che tu abbia già valutato \nquesto prodotto.</string>
     <string name="yourVote">Il tuo\nvoto</string>
-    <string name="manualEntryTitle">Digita il barcode del prodotto che vuoi aggiungere</string>
+    <string name="manualEntryTitle">Digita il codice a barre del prodotto che vuoi aggiungere</string>
     <string name="deleteText">Elimina</string>
     <string name="modifyText">Modifica</string>
     <string name="logout" translatable="false">Logout</string>
@@ -103,4 +103,25 @@
     <string name="productInPantry">IN DISPENSA</string>
     <string name="updateText">Aggiorna Prodotto</string>
     <string name="deleteProduct">Sei sicuro di voler eliminare questo prodotto?</string>
+    <string name="shoppingTitleText">Lista della Spesa</string>
+    <string name="updateShoppingList">Aggiorna</string>
+    <string name="addToShoppingTitle">Aggiungere alla lista della spesa?</string>
+    <string name="addToShoppingDescr">Inserisci la quantità da aggiungere alla lista della spesa.</string>
+    <string name="closeText">Chiudi</string>
+    <string name="addShoppingBtn">Aggiungi</string>
+    <string name="dontAddToShoppingBtn">Non Aggiungere</string>
+    <string name="deleteProductFromServer">Stai per eliminare questo prodotto per sempre, sei sicuro?</string>
+    <string name="manageNotifications">Gestione notifiche</string>
+    <string name="notificationManageTitle">Gestione Notifiche</string>
+    <string name="notificationExpiredOpt">Avvisami quando scade un prodotto.</string>
+    <string name="notificationFavoriteOpt">Avvisami se manca uno dei miei prodotti preferiti nella dispense.</string>
+    <string name="missingFavNotificationDescription">dei tuoi articoli preferiti non è presente in dispensa.</string>
+    <string name="favProductNotificationTitle">In dispensa mancano alcuni dei tuoi prodotti preferiti</string>
+    <string name="favProductNotificationChannelName">Notifiche prodotti preferiti non in dispensa</string>
+    <string name="favProductNotificationChannelDescription">Questo canale di notifica serve ad avvisarti quado uno o più dei tuoi prodotti preferiti non è nella tua dispensa.</string>
+    <string name="heyText" translatable="false">"Hey, "</string>
+    <string name="showOnlyMissingProds">Mostra solo i prodotti non in dispensa</string>
+    <string name="productAlreadySaved">Il codice a barre che cerchi risulta già associato ad uno dei tuoi prodotti salvati.\nClicca uno dei prodotti sottostanti per visualizzarli nella pagina prodotti.</string>
+    <string name="searchAnywayText">Cercare comunque?</string>
+    <string name="productDeletedError">Si è verificato un errore durante l\'eliminazione del prodotto. Riprovare.</string>
 </resources>

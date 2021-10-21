@@ -8,5 +8,9 @@
         android:id="@+id/clearPantry"
         android:icon="@drawable/delete"
         android:title="@string/clearPantry"/>
+    <item
+        android:id="@+id/manageNotifications"
+        android:icon="@drawable/notification"
+        android:title="@string/manageNotifications"/>
 
 </menu>

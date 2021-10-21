@@ -18,12 +18,11 @@ public class ProductListItem implements ProductListGeneric{
     String barcode;
     String createdAt;
     String updatedAt;
-    boolean test;
     boolean isUserOwned;
 
     public ProductListItem(String id, String name, String description, String barcode,
                            String userId, String createdAt, String updatedAt,
-                           boolean test, boolean isUserOwned) {
+                           boolean isUserOwned) {
 
 
         this.id = id;
@@ -31,7 +30,6 @@ public class ProductListItem implements ProductListGeneric{
         this.description = description;
         this.barcode = barcode;
         this.userId = userId;
-        this.test = test;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
         this.isUserOwned = isUserOwned;

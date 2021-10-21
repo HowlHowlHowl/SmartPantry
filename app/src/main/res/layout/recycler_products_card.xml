@@ -14,6 +14,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageView
+            android:id="@+id/inShoppingListIcon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:layout_constraintBottom_toBottomOf="@+id/infoLabel"
+            app:layout_constraintStart_toStartOf="@+id/productName"
+            app:layout_constraintTop_toBottomOf="@+id/productName"
+            app:srcCompat="@drawable/add_basket" />
+
         <TextView
             android:id="@+id/productName"
             android:layout_width="wrap_content"
@@ -179,11 +188,27 @@
                     android:backgroundTint="@color/button_confirm"
                     android:text="@string/updateText" />
 
-                <Button
-                    android:id="@+id/removeItemButton"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/deleteText" />
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/removeItemButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/deleteText" />
+                    <ImageButton
+                        android:id="@+id/addToShoppingBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/button_confirm"
+                        android:src="@drawable/add_basket"
+                        android:tint="#FFFFFF" />
+                </LinearLayout>
+
             </LinearLayout>
 
             <LinearLayout
@@ -215,6 +240,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="@color/app_color"
                     android:inputType="number"
+                    android:imeOptions="flagNoExtractUi"
                     android:textAlignment="center" />
 
 

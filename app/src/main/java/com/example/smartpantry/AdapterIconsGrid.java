@@ -19,11 +19,11 @@ import java.io.InputStream;
 public class AdapterIconsGrid extends BaseAdapter {
     static final String ICONS_DIR_NAME = Global.ICON_DIRNAME;
 
-    private Context context;
+    private final Context context;
     private String[] list;
     private Integer selectedIconIndex = null;
     private ImageView selectedIcon = null;
-    private ProcessIconSelection callbackInstance;
+    private final ProcessIconSelection callbackInstance;
     public interface ProcessIconSelection {
         void onIconSelected(String iconName);
     }
@@ -88,7 +88,7 @@ public class AdapterIconsGrid extends BaseAdapter {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return img;
     }

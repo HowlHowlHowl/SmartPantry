@@ -26,8 +26,8 @@
 
             <ImageView
                 android:id="@+id/barcodeBig"
-                android:layout_width="320dp"
-                android:layout_height="400dp"
+                android:layout_width="200dp"
+                android:layout_height="150dp"
                 app:layout_constraintBottom_toTopOf="@+id/captureBtn"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

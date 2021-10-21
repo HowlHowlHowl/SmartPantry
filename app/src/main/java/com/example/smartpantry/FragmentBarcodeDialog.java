@@ -1,6 +1,7 @@
 package com.example.smartpantry;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,13 +19,17 @@ public class FragmentBarcodeDialog extends Fragment {
     EditText barcode;
     Button retryBtn;
     Button confirmBtn;
+    onToggleButtonListener listener;
+    public interface onToggleButtonListener {
+        void onToggleButton();
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view =  inflater.inflate(R.layout.fragment_scan_result, container, false);
         barcode = view.findViewById(R.id.scanResultCode);
-        retryBtn = view.findViewById(R.id.retryBtn);
-        confirmBtn = view.findViewById(R.id.confirmBtn);
+        retryBtn = view.findViewById(R.id.closeAddShoppingBtn);
+        confirmBtn = view.findViewById(R.id.addShoppingBtn);
         Log.println(Log.ASSERT, "FRAGMENT SCAN RESULT", "CREATED");
     return view;
     }
@@ -48,20 +53,31 @@ public class FragmentBarcodeDialog extends Fragment {
     }
     public void closeFragment() {
         getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .remove(FragmentBarcodeDialog.this)
-                .commit();
+            .getSupportFragmentManager()
+            .beginTransaction()
+            .remove(FragmentBarcodeDialog.this)
+            .commit();
     }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((ActivityCamera)getActivity()).toggleCaptureBtn();
+        listener.onToggleButton();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        ((ActivityCamera)getActivity()).toggleCaptureBtn();
+        listener.onToggleButton();
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            listener = (FragmentBarcodeDialog.onToggleButtonListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement onToggleButton");
+        }
+    }
+
 }

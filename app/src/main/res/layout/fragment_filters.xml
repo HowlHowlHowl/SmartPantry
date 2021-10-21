@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/popUpWindow"
+    android:id="@+id/bgPopUp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-        android:background="#99000000"
+    android:background="#99000000"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
@@ -14,24 +12,22 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/filtersPopUp"
+        android:id="@+id/windowPopUp"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.496">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/filterTitle"
+            android:id="@+id/alreadySavedTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:text="@string/orderText"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -47,104 +43,132 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="20dp"
+            android:layout_marginBottom="10dp"
             android:layoutDirection="rtl"
             android:textAlignment="textStart"
+            app:layout_constraintBottom_toTopOf="@+id/orderFlowBox"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/filterTitle">
+            app:layout_constraintTop_toBottomOf="@+id/alreadySavedTitle">
 
             <RadioButton
                 android:id="@+id/favoriteSortBy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:text="@string/favoritesText" />
 
             <RadioButton
                 android:id="@+id/expireSortBy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:text="@string/expirationText" />
 
             <RadioButton
                 android:id="@+id/nameSortBy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:text="@string/nameText" />
 
             <RadioButton
                 android:id="@+id/quantitySortBy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:text="@string/quantityText" />
 
             <RadioButton
                 android:id="@+id/iconSortBy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
                 android:text="@string/iconsText" />
         </RadioGroup>
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/orderFlowSwitch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:textOff="@string/DESCText"
-            android:textOn="@string/ASCText"
-            android:thumb="@drawable/switch_thumb"
-            app:layout_constraintStart_toStartOf="@+id/sortingGroup"
-            app:layout_constraintTop_toBottomOf="@+id/sortingGroup"
-            app:switchPadding="20dp"
-            app:track="@drawable/switch_track" />
-
-        <Button
-            android:id="@+id/applyFiltersBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:text="Applica"
-            app:layout_constraintBottom_toTopOf="@+id/saveANDapplyBtn"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <TextView
-            android:id="@+id/orderFlowLabel"
+        <CheckBox
+            android:id="@+id/showOnlyMissingProds"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:width="200dp"
-            android:gravity="center"
-            android:text="@string/ASCText"
-            app:layout_constraintBottom_toBottomOf="@+id/orderFlowSwitch"
-            app:layout_constraintEnd_toStartOf="@+id/flowIcon"
-            app:layout_constraintStart_toEndOf="@+id/orderFlowSwitch"
-            app:layout_constraintTop_toTopOf="@+id/orderFlowSwitch" />
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:text="@string/showOnlyMissingProds"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/orderFlowBox"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sortingGroup" />
 
-        <Button
-            android:id="@+id/saveANDapplyBtn"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:id="@+id/applyFiltersBox"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:text="@string/saveANDapplyText"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:weightSum="6"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
-            android:id="@+id/flowIcon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/orderFlowSwitch"
+            <Button
+                android:id="@+id/applyFiltersBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/applyText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/saveAndApplyBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="@string/saveANDapplyText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@id/orderFlowBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintBottom_toTopOf="@+id/applyFiltersBox"
             app:layout_constraintEnd_toEndOf="@+id/sortingGroup"
-            app:layout_constraintTop_toTopOf="@+id/orderFlowSwitch"
-            app:srcCompat="@drawable/ascending_sorting" />
+            app:layout_constraintStart_toStartOf="@+id/sortingGroup">
 
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/orderFlowSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="@string/DESCText"
+                android:textOn="@string/ASCText"
+                android:thumb="@drawable/switch_thumb"
+                app:switchPadding="20dp"
+                android:layout_marginEnd="20dp"
+                app:track="@drawable/switch_track" />
+
+            <TextView
+                android:id="@+id/orderFlowLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginEnd="20dp"
+                android:text="@string/ASCText"/>
+
+            <ImageView
+                android:id="@+id/flowIcon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                app:srcCompat="@drawable/ascending_sorting" />
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
