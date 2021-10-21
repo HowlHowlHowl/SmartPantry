@@ -13,7 +13,6 @@
     <string name="confirmPasswordRegistrationError">Conferma la password</string>
     <string name="passwordMatchRegistrationError">La password non coincide</string>
     <string name="alreadyExistsUserError">Sembra che l\'email sia già associata ad un altro account</string>
-    <string name="authenticationError">Le credenziali inserite sono sbagliate, riprova per favore.</string>
     <string name="genericError">Si è verificato un errore, riprova per favore</string>
     <string name="passwordMissingErrorText">Inserisci la tua password</string>
     <string name="emailMissingErrorText">Inserisci la tua email</string>
@@ -25,7 +24,6 @@
     <string name="recipesText">Ricettario</string>
     <string name="shoppingText">Spesa</string>
     <string name="searchText">Cerca un prodotto</string>
-    <string name="addProductBtnText">Aggiungi un prodotto</string>
     <string name="foundProductsTitle">Risultati per\n</string>
     <string name="noProductsFoundText">Nessun prodotto trovato.\n\nPuoi aggiungerne uno nuovo tramite il pulsante.</string>
     <string name="scanResultTitleText">Risultato della scansione</string>
@@ -33,7 +31,6 @@
     <string name="retryBtnText">Riprova</string>
     <string name="confirmBtnText">Conferma</string>
     <string name="retryToastText">Riprova</string>
-    <string name="productsResultTitleText">Risultati per&#160;</string>
     <string name="listProductBarcodeText">Codice prodotto:&#160;</string>
     <string name="listProductCreatedText">Creato:\n</string>
     <string name="listProductUpdatedText">Ultimo aggiornamento:\n</string>
@@ -54,7 +51,6 @@
     <string name="previewVoteBtn">Vota</string>
     <string name="previewVoteLabel">Vota il\nprodotto</string>
     <string name="voteFirstError">Devi prima valutare il prodotto.</string>
-    <string name="ratingResult">"Punteggio\ndel prodotto: "</string>
     <string name="alreadyRatedProduct">Sembra che tu abbia già valutato \nquesto prodotto.</string>
     <string name="yourVote">Il tuo\nvoto</string>
     <string name="manualEntryTitle">Digita il codice a barre del prodotto che vuoi aggiungere</string>
@@ -73,8 +69,6 @@
     <string name="yesText">Si</string>
     <string name="noText">No</string>
     <string name="cancelText">Annulla</string>
-    <string name="deleteProductFromPantry">Sei sicuro di voler eliminare questo\nprodotto dalla dispensa?</string>
-    <string name="emptySuggestions">Nessun prodotto \ncorrispondente alla ricerca.</string>
     <string name="deleteItemsFromPantry">Stai per eliminare tutti i prodotti nella dispensa, potrai comunque visualizzarli e gestirli dalla Pagina Prodotti, tuttavia l\'operazione è irreversibile.  \n\nPer confermare digita la tua email nel campo di testo e conferma.</string>
     <string name="deleteAllProducts">Sei sicuro? L\'operazione è irreversibile e perderai tutte le informazioni sui prodotti salvati.   \n\nPer confermare digita la tua email nel campo di testo e conferma.</string>
     <string name="allProductsDeletedFromPantry">Tutti i prodotti sono stati rimossi dalla dispensa.</string>
@@ -133,7 +127,6 @@
     <string name="dateHint">Scadenza</string>
     <string name="deleteDateIcon">Cancella la data</string>
     <string name="quantityHint" translatable="false">x</string>
-    <string name="productNameHint">Nome</string>
     <string name="yourProducts">I tuoi prodotti</string>
     <string name="deleteProductIcon">Elimina prodotto icona</string>
     <string name="backButtonIcon">Icona indietro</string>

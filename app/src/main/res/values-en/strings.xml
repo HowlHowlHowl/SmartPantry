@@ -12,7 +12,6 @@
     <string name="confirmPasswordRegistrationError">Confirm your password</string>
     <string name="passwordMatchRegistrationError">The password doesn\'t match</string>
     <string name="alreadyExistsUserError">The email is already associated to an account</string>
-    <string name="authenticationError">The credentials provided are wrong, please try again.</string>
     <string name="genericError">An error occurred, please try again</string>
     <string name="registerBtn">Sign In</string>
     <string name="passwordMissingErrorText">Insert your password</string>
@@ -23,7 +22,6 @@
     <string name="recipesText">Recipes</string>
     <string name="shoppingText">Shopping</string>
     <string name="searchText">Search a product</string>
-    <string name="addProductBtnText">Add product</string>
     <string name="foundProductsTitle">Results for\n</string>
     <string name="noProductsFoundText">No products found.\n\n You can add a your own product by clicking the button.</string>
     <string name="scanResultTitleText">Scan result</string>
@@ -31,7 +29,6 @@
     <string name="retryBtnText">Retry</string>
     <string name="confirmBtnText">Confirm</string>
     <string name="retryToastText">Try again</string>
-    <string name="productsResultTitleText">Results for&#160;</string>
     <string name="listProductBarcodeText">Product barcode:&#160;</string>
     <string name="listProductCreatedText">Created:\n</string>
     <string name="listProductUpdatedText">Latest update:\n</string>
@@ -51,7 +48,6 @@
     <string name="previewVoteBtn">Vote</string>
     <string name="previewVoteLabel">Vote the\nproduct</string>
     <string name="voteFirstError">Rate the product first.</string>
-    <string name="ratingResult">"Product\nrating: "</string>
     <string name="alreadyRatedProduct">It seems like you already rated \nthis product.</string>
     <string name="yourVote">Your\nvote:</string>
     <string name="manualEntryTitle">Write the barcode of the product you want to add</string>
@@ -69,8 +65,6 @@
     <string name="yesText">Yes</string>
     <string name="noText">No</string>
     <string name="cancelText">Cancel</string>
-    <string name="deleteProductFromPantry">Are you sure you want to delete\nthis product from the pantry?</string>
-    <string name="emptySuggestions">No product\nthat matches the query.</string>
     <string name="deleteItemsFromPantry">You are going to delete all the products in the pantry, you can always view and manage them in the Products Page,anyway this operation cannot be undone.\n\nTo confirm type your email in the field below and press confirm.</string>
     <string name="deleteAllProducts">Are you sure?\nThe operation cannot be undone and you are going to lose every information on the products you saved.\n\nTo confirm type your email in the field below and confirm.</string>
     <string name="allProductsDeletedFromPantry">All products have been removed from the pantry.</string>
@@ -126,7 +120,6 @@
     <string name="expandArrow">Expand arrow</string>
     <string name="dateHint">Expire date</string>
     <string name="deleteDateIcon">Clear date</string>
-    <string name="productNameHint">Name</string>
     <string name="yourProducts">Yout Products</string>
     <string name="deleteProductIcon">Delete product icon</string>
     <string name="backButtonIcon">Back icon</string>
