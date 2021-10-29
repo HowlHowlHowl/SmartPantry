@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class FragmentNotificationManager extends Fragment {
     private SwitchCompat expiredSwitch, favoritesSwitch;
@@ -34,22 +35,16 @@ public class FragmentNotificationManager extends Fragment {
         SharedPreferences sp = getActivity().getSharedPreferences(Global.UTILITY, Context.MODE_PRIVATE);
 
         expiredSwitch.setChecked(sp.getBoolean(Global.NOTIFY_EXPIRED, true));
-        expiredSwitch.setOnClickListener(v->{
-            sp.edit().putBoolean(Global.NOTIFY_EXPIRED, expiredSwitch.isChecked()).apply();
-        });
+        expiredSwitch.setOnClickListener(v-> sp.edit().putBoolean(Global.NOTIFY_EXPIRED, expiredSwitch.isChecked()).apply());
 
         favoritesSwitch.setChecked(sp.getBoolean(Global.NOTIFY_FAVORITES, false));
-        favoritesSwitch.setOnClickListener(v->{
-            sp.edit().putBoolean(Global.NOTIFY_FAVORITES, favoritesSwitch.isChecked()).apply();
-        });
+        favoritesSwitch.setOnClickListener(v-> sp.edit().putBoolean(Global.NOTIFY_FAVORITES, favoritesSwitch.isChecked()).apply());
 
-        closeFragmentBtn.setOnClickListener(v->{
-            closeFragment();
-        });
+        closeFragmentBtn.setOnClickListener(v-> closeFragment());
     }
     public void closeFragment() {
-        getActivity()
-                .getSupportFragmentManager()
-                .popBackStack();
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
     }
 }

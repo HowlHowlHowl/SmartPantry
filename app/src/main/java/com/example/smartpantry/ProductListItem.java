@@ -54,11 +54,11 @@ public class ProductListItem implements ProductListGeneric{
         TextView createDateView;
         TextView descriptionView;
         TextView barcodeView;
-        nameView = (TextView)view.findViewById(R.id.productName);
-        descriptionView = (TextView)view.findViewById(R.id.productDescription);
-        createDateView = (TextView)view.findViewById(R.id.productCreated);
-        updateDateView = (TextView)view.findViewById(R.id.productUpdated);
-        barcodeView = (TextView)view.findViewById(R.id.productBarcode);
+        nameView = view.findViewById(R.id.productName);
+        descriptionView = view.findViewById(R.id.productDescription);
+        createDateView = view.findViewById(R.id.productCreated);
+        updateDateView = view.findViewById(R.id.productUpdated);
+        barcodeView = view.findViewById(R.id.productBarcode);
 
         SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         DateFormat output = DateFormat.getDateInstance();

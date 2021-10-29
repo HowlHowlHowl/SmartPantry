@@ -42,9 +42,7 @@ public class AdapterShoppingList extends RecyclerView.Adapter<AdapterShoppingLis
     public void onBindViewHolder(@NonNull ShoppingItemViewHolder holder, int position) {
         holder.confirmProduct.setChecked(false);
         holder.removeProduct.setChecked(false);
-        holder.removeLayout.setOnClickListener(v->{
-            holder.removeProduct.performClick();
-        });
+        holder.removeLayout.setOnClickListener(v-> holder.removeProduct.performClick());
 
         holder.removeProduct.setOnClickListener(v->{
             if (holder.removeProduct.isChecked()) {
@@ -55,9 +53,7 @@ public class AdapterShoppingList extends RecyclerView.Adapter<AdapterShoppingLis
             }
         });
 
-        holder.confirmLayout.setOnClickListener(v->{
-            holder.confirmProduct.performClick();
-        });
+        holder.confirmLayout.setOnClickListener(v-> holder.confirmProduct.performClick());
         holder.confirmProduct.setOnClickListener(v->{
             if (holder.confirmProduct.isChecked()) {
                 shoppingList.get(holder.getAdapterPosition()).updateValue = true;

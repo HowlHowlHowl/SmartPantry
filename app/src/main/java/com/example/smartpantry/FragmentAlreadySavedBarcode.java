@@ -15,6 +15,7 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,9 +39,7 @@ public class FragmentAlreadySavedBarcode extends Fragment implements AdapterAlre
         confirmBtn = view.findViewById(R.id.searchAnywayBtn);
         cancelBtn = view.findViewById(R.id.cancelBtn);
         alreadySavedRecycler = view.findViewById(R.id.alreadySavedList);
-        view.findViewById(R.id.bgPopUp).setOnClickListener(v->{
-            closeFragment();
-        });
+        view.findViewById(R.id.bgPopUp).setOnClickListener(v-> closeFragment());
         view.findViewById(R.id.windowPopUp).setOnClickListener(v->{});
         barcode = getArguments().getString("barcode");
         return view;
@@ -51,12 +50,10 @@ public class FragmentAlreadySavedBarcode extends Fragment implements AdapterAlre
         super.onViewCreated(view, savedInstanceState);
         setAlreadySavedRecycler(view.getContext());
         confirmBtn.setOnClickListener(v->{
+            closeFragment();
             confirmSearchPressedListener.onConfirmSearchPressed(barcode);
-            closeFragment();
         });
-        cancelBtn.setOnClickListener(v->{
-            closeFragment();
-        });
+        cancelBtn.setOnClickListener(v-> closeFragment());
     }
 
     @Override
@@ -100,6 +97,7 @@ public class FragmentAlreadySavedBarcode extends Fragment implements AdapterAlre
         alreadySavedList.clear();
         DBHelper database = new DBHelper(context);
         Cursor cursor = database.getAllProducts(notInPantry, order, flow);
+        database.close();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             if(barcode.equals(
@@ -121,11 +119,9 @@ public class FragmentAlreadySavedBarcode extends Fragment implements AdapterAlre
         cursor.close();
     }
 
-    private void closeFragment() {
-        getActivity()
-            .getSupportFragmentManager()
-            .beginTransaction()
-            .remove(FragmentAlreadySavedBarcode.this)
-            .commit();
+    public void closeFragment() {
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
     }
 }

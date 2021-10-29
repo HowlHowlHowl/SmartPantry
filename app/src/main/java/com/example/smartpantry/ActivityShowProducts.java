@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ActivityShowProducts extends AppCompatActivity
         implements AdapterProductsList.onCardEvents, FragmentIconPicker.onIconChosen,
@@ -33,6 +35,8 @@ public class ActivityShowProducts extends AppCompatActivity
     private RecyclerView productsRecyclerView;
     private AdapterProductsList productsAdapter;
     private List<ProductComplete> productsList;
+    private DBHelper database;
+    private ExecutorService threadPool;
     private String productsOrder, productsFlow;
     private boolean productsNotInPantry = false;
     private boolean resultIsSet = false;
@@ -40,18 +44,24 @@ public class ActivityShowProducts extends AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Open dp
+        database = new DBHelper(getApplicationContext());
+
+        //fixed size thread pool
+        threadPool = Executors.newFixedThreadPool(6);
+
+        //Stop adjustment of views when keyboard pops up
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         setContentView(R.layout.activity_show_products);
 
         //Stop adjustment of views when keyboard pops up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        findViewById(R.id.backBtnLayout).setOnClickListener(v->{
-            finish();
-        });
+        findViewById(R.id.backBtnLayout).setOnClickListener(v-> finish());
 
-        findViewById(R.id.backBtn).setOnClickListener(v->{
-            finish();
-        });
+        findViewById(R.id.backBtn).setOnClickListener(v-> finish());
 
         ImageButton filterButton = findViewById(R.id.imageFilterButton);
         filterButton.setOnClickListener(v->{
@@ -64,8 +74,8 @@ public class ActivityShowProducts extends AppCompatActivity
             fragmentFilters.setArguments(bundle);
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_all_products, fragmentFilters)
-                    .addToBackStack(null)
+                    .add(R.id.activity_all_products, fragmentFilters, Global.FRAG_FILTERS)
+                    .addToBackStack(Global.FRAG_FILTERS)
                     .commit();
         });
         if(getIntent().getBooleanExtra(Global.FAVORITES_INTENT_ACTION, false)) {
@@ -93,6 +103,12 @@ public class ActivityShowProducts extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        database.close();
+        super.onDestroy();
+    }
+
     private void setProductsRecyclerView() {
         productsRecyclerView = findViewById(R.id.productsRecycler);
         productsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -105,15 +121,17 @@ public class ActivityShowProducts extends AppCompatActivity
         productsFlow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
 
         productsNotInPantry = sp.getBoolean(Global.NOT_IN_PANTRY, false);
-        populateProductsList(productsNotInPantry, productsOrder, productsFlow);
-
-        productsAdapter = new AdapterProductsList(productsList, this);
-        productsRecyclerView.setAdapter(productsAdapter);
+        threadPool.execute(()->{
+            populateProductsList(productsNotInPantry, productsOrder, productsFlow);
+            runOnUiThread(()->{
+                productsAdapter = new AdapterProductsList(productsList, this, database);
+                productsRecyclerView.setAdapter(productsAdapter);
+            });
+        });
     }
 
     private void populateProductsList(boolean notInPantry, String order, String flow ) {
         productsList.clear();
-        DBHelper database = new DBHelper(getApplicationContext());
         Cursor cursor = database.getAllProducts(notInPantry, order, flow);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -235,9 +253,7 @@ public class ActivityShowProducts extends AppCompatActivity
         };
         productsRecyclerView.removeOnScrollListener(onScrollListener);
         productsRecyclerView.addOnScrollListener(onScrollListener);
-        productsRecyclerView.postDelayed(()->{
-            productsRecyclerView.smoothScrollToPosition(position);
-        }, 50);
+        productsRecyclerView.postDelayed(()-> productsRecyclerView.smoothScrollToPosition(position), 50);
     }
 
     public void flashSearchedView(int position){
@@ -284,8 +300,10 @@ public class ActivityShowProducts extends AppCompatActivity
         String order = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
         String flow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
         boolean notInPantry = sp.getBoolean(Global.NOT_IN_PANTRY, false);
-        populateProductsList(notInPantry, order, flow);
-        productsAdapter.notifyDataSetChanged();
+        threadPool.execute(()->{
+            populateProductsList(notInPantry, order, flow);
+            runOnUiThread(productsAdapter::notifyDataSetChanged);
+        });
     }
 
     @Override
@@ -293,15 +311,15 @@ public class ActivityShowProducts extends AppCompatActivity
         productsOrder = order;
         productsFlow = flow;
         productsNotInPantry = notInPantry;
-        populateProductsList(productsNotInPantry, productsOrder, productsFlow);
-        productsAdapter.notifyDataSetChanged();
+        threadPool.execute(()->{
+            populateProductsList(productsNotInPantry, productsOrder, productsFlow);
+            runOnUiThread(productsAdapter::notifyDataSetChanged);
+        });
     }
 
     @Override
     public void iconSelected(String icon, int position) {
-        DBHelper db  = new DBHelper(this);
-        db.changeIcon(icon, productsList.get(position).id);
-        db.close();
+        database.changeIcon(icon, productsList.get(position).id);
         productsList.get(position).icon = icon;
         productsAdapter.notifyItemChanged(position);
         productUpdated();

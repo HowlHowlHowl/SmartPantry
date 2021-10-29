@@ -44,18 +44,23 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
     private final onCardEvents cardClickedListener;
     private int expandedItem = -1;
     private int previouslyExpandedItem = -1;
+    private DBHelper database;
 
-    AdapterPantryList(List<ProductPantryItem> pantryProducts, onCardEvents cardClickedListener) {
+    AdapterPantryList(List<ProductPantryItem> pantryProducts, onCardEvents cardClickedListener, DBHelper activityDatabase) {
         AdapterPantryList.pantryProducts = pantryProducts;
         this.cardClickedListener = cardClickedListener;
+        database = activityDatabase;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
     }
 
     @Override
     public void deleteProductFromPantry(int position, Context context) {
         //Delete item from pantry event
-        DBHelper db  = new DBHelper(context);
-        db.deleteProductFromPantry(pantryProducts.get(position).id);
-        db.close();
+        database.deleteProductFromPantry(pantryProducts.get(position).id);
         //this line of code put -1 as the index of the expanded card so that no card appears expanded
         expandedItem = -1;
         cardClickedListener.deleteItem(position);
@@ -141,9 +146,7 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         holder.expireDate.setText(toDisplayDateLabel);
 
         //Date picker event
-        holder.expireDateField.setOnClickListener(v -> {
-            initializeDatePicker(v.getContext(), holder, expireDate);
-        });
+        holder.expireDateField.setOnClickListener(v -> initializeDatePicker(v.getContext(), holder, expireDate));
 
         //Disable change date button when date isn't changed
         setDateTextObserver(holder);
@@ -159,16 +162,14 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                     targetFormat);
             holder.expireDateField.setText(holder.expireDateField.getText().toString());
             pantryProducts.get(holder.getAdapterPosition()).expire_date = formattedDate;
-            DBHelper db = new DBHelper(holder.cv.getContext());
-            db.changeExpireDate(pantryProducts.get(holder.getAdapterPosition()).id, formattedDate);
-            db.close();
+
+            database.changeExpireDate(pantryProducts.get(holder.getAdapterPosition()).id, formattedDate);
+
             notifyItemChanged(holder.getAdapterPosition());
         });
 
         //Clear date field
-        holder.clearDateButton.setOnClickListener(v->{
-            holder.expireDateField.setText("");
-        });
+        holder.clearDateButton.setOnClickListener(v-> holder.expireDateField.setText(""));
 
         //Set quantity value
         holder.quantity.setText("x" + pantryProducts.get(holder.getAdapterPosition()).quantity);
@@ -193,14 +194,13 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                     //Update quantity
                     pantryProducts.get(holder.getAdapterPosition()).quantity = quantityValue;
                     holder.quantity.setText("x" + pantryProducts.get(holder.getAdapterPosition()).quantity);
-                    DBHelper db = new DBHelper(holder.cv.getContext());
-                    db.changeQuantity(pantryProducts.get(holder.getAdapterPosition()).id, pantryProducts.get(holder.getAdapterPosition()).quantity);
+
+                    database.changeQuantity(pantryProducts.get(holder.getAdapterPosition()).id, pantryProducts.get(holder.getAdapterPosition()).quantity);
                     if(quantityValue==0) {
-                        db.deleteProductFromPantry(pantryProducts.get(holder.getAdapterPosition()).id);
+                        database.deleteProductFromPantry(pantryProducts.get(holder.getAdapterPosition()).id);
                     } else {
                         holder.changeQuantityButton.setEnabled(false);
                     }
-                    db.close();
                 }
             }
         });
@@ -219,24 +219,20 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         });
 
         //Add to shopping list
-        holder.addToShoppingButton.setOnClickListener(view -> {
-            askToAddInShoppingList(
-                    holder.cv.getContext(),
-                    pantryProducts.get(holder.getAdapterPosition()).quantity,
-                    pantryProducts.get(holder.getAdapterPosition()).id,
-                    holder.getAdapterPosition(),
-                    false
-            );
-        });
+        holder.addToShoppingButton.setOnClickListener(view -> askToAddInShoppingList(
+                holder.cv.getContext(),
+                pantryProducts.get(holder.getAdapterPosition()).quantity,
+                pantryProducts.get(holder.getAdapterPosition()).id,
+                holder.getAdapterPosition(),
+                false
+        ));
 
 
         //Set favorite value
         holder.fav.setChecked(pantryProducts.get(holder.getAdapterPosition()).is_favorite);
         //Change Favorite event
         holder.fav.setOnClickListener(v -> {
-            DBHelper db  = new DBHelper(holder.cv.getContext());
-            db.setFavorite(holder.fav.isChecked(), pantryProducts.get(holder.getAdapterPosition()).id);
-            db.close();
+            database.setFavorite(holder.fav.isChecked(), pantryProducts.get(holder.getAdapterPosition()).id);
             pantryProducts.get(holder.getAdapterPosition()).is_favorite = holder.fav.isChecked();
             notifyDataSetChanged();
         });
@@ -271,9 +267,10 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         FragmentAddToShoppingList fragmentAddToShoppingList = new FragmentAddToShoppingList(this);
 
         fragmentAddToShoppingList.setArguments(bundle);
-        ((ActivityMain)context).getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_main, fragmentAddToShoppingList)
-                .addToBackStack(null)
+        ((ActivityMain)context).getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_main, fragmentAddToShoppingList, Global.FRAG_ADD_SHOP)
+                .addToBackStack(Global.FRAG_ADD_SHOP)
                 .commit();
     }
 

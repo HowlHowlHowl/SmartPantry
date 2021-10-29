@@ -22,6 +22,18 @@ public class Global {
     static final int PRODUCTS_ACTIVITY = 102;
     static final int SHOPPING_ACTIVITY = 103;
 
+    //Fragment Tags
+    static final String FRAG_ADD_PROD = "fragmentAddProduct";
+    static final String FRAG_ADD_SHOP = "fragmentAddShopping";
+    static final String FRAG_ALREADY_SAVED = "fragmentAlreadySaved";
+    static final String FRAG_BARCODE_DIALOG = "fragmentBarcodeDialog";
+    static final String FRAG_BARCODE_LIST = "fragmentBarcodeList";
+    static final String FRAG_FILTERS = "fragmentFilters";
+    static final String FRAG_ICON_PICK = "fragmentIconPicker";
+    static final String FRAG_MAN_ENTRY = "fragmentManEntry";
+    static final String FRAG_NOTIFICATIONS = "fragmentNotificationsManager";
+    static final String FRAG_PREVIEW_PROD = "fragmentPreviewProd";
+
     //Status Response Codes for Login check
     static final int LOGIN_STATUS_OK = 200;
     static final int LOGIN_STATUS_SHOW_LOGIN = 201;
@@ -43,16 +55,15 @@ public class Global {
     //Intent action for showing favorites products missing in products activity
     static final String FAVORITES_INTENT_ACTION = "SHOW_FAVORITES";
 
-    //Notification Channel ID and NAME
+    //Notification Channels ID
     static final String NOTIFICATION_EXP_CHANNEL = "EXPIRING_PRODUCTS";
     static final String NOTIFICATION_FAV_CHANNEL = "FAV_MISSING_PRODUCTS";
-    static final String NOTIFICATION_NAME = "EXPIRING PRODUCTS";
 
     //Date format used in the DB
     static final String DB_DATE_FORMAT = "yyyy-MM-dd";
 
-    //FIXME: FOR DEBUG PURPOSE ONLY, CHANGE TO 6
-    static final int LOGIN_TOKEN_VALID_DAYS = 1;
+    // FIXME: FOR DEBUG PURPOSE CHANGE TO 1
+    static final int LOGIN_TOKEN_VALID_DAYS = 6;
 
     //Server APIs URLs
     static final String LOGIN_URL = "https://lam21.iot-prism-lab.cs.unibo.it/auth/login";

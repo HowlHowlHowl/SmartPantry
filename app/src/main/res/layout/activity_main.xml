@@ -35,6 +35,7 @@
                     android:background="@drawable/pantry_borders_and_background"
                     android:scrollbars="vertical">
                 </androidx.recyclerview.widget.RecyclerView>
+
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
             <FrameLayout
                 android:id="@+id/bottomBackground"

@@ -46,21 +46,20 @@
         app:layout_constraintBottom_toTopOf="@+id/productDescriptionField"
         app:layout_constraintStart_toStartOf="@+id/productDescriptionField" />
 
-    <!--FIXME FINAL RELEASE MUST NOT HAVE THIS CHECKBOX-->
+    <!--
+    FIXME FINAL RELEASE MUST NOT HAVE THIS CHECKBOX
+    -->
     <CheckBox
         android:id="@+id/testCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="44dp"
-        android:checked="true"
-
+        android:checked="false"
         tools:ignore="HardcodedText"
-        android:text="Articolo di Test"
+        android:text="Test"
         android:visibility="invisible"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/productDescriptionField" />
-
     <TextView
         android:id="@+id/viewFragmentTitle"
         android:layout_width="330dp"

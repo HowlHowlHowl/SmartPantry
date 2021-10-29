@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class FragmentManualEntryProduct extends Fragment {
     EditText barcode;
@@ -39,21 +40,15 @@ public class FragmentManualEntryProduct extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        bg.setOnClickListener(v -> {
-            closeFragment();
-        });
+        bg.setOnClickListener(v -> closeFragment());
         window.setOnClickListener(v -> {
             //Prevent window from closing when clicked
         });
         //Trigger MainActivity listener and close itself
         confirmBtn.setOnClickListener(v -> {
+            closeFragment();
             String correctBarcode = barcode.getText().toString();
             manualEntryListener.onManualEntry(correctBarcode);
-            getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .remove(FragmentManualEntryProduct.this)
-                .commit();
         });
     }
 
@@ -68,10 +63,9 @@ public class FragmentManualEntryProduct extends Fragment {
     }
 
     public void closeFragment() {
-        getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .remove(FragmentManualEntryProduct.this)
-                .commit();
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
+
     }
 }

@@ -47,9 +47,7 @@ public class AdapterAlreadySavedList extends RecyclerView.Adapter<AdapterAlready
         //Set name value
         holder.name.setText(productsList.get(holder.getAdapterPosition()).name);
 
-        holder.cv.setOnClickListener(v->{
-            selectionListener.cardClicked(productsList.get(holder.getAdapterPosition()).position);
-        });
+        holder.cv.setOnClickListener(v-> selectionListener.cardClicked(productsList.get(holder.getAdapterPosition()).position));
         //Load and show icon
         try {
             AssetManager assetManager = holder.cv.getContext().getAssets();

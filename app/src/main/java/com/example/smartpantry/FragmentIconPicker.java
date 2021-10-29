@@ -12,6 +12,7 @@ import android.widget.GridView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.io.File;
 
@@ -49,7 +50,7 @@ public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.Pro
                     adapterPosition = getArguments().getInt("position");
                 }
                 iconChosenListener.iconSelected(selectedIcon, adapterPosition);
-                getActivity().getSupportFragmentManager().popBackStack();
+                closeFragment();
             }
         });
 
@@ -69,7 +70,7 @@ public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.Pro
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if(iconChosenListener==null) {
             try {
@@ -78,5 +79,12 @@ public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.Pro
                 throw new ClassCastException(context.toString() + " must implement onIconChosen");
             }
         }
+    }
+    public void closeFragment() {
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.beginTransaction()
+                .remove(FragmentIconPicker.this)
+                .commit();
     }
 }

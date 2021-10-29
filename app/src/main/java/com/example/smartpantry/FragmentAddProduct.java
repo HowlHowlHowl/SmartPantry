@@ -137,18 +137,15 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
         });
 
         //Clear date field
-        cancelDateButton.setOnClickListener(v->{
-            expireDateField.setText("");
-        });
+        cancelDateButton.setOnClickListener(v-> expireDateField.setText(""));
 
         //Icon Picker Event
         iconPicker.setOnClickListener(v -> {
             FragmentIconPicker fragmentIconPicker = new FragmentIconPicker(this);
-            //iconPickerFragment.setArguments();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_main, fragmentIconPicker)
-                    .addToBackStack(null)
+                    .add(R.id.activity_main, fragmentIconPicker, Global.FRAG_ICON_PICK)
+                    .addToBackStack(Global.FRAG_ICON_PICK)
                     .commit();
         });
 
@@ -175,19 +172,16 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
             boolean test = testCheckBox.isChecked();
             boolean addLocal = switchExpand.isChecked();
             if (checkFields(name, description, quantity)) {
+                closeFragment();
                 productAddedListener.onProductAdded(productID, barcode, name, description,
                         formattedDate,
                         Long.parseLong(quantity), icon, test, addLocal,
                         !alreadyExistingProduct);
-                getActivity()
-                        .getSupportFragmentManager()
-                        .popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             }
         });
     }
 
     private boolean checkFields(String name, String description, String quantity) {
-
         if (name.isEmpty()) {
             nameField.setError(getResources().getString(R.string.addProductNameError));
             return false;
@@ -235,5 +229,10 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
                     Toast.LENGTH_SHORT).show();
         }
 
+    }
+    public void closeFragment() {
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
     }
 }

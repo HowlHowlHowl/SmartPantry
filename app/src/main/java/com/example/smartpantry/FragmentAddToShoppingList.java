@@ -11,6 +11,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class FragmentAddToShoppingList extends Fragment {
     private Button addBtn, dontAddBtn, cancelBtn;
@@ -38,11 +39,9 @@ public class FragmentAddToShoppingList extends Fragment {
         quantityField = view.findViewById(R.id.toAddQuantityField);
         cancelBtn = view.findViewById(R.id.cancelBtn);
         //Close frag on click outside
-        view.findViewById(R.id.addQuantity).setOnClickListener(v->{
-            getActivity()
-                    .getSupportFragmentManager()
-                    .popBackStack();
-        });
+        view.findViewById(R.id.addQuantity).setOnClickListener(v-> getActivity()
+                .getSupportFragmentManager()
+                .popBackStack());
 
         //Remove touch on window event to close frag
         view.findViewById(R.id.bgPopUp).setOnClickListener(v-> {
@@ -62,11 +61,7 @@ public class FragmentAddToShoppingList extends Fragment {
         //If the fragment has the responsibility to delete the product the cancel button is shown
         //to give the user the possibility to cancel the operation
         cancelBtn.setVisibility(delete ? View.VISIBLE : View.GONE);
-        cancelBtn.setOnClickListener(v-> {
-            getActivity()
-                    .getSupportFragmentManager()
-                    .popBackStack();
-        });
+        cancelBtn.setOnClickListener(v-> closeFragment());
         addBtn.setOnClickListener(v->{
             String addQuantityString = quantityField.getText().toString();
             if(!addQuantityString.isEmpty()) {
@@ -74,13 +69,11 @@ public class FragmentAddToShoppingList extends Fragment {
                     shoppingListener.deleteProductFromPantry(position, getContext());
                 }
                 long addQuantity = Long.parseLong(addQuantityString);
-                DBHelper db = new DBHelper(getContext());
-                db.addToShoppingList(id, addQuantity);
-                db.close();
+                DBHelper database = new DBHelper(getContext());
+                database.addToShoppingList(id, addQuantity);
+                database.close();
+                closeFragment();
                 shoppingListener.updateProductShoppingQuantity(position, addQuantity);
-                getActivity()
-                        .getSupportFragmentManager()
-                        .popBackStack();
             } else {
                 quantityField.setError(getString(R.string.addProductQuantityError));
             }
@@ -90,14 +83,15 @@ public class FragmentAddToShoppingList extends Fragment {
             if (delete) {
                 shoppingListener.deleteProductFromPantry(position, getContext());
             }
-
-            getActivity()
-                    .getSupportFragmentManager()
-                    .popBackStack();
+           closeFragment();
         });
 
         //Write past quantity
         quantityField.setText(String.valueOf(quantity));
     }
-
+    public void closeFragment() {
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
+    }
 }

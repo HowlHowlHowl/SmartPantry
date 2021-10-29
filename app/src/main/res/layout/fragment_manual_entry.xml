@@ -40,7 +40,10 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!--FIXME DELETE HARDCODED BARCODE-->
+        <!--
+        FIXME DELETE HARDCODED BARCODE
+        android:text="8000500310427"
+        -->
         <EditText
             android:id="@+id/scanResultCode"
             android:importantForAutofill="no"
@@ -53,10 +56,7 @@
             android:ems="10"
             android:hint="@string/barcodeHint"
             android:inputType="number"
-
             tools:ignore="HardcodedText"
-            android:text="8000500310427"
-
             android:textAlignment="center"
             android:textSize="24sp"
             app:layout_constraintBottom_toTopOf="@+id/addShoppingBtn"

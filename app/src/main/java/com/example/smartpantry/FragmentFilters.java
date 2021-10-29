@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class FragmentFilters extends Fragment {
 
@@ -118,9 +119,7 @@ public class FragmentFilters extends Fragment {
     }
 
     private void setOrderFlowEventsListeners() {
-        showNotInPantryOnly.setOnClickListener(v->{
-            notInPantryOnly= showNotInPantryOnly.isChecked();
-        });
+        showNotInPantryOnly.setOnClickListener(v-> notInPantryOnly= showNotInPantryOnly.isChecked());
         orderFlowSwitch.setOnClickListener(v->{
             if(orderFlowSwitch.isChecked()){
                 flowLabel.setText(getResources().getString(R.string.DESCText));
@@ -195,9 +194,9 @@ public class FragmentFilters extends Fragment {
     }
 
     public void closeFragment() {
-        getActivity()
-                .getSupportFragmentManager()
-                .popBackStack();
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
     }
 
     public void getCurrentOrderPreferences(){

@@ -14,6 +14,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class FragmentBarcodeDialog extends Fragment {
     EditText barcode;
@@ -38,9 +39,7 @@ public class FragmentBarcodeDialog extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         barcode.setText(this.getArguments().getString("barcode"));
-        retryBtn.setOnClickListener(v -> {
-            closeFragment();
-        });
+        retryBtn.setOnClickListener(v -> closeFragment());
 
         confirmBtn.setOnClickListener(v -> {
             String correctBarcode = barcode.getText().toString();
@@ -51,13 +50,7 @@ public class FragmentBarcodeDialog extends Fragment {
             getActivity().finish();
         });
     }
-    public void closeFragment() {
-        getActivity()
-            .getSupportFragmentManager()
-            .beginTransaction()
-            .remove(FragmentBarcodeDialog.this)
-            .commit();
-    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,4 +73,9 @@ public class FragmentBarcodeDialog extends Fragment {
         }
     }
 
+    public void closeFragment() {
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
+    }
 }

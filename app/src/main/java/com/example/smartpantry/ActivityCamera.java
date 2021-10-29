@@ -20,7 +20,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.barcode.Barcode;
@@ -29,7 +28,6 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.common.InputImage;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -100,8 +98,8 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
         FragmentBarcodeDialog fragInfo = new FragmentBarcodeDialog();
         fragInfo.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_camera, fragInfo, "barcodeScanResult")
-                .addToBackStack(null)
+                .add(R.id.activity_camera, fragInfo, Global.FRAG_BARCODE_DIALOG)
+                .addToBackStack(Global.FRAG_BARCODE_DIALOG)
                 .commit();
     }
 
@@ -127,13 +125,13 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
             InputImage image =
                     InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
             BarcodeScanner scanner = BarcodeScanning.getClient(getScanOption());
-            Task<List<Barcode>> result = scanner.process(image)
+            scanner.process(image)
                 .addOnSuccessListener(barcodes -> {
-                    if(!barcodes.isEmpty()) {
-                        for (Barcode barcode: barcodes) {
+                    if (!barcodes.isEmpty()) {
+                        for (Barcode barcode : barcodes) {
                             String rawValue = barcode.getRawValue();
                             Log.println(Log.DEBUG, "SCAN", "RAW VALUE FOUND " + rawValue);
-                            if(getSupportFragmentManager().findFragmentByTag("barcodeScanResult")==null)
+                            if (getSupportFragmentManager().findFragmentByTag(Global.FRAG_BARCODE_DIALOG) == null)
                                 showResultFragment(rawValue);
                         }
                     } else {

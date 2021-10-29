@@ -43,12 +43,14 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         implements FragmentAddToShoppingList.AddToShoppingListEvent{
     public static List<ProductComplete> productsList;
     private final AdapterProductsList.onCardEvents cardEvents;
+    private DBHelper database;
     private int expandedItem = -1;
     private int previouslyExpandedItem = -1;
 
-    AdapterProductsList(List<ProductComplete> productsList, onCardEvents cardEvents) {
+    AdapterProductsList(List<ProductComplete> productsList, onCardEvents cardEvents, DBHelper activityDatabase) {
         AdapterProductsList.productsList = productsList;
         this.cardEvents = cardEvents;
+        database = activityDatabase;
     }
 
     //In the show products activity it isn't needed the implementation of this method
@@ -100,9 +102,7 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
                 productsList.get(holder.getAdapterPosition()).expire_date);
 
         //Date picker event
-        holder.expireDateField.setOnClickListener(v -> {
-            initializeDatePicker(v.getContext(), holder, expireDate);
-        });
+        holder.expireDateField.setOnClickListener(v -> initializeDatePicker(v.getContext(), holder, expireDate));
 
         holder.cv.setOnClickListener(v->{
             //Logic to keep just one of the cards expanded
@@ -120,18 +120,14 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         holder.fav.setChecked(productsList.get(holder.getAdapterPosition()).is_favorite);
         //Change Favorite event
         holder.fav.setOnClickListener(v -> {
-            DBHelper db  = new DBHelper(holder.cv.getContext());
-            db.setFavorite(holder.fav.isChecked(), productsList.get(holder.getAdapterPosition()).id);
-            db.close();
+            database.setFavorite(holder.fav.isChecked(), productsList.get(holder.getAdapterPosition()).id);
             productsList.get(holder.getAdapterPosition()).is_favorite = holder.fav.isChecked();
             notifyDataSetChanged();
             cardEvents.productUpdated();
         });
 
         //Clear date field
-        holder.clearDateButton.setOnClickListener(v->{
-            holder.expireDateField.setText("");
-        });
+        holder.clearDateButton.setOnClickListener(v-> holder.expireDateField.setText(""));
 
         setQuantityTextObserver(holder);
         setDateTextObserver(holder);
@@ -145,14 +141,12 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
                 originalFormat,
                 targetFormat
             );
-            DBHelper db  = new DBHelper(holder.cv.getContext());
-            db.updateProduct(
+            database.updateProduct(
                 productsList.get(holder.getAdapterPosition()).id,
                 toAdd,
                 updatedQuantity,
                 toAdd && !updatedExpireDate.isEmpty() ? updatedExpireDate : null
             );
-            db.close();
             productsList.get(holder.getAdapterPosition()).in_pantry = toAdd;
             productsList.get(holder.getAdapterPosition()).expire_date = updatedExpireDate;
             productsList.get(holder.getAdapterPosition()).quantity = updatedQuantity;
@@ -162,19 +156,15 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         //Disable update button by default
         holder.updateItemButton.setEnabled(false);
 
-        holder.deleteItemButton.setOnClickListener(v->{
-            askToDeleteProduct(holder.getAdapterPosition(), holder.cv.getContext());
-        });
+        holder.deleteItemButton.setOnClickListener(v-> askToDeleteProduct(holder.getAdapterPosition(), holder.cv.getContext()));
 
         //Add to shopping list
-        holder.addToShoppingButton.setOnClickListener(v->{
-            askToAddInShoppingList(
-                    holder.cv.getContext(),
-                    productsList.get(holder.getAdapterPosition()).quantity,
-                    holder.getAdapterPosition(),
-                    productsList.get(holder.getAdapterPosition()).id
-            );
-        });
+        holder.addToShoppingButton.setOnClickListener(v-> askToAddInShoppingList(
+                holder.cv.getContext(),
+                productsList.get(holder.getAdapterPosition()).quantity,
+                holder.getAdapterPosition(),
+                productsList.get(holder.getAdapterPosition()).id
+        ));
 
         //Load and show icon
         try {
@@ -197,8 +187,8 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
             //iconPickerFragment.setArguments();
             ((AppCompatActivity)holder.cv.getContext()).getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_all_products, fragmentIconPicker)
-                    .addToBackStack(null)
+                    .add(R.id.activity_all_products, fragmentIconPicker, Global.FRAG_ICON_PICK)
+                    .addToBackStack(Global.FRAG_ICON_PICK)
                     .commit();
         });
 
@@ -263,9 +253,10 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         bundle.putInt("position", position);
         FragmentAddToShoppingList fragmentAddToShoppingList = new FragmentAddToShoppingList(this);
         fragmentAddToShoppingList.setArguments(bundle);
-        ((ActivityShowProducts)context).getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_all_products, fragmentAddToShoppingList)
-                .addToBackStack(null)
+        ((ActivityShowProducts)context).getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.activity_all_products, fragmentAddToShoppingList, Global.FRAG_ADD_SHOP)
+                .addToBackStack(Global.FRAG_ADD_SHOP)
                 .commit();
     }
 
@@ -276,9 +267,7 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
                 .setPositiveButton(
                         context.getResources().getString(R.string.confirmBtnText),
                         (dialog, id) -> {
-                            DBHelper db  = new DBHelper(context);
-                            db.deleteProduct(productsList.get(position).id);
-                            db.close();
+                            database.deleteProduct(productsList.get(position).id);
                             //this line of code put -1 as the index of the expanded card so that no card appears expanded
                             expandedItem = -1;
                             cardEvents.deleteItem(position);

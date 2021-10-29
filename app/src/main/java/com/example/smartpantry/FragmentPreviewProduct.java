@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 public class FragmentPreviewProduct extends Fragment {
     private TextView name, description,
@@ -27,7 +28,7 @@ public class FragmentPreviewProduct extends Fragment {
     private Button addBtn, voteBtn;
     private ToggleButton voteUp, voteDown;
     private Integer tempPreference = 0;
-    private DBHelper db;
+    private DBHelper database;
     private String productID, barcode;
     private onPreviewActionListener listener;
 
@@ -38,7 +39,7 @@ public class FragmentPreviewProduct extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_preview_found_product, container, false);
 
-        db = new DBHelper(getActivity().getApplicationContext());
+        database = new DBHelper(getActivity().getApplicationContext());
         name = view.findViewById(R.id.previewProductName);
         description = view.findViewById(R.id.previewProductDescription);
         preferenceValue = view.findViewById(R.id.previewProdVoteVal);
@@ -54,9 +55,7 @@ public class FragmentPreviewProduct extends Fragment {
         ConstraintLayout ignoreTouch = view.findViewById(R.id.bgPopUp);
 
 
-        bg.setOnClickListener(v-> {
-            closeFragment();
-        });
+        bg.setOnClickListener(v-> closeFragment());
         ignoreTouch.setOnClickListener(v -> {
             //To ignore the dismiss of the fragment when the popup window is clicked
         });
@@ -70,7 +69,7 @@ public class FragmentPreviewProduct extends Fragment {
         if (this.getArguments() != null) {
             productID = this.getArguments().getString("id");
             barcode = this.getArguments().getString("barcode");
-            Integer productPreference = db.getPreference(productID);
+            Integer productPreference = database.getPreference(productID);
             if(productPreference != null) {
                 setViewAsAlreadyRated(productPreference);
             }
@@ -80,9 +79,7 @@ public class FragmentPreviewProduct extends Fragment {
 
         if(this.getArguments().getBoolean("isUserOwned")) {
             deleteItem.setVisibility(View.VISIBLE);
-            deleteItem.setOnClickListener(v->{
-                askToDeleteFromServer();
-            });
+            deleteItem.setOnClickListener(v-> askToDeleteFromServer());
         }
 
         voteUp.setOnClickListener(v -> {
@@ -126,8 +123,8 @@ public class FragmentPreviewProduct extends Fragment {
             getActivity().getSupportFragmentManager().popBackStack();
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_main, fragmentAddProduct, "addProductFragment")
-                    .addToBackStack(null)
+                    .add(R.id.activity_main, fragmentAddProduct, Global.FRAG_ADD_PROD)
+                    .addToBackStack(Global.FRAG_ADD_PROD)
                     .commit();
 
         });
@@ -188,10 +185,11 @@ public class FragmentPreviewProduct extends Fragment {
     public void handleError() {
         setViewAsAlreadyRated(tempPreference);
     }
+
     public void showRatingResult(Integer rating) {
-        db.insertNewPreference(productID, tempPreference);
+        database.insertNewPreference(productID, tempPreference);
         preferenceLabel.setText(getResources().getString(R.string.yourVote));
-        preferenceValue.setText((tempPreference > 0 ? "+" : "") + tempPreference.toString());
+        preferenceValue.setText((rating > 0 ? "+" : "") + tempPreference.toString());
 
     }
     public void disableVote() {
@@ -202,10 +200,8 @@ public class FragmentPreviewProduct extends Fragment {
 
     }
     private void closeFragment() {
-        getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .remove(FragmentPreviewProduct.this)
-                .commit();
+        FragmentManager fm = getActivity()
+                .getSupportFragmentManager();
+        fm.popBackStack();
     }
 }

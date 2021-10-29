@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -26,6 +29,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +61,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ActivityMain extends AppCompatActivity
         implements
@@ -75,17 +81,27 @@ public class ActivityMain extends AppCompatActivity
     private RecyclerView pantryRecyclerView;
     private DrawerLayout drawerLayout;
     private SwipeRefreshLayout swipeRefresh;
-    /*
-    TODO:
-         1. REFACTOR CODE USING THREADS FOR DB AND NETWORK OPERATIONS
-    */
+    private AlertDialog progressAlert;
+
+    private ExecutorService threadPool;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        database = new DBHelper(getApplicationContext());
         setContentView(R.layout.activity_main);
+
+        //Initialize fixed size thread pool
+        threadPool = Executors.newFixedThreadPool(5);
+
+        //Open database instance
+        database = new DBHelper(getApplicationContext());
+
+        //Clear temp order and flow
+        SharedPreferences.Editor editor = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE).edit();
+        editor.putString(Global.TEMP_ORDER, null);
+        editor.putString(Global.TEMP_FLOW, null);
+        editor.apply();
 
         //Stop adjustment of views when keyboard pops up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
@@ -115,9 +131,9 @@ public class ActivityMain extends AppCompatActivity
 
         //Option button to show navigation drawer
         ImageButton optionsBtn = findViewById(R.id.optionsBtn);
-        optionsBtn.setOnClickListener(v-> {
-            drawerLayout.openDrawer(GravityCompat.START);
-        });
+        optionsBtn.setOnClickListener(v->
+            drawerLayout.openDrawer(GravityCompat.START)
+        );
 
         //Products button
         ImageButton productsButton = findViewById(R.id.productsBtn);
@@ -145,21 +161,17 @@ public class ActivityMain extends AppCompatActivity
 
         //Recipes button
         ImageButton recipesButton =  findViewById(R.id.recipesBtn);
-        recipesButton.setOnClickListener(v->{
-            Toast.makeText(getApplicationContext(), "NOT YET AVAILABLE", Toast.LENGTH_LONG).show();
-        });
+        recipesButton.setOnClickListener(v-> Toast.makeText(getApplicationContext(), "NOT YET AVAILABLE", Toast.LENGTH_LONG).show());
 
         LinearLayout deleteAllProducts = findViewById(R.id.deleteAllProducts);
-        deleteAllProducts.setOnClickListener(v->{
-            askToDeleteAllProducts();
-        });
+        deleteAllProducts.setOnClickListener(v-> askToDeleteAllProducts());
 
         Button barcodeManualEntry = findViewById(R.id.manualEntryBtn);
         barcodeManualEntry.setOnClickListener(v -> {
             FragmentManualEntryProduct fragManualEntry = new FragmentManualEntryProduct();
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.activity_main, fragManualEntry)
-                    .addToBackStack(null)
+                    .add(R.id.activity_main, fragManualEntry, Global.FRAG_MAN_ENTRY)
+                    .addToBackStack(Global.FRAG_MAN_ENTRY)
                     .commit();
         });
 
@@ -168,8 +180,8 @@ public class ActivityMain extends AppCompatActivity
             FragmentFilters fragmentFilters = new FragmentFilters();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_main, fragmentFilters)
-                    .addToBackStack(null)
+                    .add(R.id.activity_main, fragmentFilters, Global.FRAG_FILTERS)
+                    .addToBackStack(Global.FRAG_FILTERS)
                     .commit();
         });
         setSearchBox();
@@ -178,6 +190,12 @@ public class ActivityMain extends AppCompatActivity
         startPeriodicExpireCheck();
 
         Log.println(ASSERT, "USER ID", getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).getString(Global.ID, "null"));
+    }
+
+    @Override
+    protected void onDestroy() {
+        database.close();
+        super.onDestroy();
     }
 
     private void setSearchBox(){
@@ -279,8 +297,10 @@ public class ActivityMain extends AppCompatActivity
                 ed.putString(Global.TEMP_ORDER, DBHelper.COLUMN_PRODUCT_EXPIRE_DATE);
                 ed.putString(Global.TEMP_FLOW, Global.ASC_ORDER);
                 ed.apply();
-                populatePantryList(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE, Global.ASC_ORDER);
-                pantryAdapter.notifyDataSetChanged();
+                threadPool.execute(()-> {
+                    populatePantryList(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE, Global.ASC_ORDER);
+                    runOnUiThread(pantryAdapter::notifyDataSetChanged);
+                });
             }
             case Global.FAVORITES_INTENT_ACTION: {
                 //The Intent has been issued by the touch of a notification about
@@ -320,8 +340,9 @@ public class ActivityMain extends AppCompatActivity
                     Log.println(ASSERT, "ACTIVITY RESULT", "CAMERA ACTIVITY");
                     String barcode = data.getStringExtra("barcode");
                     if(productNeverSaved(barcode)) {
-                        //TODO TEST AND CHANGE EVERYWHERE new Handler(Looper.getMainLooper()).post(() -> getProductsByBarcode(barcode, true));
-                        getProductsByBarcode(barcode, true);
+                        threadPool.execute(()->
+                            getProductsByBarcode(barcode, true)
+                        );
 
                     }
                 }
@@ -350,7 +371,7 @@ public class ActivityMain extends AppCompatActivity
         if(isNew) {
             //If the item is new after being inserted in the server
             //it's added to the local db with the ID returned by the server
-             addProductRemote(barcode, name, description, test, expire, quantity, icon, addToPantry);
+             threadPool.execute(()-> addProductRemote(barcode, name, description, test, expire, quantity, icon, addToPantry));
         } else {
             //Else we already have the id and we can update the local db
             addProductLocal(id, barcode, name, description, expire, quantity, icon, addToPantry);
@@ -366,7 +387,7 @@ public class ActivityMain extends AppCompatActivity
     @Override
     public void onManualEntry(String barcode) {
         if(productNeverSaved(barcode)) {
-            getProductsByBarcode(barcode, true);
+            threadPool.execute(()-> getProductsByBarcode(barcode, true));
         }
     }
 
@@ -381,12 +402,12 @@ public class ActivityMain extends AppCompatActivity
     //Interface Override of FragmentPreviewProduct method to delete product from the server
     @Override
     public void onDeleteFromServer(String id, String barcode) {
-        deleteProductFromServer(id, barcode);
+        threadPool.execute(()-> deleteProductFromServer(id, barcode));
     }
 
     @Override
     public void onVoteProduct(int preference, String id, String barcode) {
-        voteProduct(preference, id, barcode);
+        threadPool.execute(()-> voteProduct(preference, id, barcode));
     }
 
     //Interface Override of AdapterPantryList method to delete items from the pantry
@@ -400,22 +421,27 @@ public class ActivityMain extends AppCompatActivity
     //Interface Override of 'apply button' pressed from FragmentFilters to apply filters to the pantry
     @Override
     public void applyFilters(boolean notInPantry, String order, String flow) {
-        populatePantryList(order, flow);
-        pantryAdapter.notifyDataSetChanged();
+        threadPool.execute(()->{
+            populatePantryList(order, flow);
+            runOnUiThread(pantryAdapter::notifyDataSetChanged);
+        });
     }
 
     //Interface Override of 'confirm button' pressed from FragmentAlreadySavedBarcode to search the barcode
     @Override
     public void onConfirmSearchPressed(String barcode) {
-        getProductsByBarcode(barcode, true);
+        threadPool.execute(()-> getProductsByBarcode(barcode, true));
+
     }
 
     private void refreshPantry() {
         SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER,MODE_PRIVATE);
         String order = sp.getString(Global.TEMP_ORDER, sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE));
         String flow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
-        populatePantryList(order, flow);
-        pantryAdapter.notifyDataSetChanged();
+        threadPool.execute(()->{
+            populatePantryList(order, flow);
+            runOnUiThread(pantryAdapter::notifyDataSetChanged);
+        });
     }
 
     protected void startPeriodicExpireCheck() {
@@ -441,8 +467,8 @@ public class ActivityMain extends AppCompatActivity
         alreadySavedBarcode.setArguments(bundle);
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.activity_main, alreadySavedBarcode)
-                .addToBackStack(null)
+                .add(R.id.activity_main, alreadySavedBarcode, Global.FRAG_ALREADY_SAVED)
+                .addToBackStack(Global.FRAG_ALREADY_SAVED)
                 .commit();
     }
 
@@ -458,18 +484,7 @@ public class ActivityMain extends AppCompatActivity
         builder.setMessage(getResources().getString(R.string.deleteItemsFromPantry))
                 .setPositiveButton(
                         getResources().getString(R.string.confirmBtnText),
-                        (dialog, id) -> {
-                            DBHelper db = new DBHelper(getApplicationContext());
-                            db.deleteAllProductsFromPantry();
-                            db.close();
-                            refreshPantry();
-
-                            Toast.makeText(
-                                    getApplicationContext(),
-                                    getResources().getString(R.string.allProductsDeletedFromPantry),
-                                    Toast.LENGTH_LONG)
-                                    .show();
-                        })
+                        (dialog, id) -> {})
                 .setNegativeButton(
                         getResources().getString(R.string.cancelText),
                         (dialog, id) -> dialog.cancel());
@@ -489,9 +504,9 @@ public class ActivityMain extends AppCompatActivity
                         .equals(getApplicationContext()
                                 .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
                                 .getString(Global.EMAIL, ""))) {
-                    DBHelper db = new DBHelper(getApplicationContext());
-                    db.deleteAllProductsFromPantry();
-                    db.close();
+                    threadPool.execute(()->
+                            database.deleteAllProductsFromPantry()
+                    );
                     pantryAdapter.notifyItemRangeRemoved(0, pantryAdapter.getItemCount());
                     Toast.makeText(
                             getApplicationContext(),
@@ -510,8 +525,8 @@ public class ActivityMain extends AppCompatActivity
         FragmentNotificationManager fragmentNotificationManager = new FragmentNotificationManager();
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.activity_main, fragmentNotificationManager)
-                .addToBackStack(null)
+                .add(R.id.activity_main, fragmentNotificationManager, Global.FRAG_NOTIFICATIONS)
+                .addToBackStack(Global.FRAG_NOTIFICATIONS)
                 .commit();
     }
 
@@ -532,9 +547,7 @@ public class ActivityMain extends AppCompatActivity
         };
         pantryRecyclerView.removeOnScrollListener(onScrollListener);
         pantryRecyclerView.addOnScrollListener(onScrollListener);
-        pantryRecyclerView.postDelayed(()->{
-            pantryRecyclerView.smoothScrollToPosition(position);
-        }, 50);
+        pantryRecyclerView.postDelayed(()-> pantryRecyclerView.smoothScrollToPosition(position), 50);
     }
 
     public void flashSearchedView(int position){
@@ -585,10 +598,10 @@ public class ActivityMain extends AppCompatActivity
                         .equals(getApplicationContext()
                                 .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
                                 .getString(Global.EMAIL, ""))) {
-                    DBHelper db = new DBHelper(getApplicationContext());
-                    db.dropAllTables();
-                    db.close();
-                    refreshPantry();
+                    threadPool.execute(()-> {
+                        database.dropAllTables();
+                        runOnUiThread(this::refreshPantry);
+                    });
                     alert.dismiss();
                     Toast.makeText(
                             getApplicationContext(),
@@ -604,11 +617,15 @@ public class ActivityMain extends AppCompatActivity
 
     private void addProductLocal(String id, String barcode, String name, String description,
                                  String expire, long quantity, String icon, boolean addToPantry) {
-        long code = database.insertNewProduct(id, barcode, name, description, expire, quantity, icon, addToPantry);
-        if (code == -1) {
-            Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show();
-            Log.wtf("ADD LOCAL", "ERROR ADDING PRODUCT TO LOCAL DB");
-        }
+        threadPool.execute(()-> {
+            long code = database.insertNewProduct(id, barcode, name, description, expire, quantity, icon, addToPantry);
+            if (code == -1) {
+                runOnUiThread(()->
+                        Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show()
+                );
+                Log.wtf("ADD LOCAL", "ERROR ADDING PRODUCT TO LOCAL DB");
+            }
+        });
     }
 
     private void handleLogin() {
@@ -622,7 +639,7 @@ public class ActivityMain extends AppCompatActivity
                this.finish();
                break;
             case Global.LOGIN_STATUS_REQUEST_TOKEN:
-                updateToken();
+                threadPool.execute(this::updateToken);
                 break;
             case Global.LOGIN_STATUS_OK:
             default:
@@ -672,7 +689,7 @@ public class ActivityMain extends AppCompatActivity
     private void showMatchProducts(String barcode, @NonNull JSONArray products) {
         FragmentBarcodeListProducts oldFragment =
                 (FragmentBarcodeListProducts) getSupportFragmentManager()
-                        .findFragmentByTag("fragmentBarcodeListProducts");
+                        .findFragmentByTag(Global.FRAG_BARCODE_DIALOG);
         if(oldFragment != null){
             getSupportFragmentManager()
                     .beginTransaction()
@@ -686,8 +703,8 @@ public class ActivityMain extends AppCompatActivity
         fragmentBarcodeListProducts.setArguments(bundle);
         getSupportFragmentManager()
             .beginTransaction()
-            .add(R.id.activity_main, fragmentBarcodeListProducts, "fragmentBarcodeListProducts")
-            .addToBackStack(null)
+            .add(R.id.activity_main, fragmentBarcodeListProducts, Global.FRAG_BARCODE_LIST)
+            .addToBackStack(Global.FRAG_BARCODE_LIST)
             .commit();
     }
 
@@ -719,12 +736,18 @@ public class ActivityMain extends AppCompatActivity
         //Pick last saved order and flow from preferences and use it to display items
         //if no order has been specified the default is [favorites - DESC]
         pantryProducts = new ArrayList<>();
-        populatePantryList(
-                sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE),
-                sp.getString(Global.FLOW, Global.DESC_ORDER)
-        );
-        pantryAdapter = new AdapterPantryList(pantryProducts, this);
-        pantryRecyclerView.setAdapter(pantryAdapter);
+        threadPool.execute(()->{
+            populatePantryList(
+                    sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE),
+                    sp.getString(Global.FLOW, Global.DESC_ORDER)
+            );
+            runOnUiThread(()->{
+                pantryAdapter = new AdapterPantryList(pantryProducts, this, database);
+                pantryRecyclerView.setAdapter(pantryAdapter);
+            });
+        });
+
+
     }
 
     private void populatePantryList(String order, String flow) {
@@ -747,17 +770,44 @@ public class ActivityMain extends AppCompatActivity
         cursor.close();
     }
 
+    private void toggleProgressBar() {
+        if(progressAlert==null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
+            ProgressBar progressBar = new ProgressBar(getApplicationContext());
+            progressBar.getIndeterminateDrawable()
+                .setColorFilter(
+                        getColor(R.color.app_color),
+                        PorterDuff.Mode.MULTIPLY
+                );
+            FrameLayout frame = new FrameLayout(getApplicationContext());
+            frame.setBackgroundColor(Color.TRANSPARENT);
+            frame.addView(progressBar);
+            frame.setPadding(70, 140, 70, 140);
+            builder.setView(frame);
+            progressAlert = builder.create();
+            progressAlert.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            progressAlert.getWindow()
+                    .setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            progressAlert.setOnShowListener(arg0 -> {
+                progressAlert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setVisibility(View.GONE);
+                progressAlert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setVisibility(View.GONE);
+            });
+            progressAlert.show();
+        } else {
+            progressAlert.dismiss();
+            progressAlert=null;
+        }
+    }
+
     /** HTTP CALLS */
 
     //UPDATE ACCESS TOKEN
     private void updateToken() {
         if (Global.checkConnectionAvailability(getApplicationContext())) {
-            Log.println(ASSERT, "UPDATE TOKEN", "WE CONNECTED");
             RequestQueue queue = Volley.newRequestQueue(this);
             StringRequest loginRequest = new StringRequest(Request.Method.POST, Global.LOGIN_URL,
                     response -> {
                         try {
-                            Log.println(ASSERT, "UPDATE TOKEN", "TRYING");
                             JSONObject credentials = new JSONObject(response);
                             String token = credentials.get(Global.ACCESS_TOKEN).toString();
                             SharedPreferences sp = getApplicationContext().getSharedPreferences(Global.LOGIN, MODE_PRIVATE);
@@ -792,6 +842,7 @@ public class ActivityMain extends AppCompatActivity
     //ELSE IT'S USED TO GET A NEW SESSION TOKEN
     private void getProductsByBarcode(String barcode, boolean show) {
         if (Global.checkConnectionAvailability(getApplicationContext())) {
+            runOnUiThread(this::toggleProgressBar);
             RequestQueue queue = Volley.newRequestQueue(this);
             StringRequest showProductsByCodeRequest =
                     new StringRequest(Request.Method.GET, Global.LIST_PRODUCTS_URL + barcode,
@@ -808,13 +859,22 @@ public class ActivityMain extends AppCompatActivity
                                             .edit()
                                             .putString(Global.SESSION_TOKEN, sessionToken)
                                             .apply();
-                                    if(show) {
-                                        showMatchProducts(barcode, productsList);
-                                    }
+                                    runOnUiThread(()->{
+                                        toggleProgressBar();
+                                        if(show) {
+                                            showMatchProducts(barcode, productsList);
+                                        }
+                                    });
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                    runOnUiThread(this::toggleProgressBar);
                                 }
-                            }, Throwable::printStackTrace) {
+                            },
+                            error -> {
+                                error.printStackTrace();
+                                runOnUiThread(this::toggleProgressBar);
+                            }
+                    ) {
                         @Override
                         public Map<String, String> getHeaders() {
                             Map<String, String> headers = new HashMap<>();
@@ -828,7 +888,9 @@ public class ActivityMain extends AppCompatActivity
             queue.add(showProductsByCodeRequest);
         } else {
             Log.println(ASSERT, "PRODS BY BARCODE", "NO CONNECTION");
-            Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show();
+            runOnUiThread(()->
+                Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show()
+            );
         }
     }
 
@@ -847,14 +909,20 @@ public class ActivityMain extends AppCompatActivity
                 final String requestBody = params.toString();
 
                 FragmentPreviewProduct preview = (FragmentPreviewProduct) getSupportFragmentManager()
-                                .findFragmentByTag("previewFragment");
+                                .findFragmentByTag(Global.FRAG_PREVIEW_PROD);
                 StringRequest voteProductRequest = new StringRequest(Request.Method.POST, Global.VOTE_PRODUCT_URL,
                     response -> {
                         Log.println(ASSERT, "VOTE RESPONSE", response);
                         try {
                             JSONObject respObj = new JSONObject(response);
                             if(preview != null) {
-                                preview.showRatingResult(respObj.getInt("rating"));
+                                runOnUiThread(()->{
+                                    try {
+                                        preview.showRatingResult(respObj.getInt("rating"));
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
                             }
                             //This call with parameter 'show=false' refresh the session token
                             getProductsByBarcode(barcode, false);
@@ -864,7 +932,7 @@ public class ActivityMain extends AppCompatActivity
                     },
                     error -> {
                         if(preview != null) {
-                            preview.handleError();
+                            runOnUiThread(preview::handleError);
                         }
                     }
                 ) {
@@ -895,19 +963,27 @@ public class ActivityMain extends AppCompatActivity
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show();
+            runOnUiThread(()->
+                Toast.makeText(this, getResources().getString(R.string.connectionError), Toast.LENGTH_LONG).show()
+            );
         }
     }
 
     //METHOD TO DELETE PRODUCT FROM SERVER
     private void deleteProductFromServer(String id, String barcode) {
-        Log.println(ASSERT, "DELETING", "id=" + id);
         if(Global.checkConnectionAvailability(getApplicationContext())){
+            runOnUiThread(this::toggleProgressBar);
             RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
             StringRequest deleteProductRequest = new StringRequest(Request.Method.DELETE, Global.DELETE_PRODUCT_URL + id,
-                    response -> {
+                response -> {
                         getProductsByBarcode(barcode, true);
-                    }, Throwable::printStackTrace)
+                        runOnUiThread(this::toggleProgressBar);
+                },
+                error -> {
+                    error.printStackTrace();
+                    runOnUiThread(this::toggleProgressBar);
+                }
+            )
             {
                 @Override
                 public String getBodyContentType() {
@@ -925,7 +1001,9 @@ public class ActivityMain extends AppCompatActivity
             };
             queue.add(deleteProductRequest);
         } else {
-            Toast.makeText(this, getResources().getString(R.string.productDeletedError), Toast.LENGTH_LONG).show();
+            runOnUiThread(()->
+                Toast.makeText(this, getResources().getString(R.string.productDeletedError), Toast.LENGTH_LONG).show()
+            );
             Log.println(ASSERT, "REMOTE DELETE ERROR", "NO CONNECTION AVAILABLE");
         }
     }
@@ -934,6 +1012,7 @@ public class ActivityMain extends AppCompatActivity
     private void addProductRemote(String barcode, String name, String description, boolean test,
                                   String expire, long quantity, String icon, boolean addToPantry) {
         if(Global.checkConnectionAvailability(getApplicationContext())){
+            runOnUiThread(this::toggleProgressBar);
             JSONObject params = new JSONObject();
             try {
                 RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
@@ -957,18 +1036,27 @@ public class ActivityMain extends AppCompatActivity
                 params.put("test", test);
 
                 JsonObjectRequest addProductRequest = new JsonObjectRequest(Request.Method.POST, Global.ADD_PRODUCT_URL, params,
-                        response -> {
-                            try {
-                                String newID = response.getString("id");
-                                Log.println(ASSERT, "REMOTE ADD RESPONSE", newID);
-                                addProductLocal(newID, barcode, name, description, expire, quantity, icon, addToPantry);
-                            } catch (JSONException e) {
-                                //the upload of the new product has failed
-                                Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show();
-                                e.printStackTrace();
-                            }
-
-                        }, Throwable::printStackTrace)
+                    response -> {
+                        try {
+                            String newID = response.getString("id");
+                            Log.println(ASSERT, "REMOTE ADD RESPONSE", newID);
+                            runOnUiThread(()->
+                                    addProductLocal(newID, barcode, name, description, expire, quantity, icon, addToPantry)
+                            );
+                        } catch (JSONException e) {
+                            //the upload of the new product has failed
+                            runOnUiThread(()->
+                                Toast.makeText(this, R.string.genericError, Toast.LENGTH_LONG).show()
+                            );
+                            e.printStackTrace();
+                        }
+                        runOnUiThread(this::toggleProgressBar);
+                    },
+                    error -> {
+                        error.printStackTrace();
+                        runOnUiThread(this::toggleProgressBar);
+                    }
+                )
                 {
                     @Override
                     public String getBodyContentType() {
@@ -991,19 +1079,14 @@ public class ActivityMain extends AppCompatActivity
 
             } catch (JSONException e) {
                 e.printStackTrace();
+                runOnUiThread(this::toggleProgressBar);
                 Log.println(ASSERT, "REMOTE ADD ERROR", "EXCEPTION");
             }
-
-
         } else {
-            Toast.makeText(this, getResources().getString(R.string.noProductAddedError), Toast.LENGTH_LONG).show();
+            runOnUiThread(()->
+                Toast.makeText(this, getResources().getString(R.string.noProductAddedError), Toast.LENGTH_LONG).show()
+            );
             Log.println(ASSERT, "REMOTE ADD ERROR", "NO CONNECTION AVAILABLE");
         }
     }
-
-/*
-    DELETE PRODUCT FROM SERVER
-    public void deleteFromServer() {
-    }
- */
 }

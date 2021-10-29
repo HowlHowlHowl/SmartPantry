@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.util.List;
 
 public class AdapterSuggestionsList extends  ArrayAdapter<SuggestionItem> {
-    private static final int POSITION_IN_PANTRY_TAG = 1;
     private final Context context;
 
     public AdapterSuggestionsList(@NonNull Context context, @NonNull List<SuggestionItem> products) {
@@ -57,9 +56,4 @@ public class AdapterSuggestionsList extends  ArrayAdapter<SuggestionItem> {
         }
         return convertView;
     }
-
-    public static class ViewHolder {
-        public View View;
-    }
-
 }

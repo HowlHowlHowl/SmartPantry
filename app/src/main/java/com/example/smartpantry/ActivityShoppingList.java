@@ -10,7 +10,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
@@ -26,33 +25,41 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ActivityShoppingList extends AppCompatActivity implements FragmentFilters.onApplyFilters {
     private static List<ProductShopping> shoppingList;
     private RecyclerView shoppingRecyclerView;
     private String productsOrder, productsFlow;
     private AdapterShoppingList shoppingAdapter;
+    private ExecutorService threadPool;
     private boolean resultIsSet = false;
+    private DBHelper database;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //fixed size thread pool
+        threadPool = Executors.newFixedThreadPool(6);
+
+        //open db
+        database = new DBHelper(getApplicationContext());
+
+        //Stop adjustment of views when keyboard pops up
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
         setContentView(R.layout.activity_shopping_list);
 
         //Stop adjustment of views when keyboard pops up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
-        findViewById(R.id.backBtnLayout).setOnClickListener(v->{
-            finish();
-        });
+        findViewById(R.id.backBtnLayout).setOnClickListener(v-> finish());
 
-        findViewById(R.id.backBtn).setOnClickListener(v->{
-            finish();
-        });
+        findViewById(R.id.backBtn).setOnClickListener(v-> finish());
 
-        findViewById(R.id.updateShoppingListBtn).setOnClickListener(view -> {
-            new Handler(Looper.getMainLooper()).post(this::updateShoppingList);
-        });
+        findViewById(R.id.updateShoppingListBtn).setOnClickListener(view -> updateShoppingList());
         setShoppingListRecycler();
         setSearchBox();
 
@@ -64,30 +71,38 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
             fragmentFilters.setArguments(bundle);
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.activity_shopping_list, fragmentFilters)
-                    .addToBackStack(null)
+                    .add(R.id.activity_shopping_list, fragmentFilters, Global.FRAG_FILTERS)
+                    .addToBackStack(Global.FRAG_FILTERS)
                     .commit();
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        database.close();
+        super.onDestroy();
+    }
+
     public void updateShoppingList(){
-        DBHelper db = new DBHelper(this);
-        for (int i=0; i<shoppingList.size(); i++) {
-            //2nd param. is the quantity to add to the pantry, if x has been selected for the prod. 0 items are added
-            ProductShopping product = shoppingList.get(i);
-            if(product.updateValue != null) {
-                db.updateShoppingProduct(
-                        product.id,
-                        product.updateValue ? product.to_buy_qnt + product.quantity : product.quantity
-                );
+        threadPool.execute(()->{
+            for (int i=0; i<shoppingList.size(); i++) {
+                //2nd param. is the quantity to add to the pantry, if x has been selected for the prod. 0 items are added
+                ProductShopping product = shoppingList.get(i);
+                if(product.updateValue != null) {
+                    database.updateShoppingProduct(
+                            product.id,
+                            product.updateValue ? product.to_buy_qnt + product.quantity : product.quantity
+                    );
+                }
             }
-        }
-        db.close();
-        SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE);
-        productsOrder = sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE);
-        productsFlow = sp.getString(Global.FLOW, Global.DESC_ORDER);
-        populateShoppingList(productsOrder, productsFlow);
-        shoppingAdapter.notifyDataSetChanged();
+            SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE);
+            productsOrder = sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE);
+            productsFlow = sp.getString(Global.FLOW, Global.DESC_ORDER);
+
+            populateShoppingList(productsOrder, productsFlow);
+            runOnUiThread(shoppingAdapter::notifyDataSetChanged);
+        });
+
         //Set the result of the activity to update the pantry list
         if (!resultIsSet) {
             resultIsSet = true;
@@ -198,9 +213,7 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
         };
         shoppingRecyclerView.removeOnScrollListener(onScrollListener);
         shoppingRecyclerView.addOnScrollListener(onScrollListener);
-        shoppingRecyclerView.postDelayed(()->{
-            shoppingRecyclerView.smoothScrollToPosition(position);
-        }, 50);
+        shoppingRecyclerView.postDelayed(()-> shoppingRecyclerView.smoothScrollToPosition(position), 50);
     }
 
     public void flashSearchedView(int position){
@@ -229,15 +242,18 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
         SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE);
         productsOrder = sp.getString(Global.ORDER, DBHelper.COLUMN_PRODUCT_IS_FAVORITE);
         productsFlow = sp.getString(Global.FLOW, Global.DESC_ORDER);
-        populateShoppingList(productsOrder, productsFlow);
+        threadPool.execute(()->{
+            populateShoppingList(productsOrder, productsFlow);
+            runOnUiThread(()->{
+                shoppingAdapter = new AdapterShoppingList(shoppingList);
+                shoppingRecyclerView.setAdapter(shoppingAdapter);
+            });
+        });
 
-        shoppingAdapter = new AdapterShoppingList(shoppingList);
-        shoppingRecyclerView.setAdapter(shoppingAdapter);
     }
     private void populateShoppingList(String order, String flow) {
         shoppingList.clear();
-        DBHelper db = new DBHelper(this);
-        Cursor cursor = db.getShoppingListProducts(order, flow);
+        Cursor cursor = database.getShoppingListProducts(order, flow);
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             shoppingList.add(new ProductShopping(
@@ -255,7 +271,9 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
 
     @Override
     public void applyFilters(boolean notInPantry,   String order, String flow) {
-        populateShoppingList(order, flow);
-        shoppingAdapter.notifyDataSetChanged();
+        threadPool.execute(()->{
+            populateShoppingList(order, flow);
+            runOnUiThread(shoppingAdapter::notifyDataSetChanged);
+        });
     }
 }

@@ -51,9 +51,10 @@ public class FragmentBarcodeListProducts extends Fragment {
             bundle.putString("barcode", barcode);
             FragmentAddProduct fragmentAddProduct = new FragmentAddProduct();
             fragmentAddProduct.setArguments(bundle);
-            getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.activity_main, fragmentAddProduct, "addProductFragment")
-                    .addToBackStack(null)
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.activity_main, fragmentAddProduct, Global.FRAG_ADD_PROD)
+                    .addToBackStack(Global.FRAG_ADD_PROD)
                     .commit();
         });
         try {
@@ -76,8 +77,8 @@ public class FragmentBarcodeListProducts extends Fragment {
                     fragmentPreviewProduct.setArguments(bundle);
                     getActivity().getSupportFragmentManager()
                             .beginTransaction()
-                            .add(R.id.activity_main, fragmentPreviewProduct, "previewFragment")
-                            .addToBackStack(null)
+                            .add(R.id.activity_main, fragmentPreviewProduct, Global.FRAG_PREVIEW_PROD)
+                            .addToBackStack(Global.FRAG_PREVIEW_PROD)
                             .commit();
                 }
             });
