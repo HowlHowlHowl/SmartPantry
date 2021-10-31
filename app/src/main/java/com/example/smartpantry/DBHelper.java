@@ -22,6 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     //TABLE OF PRODUCTS AND COLUMNS
     public static final String TABLE_PRODUCTS = "products";
     public static final String COLUMN_PRODUCT_ID = "_id";
+    public static final String COLUMN_PRODUCT_UNIQUE_ID = "uniqueID";
     public static final String COLUMN_PRODUCT_BARCODE = "barcode";
     public static final String COLUMN_PRODUCT_NAME = "productName";
     public static final String COLUMN_PRODUCT_DESCRIPTION = "productDescription";
@@ -33,12 +34,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PRODUCT_IS_FAVORITE = "favorite";
 
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
 
     // Products Database creation sql statement
     private static final String PRODUCTS_DATABASE_CREATE = "create table "
             + TABLE_PRODUCTS + "( "
-            + COLUMN_PRODUCT_ID + " text primary key, "
+            + COLUMN_PRODUCT_UNIQUE_ID + "integer primary key,"
+            + COLUMN_PRODUCT_ID + " text not null, "
             + COLUMN_PRODUCT_BARCODE + " text not null, "
             + COLUMN_PRODUCT_NAME	+ " text not null, "
             + COLUMN_PRODUCT_DESCRIPTION + " text not null, "

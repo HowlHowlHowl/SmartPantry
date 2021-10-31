@@ -172,11 +172,11 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
             boolean test = testCheckBox.isChecked();
             boolean addLocal = switchExpand.isChecked();
             if (checkFields(name, description, quantity)) {
-                closeFragment();
                 productAddedListener.onProductAdded(productID, barcode, name, description,
                         formattedDate,
                         Long.parseLong(quantity), icon, test, addLocal,
                         !alreadyExistingProduct);
+                closeFragment();
             }
         });
     }
@@ -233,6 +233,16 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
     public void closeFragment() {
         FragmentManager fm = getActivity()
                 .getSupportFragmentManager();
-        fm.popBackStack();
+        fm.beginTransaction().remove(FragmentAddProduct.this).commit();
+        fm.popBackStack(Global.FRAG_BARCODE_LIST, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        /*
+        FragmentBarcodeListProducts list =
+                (FragmentBarcodeListProducts)fm.findFragmentByTag(Global.FRAG_BARCODE_LIST);
+        if(list!=null){
+            Log.println(Log.ASSERT, "FRAG", "REMOVING LIST");
+            fm.beginTransaction().remove(list).commit();
+            fm.popBackStack();
+        }
+        */
     }
 }

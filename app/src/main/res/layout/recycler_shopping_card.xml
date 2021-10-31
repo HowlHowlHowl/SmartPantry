@@ -21,13 +21,12 @@
 
         <TextView
             android:id="@+id/shoppingProductName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
-            android:ems="8"
-            android:maxLines="1"
-            android:ellipsize="end"
+            android:maxLines="2"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/xSymbol"
             app:layout_constraintStart_toEndOf="@+id/shopIconView"
             app:layout_constraintTop_toTopOf="parent" />
 

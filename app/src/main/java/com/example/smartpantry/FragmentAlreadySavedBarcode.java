@@ -97,7 +97,6 @@ public class FragmentAlreadySavedBarcode extends Fragment implements AdapterAlre
         alreadySavedList.clear();
         DBHelper database = new DBHelper(context);
         Cursor cursor = database.getAllProducts(notInPantry, order, flow);
-        database.close();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             if(barcode.equals(
@@ -116,6 +115,7 @@ public class FragmentAlreadySavedBarcode extends Fragment implements AdapterAlre
             }
             cursor.moveToNext();
         }
+        database.close();
         cursor.close();
     }
 
