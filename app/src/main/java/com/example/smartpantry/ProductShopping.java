@@ -2,8 +2,7 @@ package com.example.smartpantry;
 
 public class ProductShopping {
     String name, description, id, icon;
-    long to_buy_qnt;
-    long quantity;
+    long to_buy_qnt, quantity;
     Boolean updateValue;
     public ProductShopping(String name, String description, String id, String icon,
                            long to_buy_qnt, long quantity) {

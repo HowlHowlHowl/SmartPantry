@@ -23,7 +23,7 @@ import androidx.fragment.app.FragmentManager;
 public class FragmentPreviewProduct extends Fragment {
     private TextView name, description,
             preferenceValue, preferenceLabel,
-            errorMsg;
+            errorMsg, savedMsg;
     private ImageButton deleteItem;
     private Button addBtn, voteBtn;
     private ToggleButton voteUp, voteDown;
@@ -44,6 +44,7 @@ public class FragmentPreviewProduct extends Fragment {
         description = view.findViewById(R.id.previewProductDescription);
         preferenceValue = view.findViewById(R.id.previewProdVoteVal);
         preferenceLabel = view.findViewById(R.id.previewProductVoteLabel);
+        savedMsg = view.findViewById(R.id.savedProductError);
         errorMsg = view.findViewById(R.id.voteFirstError);
         addBtn = view.findViewById(R.id.previewProdAdd);
         voteBtn = view.findViewById(R.id.previewProdVoteBtn);
@@ -75,6 +76,12 @@ public class FragmentPreviewProduct extends Fragment {
             }
             name.setText(this.getArguments().getString("name"));
             description.setText(this.getArguments().getString("description"));
+        }
+
+        if(database.checkProductSaved(productID)) {
+            addBtn.setEnabled(false);
+            savedMsg.setVisibility(View.VISIBLE);
+            savedMsg.setText(getString(R.string.alreadySavedProduct));
         }
 
         if(this.getArguments().getBoolean("isUserOwned")) {

@@ -43,11 +43,15 @@ public class FragmentBarcodeDialog extends Fragment {
 
         confirmBtn.setOnClickListener(v -> {
             String correctBarcode = barcode.getText().toString();
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra("barcode", correctBarcode);
-            getActivity().setResult(Activity.RESULT_OK, returnIntent);
-            closeFragment();
-            getActivity().finish();
+            if(!correctBarcode.isEmpty()) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("barcode", correctBarcode);
+                getActivity().setResult(Activity.RESULT_OK, returnIntent);
+                closeFragment();
+                getActivity().finish();
+            } else {
+                barcode.setError(getString(R.string.barcodeError));
+            }
         });
     }
 

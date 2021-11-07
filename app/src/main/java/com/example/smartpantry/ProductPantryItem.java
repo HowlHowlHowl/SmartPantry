@@ -1,14 +1,9 @@
 package com.example.smartpantry;
 
 public class ProductPantryItem {
-    String name;
-    String description;
-    String id;
-    String expire_date;
-    String icon;
+    String name, description, id, expire_date, icon;
     boolean is_favorite;
-    long quantity;
-    long shopping_qnt;
+    long quantity, shopping_qnt;
     ProductPantryItem(String name, String description, String expire_date, String id, String icon,
                       int is_favorite, long quantity, long shopping_qnt) {
         this.name = name;

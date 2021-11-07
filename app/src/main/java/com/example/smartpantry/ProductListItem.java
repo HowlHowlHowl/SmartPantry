@@ -11,13 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class ProductListItem implements ProductListGeneric{
-    String id;
-    String userId;
-    String name;
-    String description;
-    String barcode;
-    String createdAt;
-    String updatedAt;
+    String id, userId, name, description, barcode, createdAt, updatedAt;
     boolean isUserOwned;
 
     public ProductListItem(String id, String name, String description, String barcode,

@@ -69,7 +69,7 @@ public class ActivityMain extends AppCompatActivity
             SwipeRefreshLayout.OnRefreshListener,
             FragmentAddProduct.onProductAddedListener,
             FragmentManualEntryProduct.onManualEntryListener,
-        FragmentPreviewProduct.onPreviewActionListener,
+            FragmentPreviewProduct.onPreviewActionListener,
             FragmentFilters.onApplyFilters,
             FragmentAlreadySavedBarcode.onConfirmSearchPressedListener,
             NavigationView.OnNavigationItemSelectedListener,

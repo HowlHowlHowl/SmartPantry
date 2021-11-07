@@ -132,4 +132,6 @@
     <string name="backButtonIcon">Icona indietro</string>
     <string name="barcodeHint" translatable="false">0000 0000 0000</string>
     <string name="sortingIcon">Icona di ordinamento</string>
+    <string name="barcodeError">Il codice a barre non può essere vuoto</string>
+    <string name="alreadySavedProduct">Hai già salvato questo prodotto.</string>
 </resources>

@@ -98,25 +98,24 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
         FragmentBarcodeDialog fragInfo = new FragmentBarcodeDialog();
         fragInfo.setArguments(bundle);
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_camera, fragInfo, Global.FRAG_BARCODE_DIALOG)
-                .addToBackStack(Global.FRAG_BARCODE_DIALOG)
-                .commit();
+            .add(R.id.activity_camera, fragInfo, Global.FRAG_BARCODE_DIALOG)
+            .addToBackStack(Global.FRAG_BARCODE_DIALOG)
+            .commit();
     }
 
     private BarcodeScannerOptions getScanOption() {
-        return
-                 new BarcodeScannerOptions.Builder()
-                        .setBarcodeFormats(
-                                Barcode.FORMAT_CODABAR,
-                                Barcode.FORMAT_CODE_39,
-                                Barcode.FORMAT_CODE_93,
-                                Barcode.FORMAT_CODE_128,
-                                Barcode.FORMAT_EAN_8,
-                                Barcode.FORMAT_EAN_13,
-                                Barcode.FORMAT_ITF,
-                                Barcode.FORMAT_UPC_A,
-                                Barcode.FORMAT_UPC_E)
-                        .build();
+        return new BarcodeScannerOptions.Builder()
+            .setBarcodeFormats(
+                Barcode.FORMAT_CODABAR,
+                Barcode.FORMAT_CODE_39,
+                Barcode.FORMAT_CODE_93,
+                Barcode.FORMAT_CODE_128,
+                Barcode.FORMAT_EAN_8,
+                Barcode.FORMAT_EAN_13,
+                Barcode.FORMAT_ITF,
+                Barcode.FORMAT_UPC_A,
+                Barcode.FORMAT_UPC_E)
+            .build();
     }
 
     private void scanBarcode(ImageProxy imageProxy) {

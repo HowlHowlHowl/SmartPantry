@@ -124,4 +124,5 @@
     <string name="deleteProductIcon">Delete product icon</string>
     <string name="backButtonIcon">Back icon</string>
     <string name="sortingIcon">Sorting icon</string>
+    <string name="barcodeError">The barcode can\'t be empty</string>
 </resources>

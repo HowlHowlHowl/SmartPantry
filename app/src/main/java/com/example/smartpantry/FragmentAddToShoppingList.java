@@ -73,7 +73,9 @@ public class FragmentAddToShoppingList extends Fragment {
                 database.addToShoppingList(id, addQuantity);
                 database.close();
                 closeFragment();
-                shoppingListener.updateProductShoppingQuantity(position, addQuantity);
+                if(!delete) {
+                    shoppingListener.updateProductShoppingQuantity(position, addQuantity);
+                }
             } else {
                 quantityField.setError(getString(R.string.addProductQuantityError));
             }

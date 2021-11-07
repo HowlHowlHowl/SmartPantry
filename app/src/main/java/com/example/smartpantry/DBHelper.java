@@ -225,6 +225,16 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[] {id});
     }
 
+    //Check product existence by product ID
+    public boolean checkProductSaved(String productID) {
+        Cursor cursor =  getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_ID + "=?", new String[] {productID},
+                null, null, null);
+        boolean matching = cursor.getCount() > 0;
+        cursor.close();
+        return matching;
+    }
+
+    //check product existence by barcode
     public int checkProductExistence(String barcode) {
         Cursor cursor =  getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_BARCODE + "=?", new String[] {barcode},
                 null, null, null);
@@ -258,4 +268,5 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         return count;
     }
+
 }

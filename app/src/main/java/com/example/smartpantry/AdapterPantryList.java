@@ -206,7 +206,7 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
         });
 
         //Delete item from pantry event
-        holder.deleteItemButton.setOnClickListener(v->{
+        holder.deleteItemButton.setOnClickListener(v->
             //Ask to add in shopping list
             askToAddInShoppingList(
                     holder.cv.getContext(),
@@ -214,18 +214,19 @@ public class AdapterPantryList extends RecyclerView.Adapter<AdapterPantryList.Pa
                     pantryProducts.get(holder.getAdapterPosition()).id,
                     holder.getAdapterPosition(),
                     true
-            );
-
-        });
+            )
+        );
 
         //Add to shopping list
-        holder.addToShoppingButton.setOnClickListener(view -> askToAddInShoppingList(
+        holder.addToShoppingButton.setOnClickListener(view ->
+            askToAddInShoppingList(
                 holder.cv.getContext(),
                 pantryProducts.get(holder.getAdapterPosition()).quantity,
                 pantryProducts.get(holder.getAdapterPosition()).id,
                 holder.getAdapterPosition(),
                 false
-        ));
+            )
+        );
 
 
         //Set favorite value

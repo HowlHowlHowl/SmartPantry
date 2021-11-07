@@ -2,10 +2,10 @@ package com.example.smartpantry;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -33,7 +33,6 @@ public class FragmentManualEntryProduct extends Fragment {
         confirmBtn = view.findViewById(R.id.addShoppingBtn);
         bg = view.findViewById(R.id.manualEntryFragment);
         window = view.findViewById(R.id.bgPopUp);
-        Log.println(Log.ASSERT, "FRAGMENT MANUAL ENTRY", "CREATED");
         return view;
     }
 
@@ -46,9 +45,18 @@ public class FragmentManualEntryProduct extends Fragment {
         });
         //Trigger MainActivity listener and close itself
         confirmBtn.setOnClickListener(v -> {
-            closeFragment();
             String correctBarcode = barcode.getText().toString();
-            manualEntryListener.onManualEntry(correctBarcode);
+            if(!correctBarcode.isEmpty()) {
+                closeFragment();
+                //Hide keyboard
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(getActivity().getWindow().getDecorView().getWindowToken(), 0);
+                }
+                manualEntryListener.onManualEntry(correctBarcode);
+            } else {
+                barcode.setError(getString(R.string.barcodeError));
+            }
         });
     }
 
