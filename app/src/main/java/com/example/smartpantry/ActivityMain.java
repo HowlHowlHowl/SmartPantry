@@ -474,13 +474,7 @@ public class ActivityMain extends AppCompatActivity
 
     private void askToClearPantry() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
-        EditText confirmationEmail =  new EditText(getApplicationContext());
-        confirmationEmail.setHint(R.string.emailText);
-        FrameLayout frame = new FrameLayout(getApplicationContext());
-        frame.addView(confirmationEmail);
-        frame.setPadding(70, 15, 70, 0);
         builder.setTitle(getResources().getString(R.string.warningText));
-        builder.setView(frame);
         builder.setMessage(getResources().getString(R.string.deleteItemsFromPantry))
                 .setPositiveButton(
                         getResources().getString(R.string.confirmBtnText),
@@ -488,6 +482,12 @@ public class ActivityMain extends AppCompatActivity
                 .setNegativeButton(
                         getResources().getString(R.string.cancelText),
                         (dialog, id) -> dialog.cancel());
+        EditText confirmationEmail =  new EditText(builder.getContext());
+        confirmationEmail.setHint(R.string.emailText);
+        FrameLayout frame = new FrameLayout(getApplicationContext());
+        frame.addView(confirmationEmail);
+        frame.setPadding(70, 15, 70, 0);
+        builder.setView(frame);
         AlertDialog alert = builder.create();
         alert.setOnShowListener(arg0 -> {
             alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
@@ -513,6 +513,54 @@ public class ActivityMain extends AppCompatActivity
                             getResources().getString(R.string.allProductsDeletedFromPantry),
                             Toast.LENGTH_LONG)
                             .show();
+                } else {
+                    confirmationEmail.setError(getResources().getString(R.string.emailMissingErrorText));
+                }
+            });
+        });
+        alert.show();
+    }
+
+    private void askToDeleteAllProducts() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
+        builder.setTitle(getResources().getString(R.string.warningText));
+        builder.setMessage(getResources().getString(R.string.deleteAllProducts))
+                .setPositiveButton(
+                        getResources().getString(R.string.confirmBtnText), null)
+                .setNegativeButton(
+                        getResources().getString(R.string.cancelText),
+                        (dialog, id) -> dialog.cancel());
+        EditText confirmationEmail =  new EditText(builder.getContext());
+        confirmationEmail.setHint(R.string.emailText);
+        FrameLayout frame = new FrameLayout(getApplicationContext());
+        frame.addView(confirmationEmail);
+        frame.setPadding(70, 15, 70, 0);
+        builder.setView(frame);
+        AlertDialog alert = builder.create();
+        alert.setOnShowListener(arg0 -> {
+            alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
+                    ContextCompat.getColor(
+                            getApplicationContext(),
+                            R.color.button_confirm));
+
+            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
+                    ContextCompat.getColor(
+                            getApplicationContext(),
+                            R.color.app_color));
+            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                if(confirmationEmail.getText().toString()
+                        .equals(getApplicationContext()
+                                .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
+                                .getString(Global.EMAIL, ""))) {
+                    threadPool.execute(()-> {
+                        database.dropAllTables(false);
+                        runOnUiThread(this::refreshPantry);
+                    });
+                    alert.dismiss();
+                    Toast.makeText(
+                            getApplicationContext(),
+                            getResources().getString(R.string.allProductsDeleted),
+                            Toast.LENGTH_LONG).show();
                 } else {
                     confirmationEmail.setError(getResources().getString(R.string.emailMissingErrorText));
                 }
@@ -565,54 +613,6 @@ public class ActivityMain extends AppCompatActivity
 
         pantryRecyclerView.getLayoutManager().findViewByPosition(position).setBackground(drawable);
         handler.postDelayed(drawable::start, 100);
-    }
-
-    private void askToDeleteAllProducts() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
-        EditText confirmationEmail =  new EditText(getApplicationContext());
-        confirmationEmail.setHint(R.string.emailText);
-        FrameLayout frame = new FrameLayout(getApplicationContext());
-        frame.addView(confirmationEmail);
-        frame.setPadding(70, 15, 70, 0);
-        builder.setTitle(getResources().getString(R.string.warningText));
-        builder.setView(frame);
-        builder.setMessage(getResources().getString(R.string.deleteAllProducts))
-                .setPositiveButton(
-                        getResources().getString(R.string.confirmBtnText), null)
-                .setNegativeButton(
-                        getResources().getString(R.string.cancelText),
-                        (dialog, id) -> dialog.cancel());
-        AlertDialog alert = builder.create();
-        alert.setOnShowListener(arg0 -> {
-            alert.getButton(android.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(
-                    ContextCompat.getColor(
-                            getApplicationContext(),
-                            R.color.button_confirm));
-
-            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(
-                    ContextCompat.getColor(
-                            getApplicationContext(),
-                            R.color.app_color));
-            alert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
-                if(confirmationEmail.getText().toString()
-                        .equals(getApplicationContext()
-                                .getSharedPreferences(Global.USER_DATA, MODE_PRIVATE)
-                                .getString(Global.EMAIL, ""))) {
-                    threadPool.execute(()-> {
-                        database.dropAllTables();
-                        runOnUiThread(this::refreshPantry);
-                    });
-                    alert.dismiss();
-                    Toast.makeText(
-                            getApplicationContext(),
-                            getResources().getString(R.string.allProductsDeleted),
-                            Toast.LENGTH_LONG).show();
-                } else {
-                    confirmationEmail.setError(getResources().getString(R.string.emailMissingErrorText));
-                }
-            });
-        });
-        alert.show();
     }
 
     private void addProductLocal(String id, String barcode, String name, String description,

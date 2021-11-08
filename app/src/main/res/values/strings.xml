@@ -108,9 +108,9 @@
     <string name="manageNotifications">Gestione notifiche</string>
     <string name="notificationManageTitle">Gestione Notifiche</string>
     <string name="notificationExpiredOpt">Avvisami quando scade un prodotto.</string>
-    <string name="notificationFavoriteOpt">Avvisami se manca uno dei miei prodotti preferiti nella dispense.</string>
+    <string name="notificationFavoriteOpt">Avvisami se manca uno dei miei prodotti preferiti nella dispensa.</string>
     <string name="missingFavNotificationDescription">dei tuoi articoli preferiti non è presente in dispensa.</string>
-    <string name="favProductNotificationTitle">In dispensa mancano alcuni dei tuoi prodotti preferiti</string>
+    <string name="favProductNotificationTitle">in dispensa mancano alcuni dei tuoi prodotti preferiti</string>
     <string name="favProductNotificationChannelName">Notifiche prodotti preferiti non in dispensa</string>
     <string name="favProductNotificationChannelDescription">Questo canale di notifica serve ad avvisarti quado uno o più dei tuoi prodotti preferiti non è nella tua dispensa.</string>
     <string name="heyText" translatable="false">"Hey, "</string>

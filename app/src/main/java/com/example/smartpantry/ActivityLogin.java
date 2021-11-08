@@ -115,7 +115,7 @@ public class ActivityLogin extends AppCompatActivity {
                             login(token, password, email, remember);
                             deleteSharedPreferences();
                             threadPool.execute(()->{
-                                database.dropAllTables();
+                                database.dropAllTables(true);
                                 database.close();
                             });
                             this.finish();

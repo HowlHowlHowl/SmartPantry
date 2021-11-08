@@ -8,7 +8,6 @@
         <item name="colorAccent">@color/app_color_secondary</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
         <item name="snackbarStyle">@style/SnackbarStyle</item>
         <item name="snackbarTextViewStyle">@style/MySnackbarTextView</item>
         <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogTheme</item>
@@ -22,13 +21,13 @@
         <item name="android:gravity">center_horizontal</item>
         <item name="android:textAlignment">center</item>
     </style>
-
     <style name="MyDatePickerDialogTheme" parent="@style/ThemeOverlay.MaterialComponents.MaterialCalendar">
         <item name="colorAccent">@color/app_color</item>
     </style>
     <style name="CustomAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="colorPrimary">@color/app_color</item>
-        <item name="android:colorAccent">@color/app_color</item>
+        <item name="colorAccent">@color/app_color</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
 </resources>

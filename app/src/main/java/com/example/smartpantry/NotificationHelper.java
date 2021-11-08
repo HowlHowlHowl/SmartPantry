@@ -40,8 +40,7 @@ public class NotificationHelper {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, Global.NOTIFICATION_EXP_CHANNEL);
         builder
-                /*.setStyle(new NotificationCompat.BigTextStyle().bigText(notificationMessage)) IF I'LL EVER NEED MORE TEXT*/
-                .setContentTitle(context.getString(R.string.expireProductNotificationTitle))
+                .setContentTitle(context.getString(R.string.heyText) + context.getString(R.string.expireProductNotificationTitle))
                 .setContentText(notificationMessage)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setAutoCancel(true)

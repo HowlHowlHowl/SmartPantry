@@ -185,10 +185,11 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[] { id });
     }
 
-    public void dropAllTables() {
+    public void dropAllTables(boolean dropPrefs) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREFERENCES);
+        if(dropPrefs)
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREFERENCES);
         onCreate(db);
     }
 

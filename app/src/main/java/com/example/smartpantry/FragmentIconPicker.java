@@ -81,10 +81,7 @@ public class FragmentIconPicker extends Fragment implements AdapterIconsGrid.Pro
         }
     }
     public void closeFragment() {
-        FragmentManager fm = getActivity()
-                .getSupportFragmentManager();
-        fm.beginTransaction()
-                .remove(FragmentIconPicker.this)
-                .commit();
+        getActivity()
+                .getSupportFragmentManager().popBackStack(Global.FRAG_ICON_PICK, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 }
