@@ -165,6 +165,7 @@ public class ActivityLogin extends AppCompatActivity {
                 .edit();
         userDataEdit.putString(Global.EMAIL, email);
         userDataEdit.putString(Global.PASSWORD, password);
+        //userDataEdit.putString(Global.ID, )
         userDataEdit.apply();
 
         Intent main = new Intent(this, ActivityMain.class);

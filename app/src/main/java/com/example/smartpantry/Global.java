@@ -33,6 +33,8 @@ public class Global {
     static final String FRAG_MAN_ENTRY = "fragmentManEntry";
     static final String FRAG_NOTIFICATIONS = "fragmentNotificationsManager";
     static final String FRAG_PREVIEW_PROD = "fragmentPreviewProd";
+    static final String FRAG_RECIPE = "fragmentRecipe";
+    static final String FRAG_BEST_MATCH = "fragmentBestMatch";
 
     //Status Response Codes for Login check
     static final int LOGIN_STATUS_OK = 200;
@@ -46,6 +48,7 @@ public class Global {
     //Request codes
     static final int REQUEST_CODE_CHECK_EXPIRED = 5000;
     static final int REQUEST_CODE_CHECK_FAVORITES = 5001;
+
     //Notification EXPIRED_PRODUCTS IDs
     static final int NOTIFICATION_EXPIRED_ID = 6000;
     static final int NOTIFICATION_FAVORITES_ID = 6001;
@@ -74,9 +77,19 @@ public class Global {
     static final String DELETE_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/products/";
     static final String VOTE_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/votes";
 
+    //static final String LOCALHOST = "192.168.137.1:8010";
+    static final String LOCALHOST = "192.168.1.32:8010";
+    static final String RECIPES_URL = "http://"+LOCALHOST+"/ingredients/get_avail_recipes/";
+    static final String MATCH_PRODUCT_URL = "http://"+LOCALHOST+"/ingredients/get_matching/";
+    static final String POST_MATCH_VOTE = "http://"+LOCALHOST+"/ingredients/vote_match/";
+    static final String POST_RECIPE_RATING = "http://"+LOCALHOST+"/ingredients/rate_recipe/";
+
     //DESC and ASC strings
     static final String DESC_ORDER = "DESC";
     static final String ASC_ORDER = "ASC";
+
+    //RECIPES TYPE
+    static final String RECIPES_PATH = "recipes_icons/";
 
     //SORTING SHARED PREFERENCES STRUCTURE
     static final String LISTS_ORDER = "ListsOrder";

@@ -195,7 +195,7 @@ public class AdapterProductsList extends RecyclerView.Adapter<AdapterProductsLis
         //If in pantry without date color set to green
         holder.infoLabel.setTextColor(
                 ContextCompat.getColor(holder.cv.getContext(),
-                        R.color.black)
+                        R.color.black)  
         );
         holder.expireDateField.setText("");
 

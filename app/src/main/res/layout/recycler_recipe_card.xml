@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recipeCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="#DADADA">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/recipeCardContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="1dp"
+        android:background="@color/white">
+
+        <TextView
+            android:id="@+id/recipeName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:text="Spaghetti Del Pescivendolo Volante "
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@+id/ingredientCountLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/mainIngredient"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="A base di: Nome Ingrediente Principale"
+            app:layout_constraintStart_toStartOf="@+id/recipeName"
+            app:layout_constraintTop_toBottomOf="@+id/recipeName" />
+
+        <ProgressBar
+            android:id="@+id/ingredientCount"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:max="100"
+            android:progress="80"
+            android:progressTint="#2FFF00"
+            app:layout_constraintEnd_toEndOf="@+id/ingredientCountLabel"
+            app:layout_constraintStart_toStartOf="@+id/ingredientCountLabel"
+            app:layout_constraintTop_toBottomOf="@+id/ingredientCountLabel" />
+
+        <TextView
+            android:id="@+id/ingredientCountLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:labelFor="@id/ingredientCount"
+            android:text="@string/ingredientsCount"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/typeLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="TextView"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/mainIngredient"
+            app:layout_constraintTop_toBottomOf="@+id/mainIngredient" />
+
+        <TextView
+            android:id="@+id/portions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="TextView"
+            app:layout_constraintBottom_toBottomOf="@+id/typeLabel"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/typeLabel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

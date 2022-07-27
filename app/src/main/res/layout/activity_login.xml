@@ -53,7 +53,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:backgroundTint="#C6C6C6"
+            android:backgroundTint="#7B7B7B"
             android:text="@string/registerBtn"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"

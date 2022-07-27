@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/activity_all_products"
+    android:id="@+id/activity_recipes"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EDECE5"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/productsHeader"
+        android:id="@+id/recipesHeader"
         android:layout_width="match_parent"
         android:layout_height="55dp"
         android:background="#2D2F31"
@@ -17,10 +17,10 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/productsTitle"
+            android:id="@+id/recipesTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/productsTitle"
+            android:text="@string/recipesTitle"
             android:textAlignment="center"
             android:textColor="@color/app_color_secondary"
             android:textSize="26sp"
@@ -29,7 +29,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
         <LinearLayout
-            android:id="@+id/backBtnLayout"
+            android:id="@+id/backBtnRecipesLayout"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:gravity="center"
@@ -38,7 +38,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
-                android:id="@+id/backBtn"
+                android:id="@+id/backBtnRecipes"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:backgroundTint="@color/button_back"
@@ -49,17 +49,19 @@
                 app:srcCompat="@drawable/back_arrow" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <LinearLayout
         android:id="@+id/searchBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="20dp"
         android:clickable="true"
         android:focusable="true"
         android:orientation="vertical"
-        app:layout_constraintEnd_toStartOf="@+id/imageFilterButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/productsHeader">
+        app:layout_constraintTop_toBottomOf="@+id/recipesHeader">
 
         <SearchView
             android:id="@+id/searchProdField"
@@ -67,16 +69,17 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/app_color"
             android:ems="10"
-            android:queryHint="@string/searchText"
+            android:focusable="false"
             android:iconifiedByDefault="false"
             android:inputType="text"
-            android:focusable="false"
+            android:queryHint="@string/searchRecipeText"
             android:textAlignment="viewStart"
             android:textCursorDrawable="@drawable/colored_cursor"
             android:textSize="16sp">
 
         </SearchView>
     </LinearLayout>
+<!--
     <androidx.constraintlayout.utils.widget.ImageFilterButton
         android:id="@+id/imageFilterButton"
         android:layout_width="48dp"
@@ -88,6 +91,7 @@
         app:layout_constraintStart_toEndOf="@+id/searchBox"
         app:layout_constraintTop_toTopOf="@+id/searchBox"
         app:srcCompat="@drawable/filter" />
+-->
     <ListView
         android:id="@+id/searchResultsList"
         android:layout_width="0dp"
@@ -96,12 +100,25 @@
         android:elevation="5dp"
         android:orientation="vertical"
         android:outlineProvider="none"
-        app:layout_constraintEnd_toEndOf="@+id/imageFilterButton"
+        app:layout_constraintEnd_toEndOf="@+id/searchBox"
         app:layout_constraintHeight_max="150dp"
         app:layout_constraintStart_toStartOf="@+id/searchBox"
         app:layout_constraintTop_toBottomOf="@+id/searchBox" />
+
+    <TextView
+        android:id="@+id/recipesCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:textAlignment="textEnd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="150dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchBox" />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/productsRecycler"
+        android:id="@+id/recipesRecycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@drawable/pantry_borders_and_background"
@@ -110,9 +127,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/searchBox">
-
-    </androidx.recyclerview.widget.RecyclerView>
+        app:layout_constraintTop_toBottomOf="@+id/recipesCount"
+        app:layout_constraintVertical_bias="0.0" />
 
     <FrameLayout
         android:id="@+id/footer"
@@ -122,5 +138,17 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
     </FrameLayout>
+
+    <TextView
+        android:id="@+id/noRecipesText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/noRecipes"
+        android:textSize="18sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/recipesRecycler"
+        app:layout_constraintEnd_toEndOf="@+id/recipesRecycler"
+        app:layout_constraintStart_toStartOf="@+id/recipesRecycler"
+        app:layout_constraintTop_toTopOf="@+id/recipesRecycler" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

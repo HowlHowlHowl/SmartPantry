@@ -49,6 +49,8 @@
             android:name=".ActivityLogin"/>
         <activity
             android:name=".ActivityRegister"/>
+        <activity
+            android:name=".ActivityRecipes"/>
     </application>
 
 </manifest>

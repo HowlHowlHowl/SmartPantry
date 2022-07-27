@@ -79,7 +79,7 @@
     <string name="saveApplyText">Save &amp; Apply</string>
     <string name="expireProductNotificationChannelName">Expiring products notifications</string>
     <string name="expireProductNotificationChannelDescription">This notification channel is needed to warn you about expiring products</string>
-    <string name="expireProductNotificationTitle">It seems like that one or more products have expired.</string>
+    <string name="expireProductNotificationTitle">It seems like that one or more products are expiring.</string>
     <string name="expireProductNotificationDescription">Check your pantry to manage</string>
     <string name="pluralArticle">the</string>
     <string name="singularArticle">the</string>
@@ -120,9 +120,21 @@
     <string name="expandArrow">Expand arrow</string>
     <string name="dateHint">Expire date</string>
     <string name="deleteDateIcon">Clear date</string>
-    <string name="yourProducts">Yout Products</string>
+    <string name="yourProducts">Your Products</string>
     <string name="deleteProductIcon">Delete product icon</string>
     <string name="backButtonIcon">Back icon</string>
     <string name="sortingIcon">Sorting icon</string>
     <string name="barcodeError">The barcode can\'t be empty</string>
+    <string name="alreadySavedProduct">You\'ve already saved this product.</string>
+    <string name="recipesTitle">Recipes</string>
+    <string name="searchRecipeText">Search for recipe...</string>
+    <string name="recipesCount">%1$d Recipes found.</string>
+    <string name="ingredientsCount">%1$d%% of the ingredients</string>
+    <string name="mainIngredient">Base: %1$s</string>
+    <string name="procedureText">Recipe:</string>
+    <string name="ingredientsText">Ingredients:</string>
+    <string name="noProductsForRecipes">"Add products to your pantry to see recipes "</string>
+    <string name="portions">Portions: %1$s</string>
+    <string name="recipeNotes">\n\nNotes:\n%1$s</string>
+    <string name="noRecipes">No recipes found.</string>
 </resources>

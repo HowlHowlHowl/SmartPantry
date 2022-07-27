@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/shoppingCard"
     android:layout_width="match_parent"
@@ -43,45 +42,29 @@
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/shopping_basket" />
 
-        <EditText
+        <NumberPicker
             android:id="@+id/shopQuantityField"
-            android:importantForAutofill="no"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:ems="2"
+            android:layout_width="40dp"
+            android:layout_height="50dp"
+            android:dividerPadding="2dp"
             android:gravity="center"
+            android:importantForAutofill="no"
             android:inputType="number"
             app:layout_constraintBottom_toBottomOf="@+id/shoppingProductName"
-            app:layout_constraintEnd_toStartOf="@+id/removeFromShoppingLayout"
+            app:layout_constraintEnd_toStartOf="@+id/confirmShoppingLayout"
             app:layout_constraintTop_toTopOf="@+id/shoppingProductName" />
 
         <TextView
             android:id="@+id/xSymbol"
-            android:labelFor="@+id/shopQuantityField"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
+            android:layout_marginEnd="5dp"
+            android:labelFor="@+id/shopQuantityField"
             android:text="@string/quantityHint"
             app:layout_constraintBottom_toBottomOf="@+id/shopQuantityField"
-            app:layout_constraintEnd_toStartOf="@+id/shopQuantityField" />
-        <LinearLayout
-            android:id="@+id/removeFromShoppingLayout"
-            android:layout_width="50dp"
-            android:layout_height="60dp"
-            android:gravity="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/confirmShoppingLayout"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintEnd_toStartOf="@+id/shopQuantityField"
+            app:layout_constraintTop_toTopOf="@+id/shopQuantityField" />
 
-            <ToggleButton
-                android:id="@+id/removeFromShopping"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="@drawable/delete_shop_checkbox"
-                android:textOff=""
-                android:textOn="" />
-        </LinearLayout>
         <LinearLayout
             android:id="@+id/confirmShoppingLayout"
             android:layout_width="50dp"

@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -20,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -56,7 +59,6 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         findViewById(R.id.backBtnLayout).setOnClickListener(v-> finish());
-
         findViewById(R.id.backBtn).setOnClickListener(v-> finish());
 
         findViewById(R.id.updateShoppingListBtn).setOnClickListener(view -> updateShoppingList());
@@ -75,6 +77,32 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
                     .addToBackStack(Global.FRAG_FILTERS)
                     .commit();
         });
+
+        //Swipe
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                //Remove swiped item from list and notify the RecyclerView
+                int position = viewHolder.getAdapterPosition();
+
+                database.updateShoppingProduct(
+                        shoppingList.get(position).id,
+                        0
+                );
+                shoppingList.get(position).to_buy_qnt=0;
+                updateShoppingList();
+
+                shoppingList.get(position).updateValue=true;
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(shoppingRecyclerView);
     }
 
     @Override
@@ -84,7 +112,7 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
     }
 
     public void updateShoppingList(){
-        threadPool.execute(()->{
+        threadPool.execute(()-> {
             for (int i=0; i<shoppingList.size(); i++) {
                 //2nd param. is the quantity to add to the pantry, if x has been selected for the prod. 0 items are added
                 ProductShopping product = shoppingList.get(i);
@@ -237,6 +265,7 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
         shoppingRecyclerView = findViewById(R.id.shoppingRecycler);
         shoppingRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         shoppingRecyclerView.setItemAnimator(null);
+        shoppingRecyclerView.addItemDecoration(new DividerItemDecoration(getApplicationContext(), LinearLayout.VERTICAL));
         shoppingList = new ArrayList<>();
 
         SharedPreferences sp = getSharedPreferences(Global.LISTS_ORDER, MODE_PRIVATE);
@@ -249,7 +278,6 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
                 shoppingRecyclerView.setAdapter(shoppingAdapter);
             });
         });
-
     }
     private void populateShoppingList(String order, String flow) {
         shoppingList.clear();
@@ -270,10 +298,11 @@ public class ActivityShoppingList extends AppCompatActivity implements FragmentF
     }
 
     @Override
-    public void applyFilters(boolean notInPantry,   String order, String flow) {
+    public void applyFilters(boolean notInPantry, String order, String flow) {
         threadPool.execute(()->{
             populateShoppingList(order, flow);
             runOnUiThread(shoppingAdapter::notifyDataSetChanged);
         });
     }
+
 }

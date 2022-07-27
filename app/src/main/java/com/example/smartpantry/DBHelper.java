@@ -14,6 +14,11 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class DBHelper extends SQLiteOpenHelper {
+    //TABLE RECIPES RATINGS
+    public static final String TABLE_REC_RATINGS = "recipesRatings";
+    public static final String COLUMN_RATING_REC_ID = "rec_id";
+    public static final String COLUMN_RATING_VAL = "rating";
+
     //TABLE OF PREFERENCES AND COLUMNS
     public static final String TABLE_PREFERENCES = "preferences";
     public static final String COLUMN_PREFERENCE_PRODUCT_ID = "_prefID";
@@ -34,7 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PRODUCT_IS_FAVORITE = "favorite";
 
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 17;
 
     // Products Database creation sql statement
     private static final String PRODUCTS_DATABASE_CREATE = "create table "
@@ -57,6 +62,12 @@ public class DBHelper extends SQLiteOpenHelper {
             + COLUMN_PREFERENCE_PRODUCT_ID + " text primary key, "
             + COLUMN_PREFERENCE_PRODUCT_PREFERENCE + " integer not null)";
 
+    // Recipes Ratings Table creation sql statement
+    private static final String RECIPES_RATINGS_DATABASE_CREATE = "create table "
+            + TABLE_REC_RATINGS + "( "
+            + COLUMN_RATING_REC_ID + " texts not null, "
+            + COLUMN_RATING_VAL + "float not null)";
+
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -65,6 +76,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         database.execSQL(PREFERENCES_DATABASE_CREATE);
         database.execSQL(PRODUCTS_DATABASE_CREATE);
+        database.execSQL(RECIPES_RATINGS_DATABASE_CREATE);
     }
 
     @Override
@@ -142,10 +154,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor getPantryProducts(String order, String flow) {
         //If the ordering is EXPIRE DATE ASC the NULL values are displayed after the others
-        if(order.equals(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE) &&
+        if(order.equals(COLUMN_PRODUCT_EXPIRE_DATE) &&
            flow.equals(Global.ASC_ORDER)) {
-            order = "CASE WHEN "+ DBHelper.COLUMN_PRODUCT_EXPIRE_DATE +
-                    " IS NULL THEN 1 ELSE 0 END, "+ DBHelper.COLUMN_PRODUCT_EXPIRE_DATE;
+            order = "CASE WHEN "+ COLUMN_PRODUCT_EXPIRE_DATE +
+                    " IS NULL THEN 1 ELSE 0 END, "+ COLUMN_PRODUCT_EXPIRE_DATE;
         }
         return getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_IN_PANTRY +"=1",
                 null, null, null, order + " " + flow);
@@ -169,6 +181,11 @@ public class DBHelper extends SQLiteOpenHelper {
     public Cursor getShoppingListProducts(String order, String flow) {
         return getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_TO_BUY_QUANTITY + ">0",
                 null, null, null, order + " " + flow);
+    }
+
+    public Cursor getFavoriteProductsOnly() {
+        return getReadableDatabase().query(TABLE_PRODUCTS, null, COLUMN_PRODUCT_IS_FAVORITE +"=1",
+                null, null, null, null );
     }
 
     //this function transform the order part of the query if the ordering is by expireDate
@@ -250,7 +267,7 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = getReadableDatabase().query(
                 TABLE_PRODUCTS, null,
                 COLUMN_PRODUCT_IN_PANTRY + "=1 AND Date(\"" +
-                        COLUMN_PRODUCT_EXPIRE_DATE + "\") <= Date(\"" + today + "\")",
+                        COLUMN_PRODUCT_EXPIRE_DATE + " - INTERVAL 3 DAY\") <= Date(\"" + today + "\")",
                 null, null, null, null);
         int expiredItemsCount = cursor.getCount();
         cursor.close();
@@ -268,6 +285,17 @@ public class DBHelper extends SQLiteOpenHelper {
         int count = cursor.getCount();
         cursor.close();
         return count;
+    }
+
+    public Float getRating(String rec_id) {
+        Cursor cursor = getReadableDatabase().query(
+                TABLE_REC_RATINGS, new String[]{COLUMN_RATING_VAL},
+                COLUMN_RATING_REC_ID + "=?", new String[]{rec_id}, null, null, null, null);
+        Float rating = null;
+        if (cursor.getCount()>0) {
+            rating = cursor.getFloat(cursor.getColumnIndex(COLUMN_RATING_VAL));
+        }
+        return rating;
     }
 
 }

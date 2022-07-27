@@ -47,6 +47,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -155,13 +156,16 @@ public class ActivityMain extends AppCompatActivity
         //Shopping list button
         ImageButton shoppingBtn =  findViewById(R.id.shoppingBtn);
         shoppingBtn.setOnClickListener(v->{
-            Intent shoppingListIntent =  new Intent(this, ActivityShoppingList.class);
+            Intent shoppingListIntent = new Intent(this, ActivityShoppingList.class);
             startActivityForResult(shoppingListIntent, Global.SHOPPING_ACTIVITY);
         });
 
         //Recipes button
         ImageButton recipesButton =  findViewById(R.id.recipesBtn);
-        recipesButton.setOnClickListener(v-> Toast.makeText(getApplicationContext(), "NOT YET AVAILABLE", Toast.LENGTH_LONG).show());
+        recipesButton.setOnClickListener(v->{
+           Intent recipesIntent = new Intent(this, ActivityRecipes.class);
+           startActivity(recipesIntent);
+        });
 
         LinearLayout deleteAllProducts = findViewById(R.id.deleteAllProducts);
         deleteAllProducts.setOnClickListener(v-> askToDeleteAllProducts());
@@ -376,6 +380,7 @@ public class ActivityMain extends AppCompatActivity
             //Else we already have the id and we can update the local db
             addProductLocal(id, barcode, name, description, expire, quantity, icon, addToPantry);
         }
+        getMatchingProductsFromServer(name);
         AdapterPantryList.pantryProducts.add(new ProductPantryItem(
                 name, description, expire,
                 id, icon, 0,
@@ -386,9 +391,21 @@ public class ActivityMain extends AppCompatActivity
     //Interface Override of FragmentManualEntryProduct method to receive the barcode from the fragment
     @Override
     public void onManualEntry(String barcode) {
+        //TODO FIXME: Dev purpose only uncomment and remove direct add
+        /*
         if(productNeverSaved(barcode)) {
             threadPool.execute(()-> getProductsByBarcode(barcode, true));
         }
+         */
+        Bundle bundle = new Bundle();
+        bundle.putString("barcode", barcode);
+        FragmentAddProduct fragmentAddProduct = new FragmentAddProduct();
+        fragmentAddProduct.setArguments(bundle);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.activity_main, fragmentAddProduct, Global.FRAG_ADD_PROD)
+                .addToBackStack(Global.FRAG_ADD_PROD)
+                .commit();
     }
 
     //Interface Override of AdapterPantryList method to open and close cards on touch
@@ -440,7 +457,7 @@ public class ActivityMain extends AppCompatActivity
         String flow = sp.getString(Global.TEMP_FLOW, sp.getString(Global.FLOW, Global.DESC_ORDER));
         threadPool.execute(()->{
             populatePantryList(order, flow);
-            runOnUiThread(pantryAdapter::notifyDataSetChanged);
+            if(pantryAdapter!=null) runOnUiThread(pantryAdapter::notifyDataSetChanged);
         });
     }
 
@@ -772,7 +789,7 @@ public class ActivityMain extends AppCompatActivity
 
     private void toggleProgressBar() {
         if(progressAlert==null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialog);
+            AlertDialog.Builder builder = new AlertDialog.Builder(ActivityMain.this, R.style.CustomAlertDialog);
             ProgressBar progressBar = new ProgressBar(getApplicationContext());
             progressBar.getIndeterminateDrawable()
                 .setColorFilter(
@@ -786,13 +803,12 @@ public class ActivityMain extends AppCompatActivity
             builder.setView(frame);
             progressAlert = builder.create();
             progressAlert.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            progressAlert.show();
             progressAlert.getWindow()
                     .setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             progressAlert.setOnShowListener(arg0 -> {
                 progressAlert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setVisibility(View.GONE);
-                progressAlert.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setVisibility(View.GONE);
             });
-            progressAlert.show();
         } else {
             progressAlert.dismiss();
             progressAlert=null;
@@ -1087,6 +1103,95 @@ public class ActivityMain extends AppCompatActivity
                 Toast.makeText(this, getResources().getString(R.string.noProductAddedError), Toast.LENGTH_LONG).show()
             );
             Log.println(ASSERT, "REMOTE ADD ERROR", "NO CONNECTION AVAILABLE");
+        }
+    }
+
+    //GET CALL TO OBTAIN MATCHING PRODUCT OF A PRODUCT NAME
+    private void getMatchingProductsFromServer(String name) {
+        threadPool.execute(() -> {
+            if(Global.checkConnectionAvailability(getApplicationContext())){
+                runOnUiThread(this::toggleProgressBar);
+                RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+                Log.println(ASSERT, "ASK FOR MATCH", Global.MATCH_PRODUCT_URL + name);
+                StringRequest matchProductRequest = new StringRequest(Request.Method.GET, Global.MATCH_PRODUCT_URL + name,
+                    response -> {
+                        try {
+                            JSONArray list = new JSONArray(response);
+                            Log.println(ASSERT, "MATCH RES", list.toString());
+
+                            ArrayList<AdapterBestMatch.Match> pList = new ArrayList<>();
+                            for(int j = 0; j<list.length(); j++){
+                                JSONObject match = new JSONObject(list.getString(j));
+                                pList.add(new AdapterBestMatch.Match(
+                                    match.getString("id"),
+                                    match.getString("name")
+                                ));
+                            }
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList("list", pList);
+                            bundle.putString("toMatch", name);
+                            FragmentBestMatch fragmentBestMatch = new FragmentBestMatch();
+                            fragmentBestMatch.setArguments(bundle);
+                            runOnUiThread(this::toggleProgressBar);
+                            getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .add(R.id.activity_main, fragmentBestMatch, Global.FRAG_BEST_MATCH)
+                                    .addToBackStack(Global.FRAG_BEST_MATCH)
+                                    .commit();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    },
+                    error -> {
+                        error.printStackTrace();
+                        runOnUiThread(this::toggleProgressBar);
+                    }
+                )
+                {
+                    @Override
+                    public String getBodyContentType() {
+                        return "application/json; charset=utf-8";
+                    }
+
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        return new HashMap<>();
+                    }
+                };
+                queue.add(matchProductRequest);
+            } else {
+                runOnUiThread(()->
+                        Toast.makeText(this, getResources().getString(R.string.genericError), Toast.LENGTH_LONG).show()
+                );
+            }
+        });
+    }
+    void sendMatchVote(JSONObject vote) {
+        if(Global.checkConnectionAvailability(getApplicationContext())){
+            runOnUiThread(this::toggleProgressBar);
+            RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
+            String uid = getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).getString(Global.ID, "-");
+            Log.println(ASSERT, "VOTE LIST",vote+"");
+            JsonObjectRequest voteMatchedProducts = new JsonObjectRequest(Request.Method.POST, Global.POST_MATCH_VOTE + uid, vote,
+                    response -> Log.println(ASSERT, "VOTE MATCH", "ALL GOOD"),
+                    error -> {
+                        VolleyLog.d("VOTE MATCH", "Error: " + error.getMessage());
+                        runOnUiThread(ActivityMain.this::toggleProgressBar);
+                    })
+            {
+                @Override
+                public Map<String, String> getHeaders() {
+                    HashMap<String, String> headers = new HashMap<String, String>();
+                    headers.put("Content-Type", "application/json; charset=utf-8");
+                    return headers;
+                }
+            };
+            queue.add(voteMatchedProducts);
+        } else {
+            runOnUiThread(()->
+                    Toast.makeText(this, getResources().getString(R.string.genericError), Toast.LENGTH_LONG).show()
+            );
         }
     }
 }

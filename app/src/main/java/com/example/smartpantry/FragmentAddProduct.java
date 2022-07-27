@@ -47,6 +47,7 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
     private Button addProductButton;
     private ImageButton cancelDateButton;
     private ImageView iconPicker;
+    private boolean alreadyExisting;
 
     onProductAddedListener productAddedListener;
 
@@ -84,8 +85,8 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        boolean alreadyExistingProduct = getArguments().getBoolean("alreadyExistingProduct", false);
-        if(alreadyExistingProduct) {
+        alreadyExisting = getArguments().getBoolean("alreadyExistingProduct", false);
+        if(alreadyExisting) {
             fillFormData(
                     getArguments().getString("name"),
                     getArguments().getString("description"));
@@ -175,7 +176,7 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
                 productAddedListener.onProductAdded(productID, barcode, name, description,
                         formattedDate,
                         Long.parseLong(quantity), icon, test, addLocal,
-                        !alreadyExistingProduct);
+                        !alreadyExisting);
                 closeFragment();
             }
         });
@@ -186,10 +187,12 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
             nameField.setError(getResources().getString(R.string.addProductNameError));
             return false;
         }
-        if (description.isEmpty()) {
+
+        if (description.isEmpty() && !alreadyExisting) {
             descriptionField.setError(getResources().getString(R.string.addProductDescriptionError));
             return false;
         }
+
         if (Long.parseLong(quantity) <= 0 ) {
             quantityField.setError(getResources().getString(R.string.addProductQuantityError));
             return false;
@@ -235,14 +238,5 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
                 .getSupportFragmentManager();
         fm.beginTransaction().remove(FragmentAddProduct.this).commit();
         fm.popBackStack(Global.FRAG_BARCODE_LIST, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        /*
-        FragmentBarcodeListProducts list =
-                (FragmentBarcodeListProducts)fm.findFragmentByTag(Global.FRAG_BARCODE_LIST);
-        if(list!=null){
-            Log.println(Log.ASSERT, "FRAG", "REMOVING LIST");
-            fm.beginTransaction().remove(list).commit();
-            fm.popBackStack();
-        }
-        */
     }
 }

@@ -14,7 +14,10 @@ import java.util.Date;
 
 public class IntentServiceSetAlarm extends JobIntentService {
     public static final int JOB_ID = 1;
-
+    //Since oreo background services are automatically dismissed in certain circums.
+    //so a WorkManager is better if you need to set constraints on the scheduled job
+    //A JobIntentService is a service that enqueues work into a JobScheduler
+    //which guarantees the execution of the service even if the app is closed by the user while the WorkManager doesn't
     public static void enqueueWork(Context context, Intent work) {
         enqueueWork(context, IntentServiceSetAlarm.class, JOB_ID, work);
     }
