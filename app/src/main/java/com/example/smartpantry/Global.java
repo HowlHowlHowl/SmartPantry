@@ -78,11 +78,11 @@ public class Global {
     static final String VOTE_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/votes";
 
     //static final String LOCALHOST = "192.168.137.1:8010";
-    static final String LOCALHOST = "192.168.1.32:8010";
-    static final String RECIPES_URL = "http://"+LOCALHOST+"/ingredients/get_avail_recipes/";
+    static final String LOCALHOST = "192.168.1.100:8010";
+    static final String RECIPES_URL = "http://"+LOCALHOST+"/recipes/get_avail_recipes/";
+    static final String POST_RECIPE_RATING = "http://"+LOCALHOST+"/recipes/rate_recipe/";
     static final String MATCH_PRODUCT_URL = "http://"+LOCALHOST+"/ingredients/get_matching/";
     static final String POST_MATCH_VOTE = "http://"+LOCALHOST+"/ingredients/vote_match/";
-    static final String POST_RECIPE_RATING = "http://"+LOCALHOST+"/ingredients/rate_recipe/";
 
     //DESC and ASC strings
     static final String DESC_ORDER = "DESC";

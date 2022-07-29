@@ -39,7 +39,8 @@ public class AdapterRecipesList extends RecyclerView.Adapter<AdapterRecipesList.
             bundle.putString("type", recipesList.get(position).type);
             bundle.putString("notes", recipesList.get(position).notes);
             bundle.putString("rec_id", recipesList.get(position).id);
-
+            float expected_score = (float) (((Double.valueOf(recipesList.get(position).score*100).intValue())*5)/100.0);
+            bundle.putFloat("expected", expected_score);
             FragmentShowRecipe fragmentShowRecipe = new FragmentShowRecipe();
             fragmentShowRecipe.setArguments(bundle);
             ((ActivityRecipes)holder.cv.getContext()).getSupportFragmentManager()

@@ -183,13 +183,14 @@ public class ActivityRecipes extends AppCompatActivity {
         });
     }
 
-    void sendRecipeRating(float rating, String rec_id) {
+    void sendRecipeRating(float expected, float rating, String rec_id) {
         threadPool.execute(()-> {
             if (Global.checkConnectionAvailability(getApplicationContext())) {
                 runOnUiThread(this::toggleProgressBar);
                 JSONObject ratingObj = new JSONObject();
                 try {
                     ratingObj.put("rating", rating);
+                    ratingObj.put("expected", expected);
                     ratingObj.put("rec_id", Integer.valueOf(rec_id));
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -197,7 +198,9 @@ public class ActivityRecipes extends AppCompatActivity {
                 RequestQueue queue = Volley.newRequestQueue(this);
                 JsonObjectRequest rateRecipeRequest = new JsonObjectRequest(Request.Method.POST, Global.POST_RECIPE_RATING +
                         getSharedPreferences(Global.USER_DATA, MODE_PRIVATE).getString(Global.ID, "-"), ratingObj,
-                    response -> runOnUiThread(this::toggleProgressBar),
+                    response -> {
+                        runOnUiThread(this::toggleProgressBar);
+                    },
                     error -> runOnUiThread(()->{
                         toggleProgressBar();
                         ((TextView) findViewById(R.id.noRecipesText)).setText(

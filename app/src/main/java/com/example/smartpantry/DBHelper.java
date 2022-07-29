@@ -39,7 +39,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PRODUCT_IS_FAVORITE = "favorite";
 
     private static final String DATABASE_NAME = "products.db";
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 19;
 
     // Products Database creation sql statement
     private static final String PRODUCTS_DATABASE_CREATE = "create table "
@@ -66,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String RECIPES_RATINGS_DATABASE_CREATE = "create table "
             + TABLE_REC_RATINGS + "( "
             + COLUMN_RATING_REC_ID + " texts not null, "
-            + COLUMN_RATING_VAL + "float not null)";
+            + COLUMN_RATING_VAL + " float not null)";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -86,6 +86,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PREFERENCES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_REC_RATINGS);
         onCreate(db);
     }
 
@@ -292,10 +293,19 @@ public class DBHelper extends SQLiteOpenHelper {
                 TABLE_REC_RATINGS, new String[]{COLUMN_RATING_VAL},
                 COLUMN_RATING_REC_ID + "=?", new String[]{rec_id}, null, null, null, null);
         Float rating = null;
+        Log.println(ASSERT, "found ratings db", cursor.getCount()+"");
         if (cursor.getCount()>0) {
+            cursor.moveToFirst();
             rating = cursor.getFloat(cursor.getColumnIndex(COLUMN_RATING_VAL));
         }
         return rating;
+    }
+
+    public void insertRating(String rec_id, float rating) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_RATING_VAL, rating);
+        cv.put(COLUMN_RATING_REC_ID, rec_id);
+        getWritableDatabase().insert(TABLE_REC_RATINGS, null, cv);
     }
 
 }

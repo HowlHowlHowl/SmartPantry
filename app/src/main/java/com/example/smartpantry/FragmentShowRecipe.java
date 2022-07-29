@@ -32,6 +32,7 @@ public class FragmentShowRecipe extends Fragment {
     ListView ingredientsList;
     String rec_id, name, procedure, ingredientsString, type, notes;
     ImageView img;
+    DBHelper db;
     private JSONArray ingredients;
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_recipe, container, false);
@@ -44,17 +45,22 @@ public class FragmentShowRecipe extends Fragment {
             closeFragment();
         });
         view.findViewById(R.id.bgPopUp).setOnClickListener(v->{});
+        db = new DBHelper(getContext());
 
         RatingBar ratingBar = view.findViewById(R.id.ratingRecipe);
         Button rateBtn = view.findViewById(R.id.rateButton);
         rateBtn.setOnClickListener(v->{
             float rating = ratingBar.getRating();
-            ((ActivityRecipes)getActivity()).sendRecipeRating(rating, rec_id);
+            float expected = this.getArguments().getFloat("expected");
+            ((ActivityRecipes)getActivity()).sendRecipeRating(expected, rating, rec_id);
+            rateBtn.setEnabled(false);
+            ratingBar.setIsIndicator(true);
+            db.insertRating(rec_id, rating);
         });
 
         rec_id = this.getArguments().getString("rec_id");
-        DBHelper db = new DBHelper(getContext());
         Float existingRating = db.getRating(rec_id);
+        Log.println(Log.ASSERT,"rating found", existingRating +"");
         if (existingRating != null) {
             ratingBar.setRating(existingRating);
             ratingBar.setIsIndicator(true);
@@ -115,6 +121,7 @@ public class FragmentShowRecipe extends Fragment {
     }
 
     public void closeFragment() {
+        db.close();
         FragmentManager fm = getActivity()
                 .getSupportFragmentManager();
         fm.popBackStack();
