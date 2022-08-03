@@ -104,7 +104,10 @@
     <string name="notificationManageTitle">Notification Management</string>
     <string name="notificationExpiredOpt">Notify me when a product expires.</string>
     <string name="notificationFavoriteOpt">Notify me when one of my favorites products is missing in the pantry.</string>
-    <string name="missingFavNotificationDescription">of your favorite products isn\'t in your pantry.</string>
+    <string name="missingFavNotificationDescription1">of your favorite products</string>
+    <string name="is">is</string>
+    <string name="are">are</string>
+    <string name="missingFavNotificationDescription2">n\'t in your pantry.</string>
     <string name="favProductNotificationTitle">some of yours favorite products aren\'t in your pantry</string>
     <string name="favProductNotificationChannelName">Notification favorite products not in pantry</string>
     <string name="favProductNotificationChannelDescription">This notification channel it\'s used to warn you when some of your favorite product isn\'t in your pantry.</string>

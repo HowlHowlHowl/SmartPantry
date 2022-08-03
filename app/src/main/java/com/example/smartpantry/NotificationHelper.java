@@ -68,7 +68,8 @@ public class NotificationHelper {
                 PendingIntent.FLAG_UPDATE_CURRENT);
 
         //Build notification message
-        String notificationMessage =context.getString(R.string.heyText) + missingFavCount + " "+ context.getString(R.string.missingFavNotificationDescription);
+        String notificationMessage =context.getString(R.string.heyText) + missingFavCount + " "+ context.getString(R.string.missingFavNotificationDescription1) +
+                (missingFavCount>1 ? context.getString(R.string.are) : context.getString(R.string.is)) + context.getString(R.string.missingFavNotificationDescription2);
         //Build notification
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, Global.NOTIFICATION_FAV_CHANNEL);

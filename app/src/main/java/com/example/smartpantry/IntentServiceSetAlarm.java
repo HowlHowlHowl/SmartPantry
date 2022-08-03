@@ -23,11 +23,11 @@ public class IntentServiceSetAlarm extends JobIntentService {
     }
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        setFavoritesAlarm(3, 8, 30, 0);
-                      setExpiredAlarm(0, 15, 0);
+        setFavoritesAlarm(4, 8, 30, 0);
+                      setExpiringAlarm(0, 15, 0);
     }
 
-    public void setExpiredAlarm(int delay_h, int delay_m, int delay_s) {
+    public void setExpiringAlarm(int delay_h, int delay_m, int delay_s) {
         Intent alarmBroadcastIntent = new Intent(this, BroadcastReceiverExpireCheck.class);
         alarmBroadcastIntent.setAction(Global.EXPIRED_INTENT_ACTION);
         //The warning for the last parameter is due to a bug resolved in the new alpha release but the alpha it's unstable

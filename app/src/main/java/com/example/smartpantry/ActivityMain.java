@@ -202,7 +202,7 @@ public class ActivityMain extends AppCompatActivity
         super.onDestroy();
     }
 
-    private void setSearchBox(){
+    private void setSearchBox() {
         SearchView searchInPantryField = findViewById(R.id.searchProdField);
         SearchManager searchManager =  (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchInPantryField.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -856,7 +856,7 @@ public class ActivityMain extends AppCompatActivity
 
     //IF SHOW IS TRUE GET AND SHOW PRODUCTS BY BARCODE
     //ELSE IT'S USED TO GET A NEW SESSION TOKEN
-    private void getProductsByBarcode(String barcode, boolean show) {
+        private void getProductsByBarcode(String barcode, boolean show) {
         if (Global.checkConnectionAvailability(getApplicationContext())) {
             runOnUiThread(this::toggleProgressBar);
             RequestQueue queue = Volley.newRequestQueue(this);

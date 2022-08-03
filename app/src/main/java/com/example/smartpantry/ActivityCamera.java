@@ -22,10 +22,10 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
 import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 
 import java.util.concurrent.ExecutionException;
@@ -121,8 +121,10 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
     private void scanBarcode(ImageProxy imageProxy) {
         @SuppressLint("UnsafeExperimentalUsageError") Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
+            //Bitmap bitmap = Bitmap.createBitmap(mediaImage.getWidth(), mediaImage.getHeight(), Bitmap.Config.ARGB_8888);
             InputImage image =
                     InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
+                    //InputImage.fromBitmap(bitmap, imageProxy.getImageInfo().getRotationDegrees());
             BarcodeScanner scanner = BarcodeScanning.getClient(getScanOption());
             scanner.process(image)
                 .addOnSuccessListener(barcodes -> {
@@ -140,7 +142,8 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
                 .addOnFailureListener(e -> {
                     e.printStackTrace();
                     showErrorOnCapturing();
-                });
+                })
+                .addOnCompleteListener(b-> imageProxy.close());
         }
     }
 
