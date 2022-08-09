@@ -31,6 +31,7 @@ public class AdapterRecipesList extends RecyclerView.Adapter<AdapterRecipesList.
     @Override
     public void onBindViewHolder(@NonNull RecipeItemViewHolder holder, int position) {
 
+        int expected_score = Double.valueOf(recipesList.get(position).score*100).intValue();
         holder.cv.setOnClickListener(v->{
             Bundle bundle = new Bundle();
             bundle.putString("ingredients", recipesList.get(position).ingredients.toString());
@@ -39,8 +40,7 @@ public class AdapterRecipesList extends RecyclerView.Adapter<AdapterRecipesList.
             bundle.putString("type", recipesList.get(position).type);
             bundle.putString("notes", recipesList.get(position).notes);
             bundle.putString("rec_id", recipesList.get(position).id);
-            float expected_score = (float) (((Double.valueOf(recipesList.get(position).score*100).intValue())*5)/100.0);
-            bundle.putFloat("expected", expected_score);
+            bundle.putInt("expected", expected_score);
             FragmentShowRecipe fragmentShowRecipe = new FragmentShowRecipe();
             fragmentShowRecipe.setArguments(bundle);
             ((ActivityRecipes)holder.cv.getContext()).getSupportFragmentManager()
@@ -53,12 +53,13 @@ public class AdapterRecipesList extends RecyclerView.Adapter<AdapterRecipesList.
         holder.mainIngredient.setText(
                 holder.cv.getContext().getString(R.string.mainIngredient, recipesList.get(position).main_ingredient)
         );
-        holder.ingredientCount.setMax(1000);
+        holder.ingredientCount.setMax(100);
         holder.ingredientCountLabel.setText(
                 holder.cv.getContext().getString(R.string.ingredientsCount, Double.valueOf(recipesList.get(position).score*100).intValue() )
         );
 
-        holder.ingredientCount.setProgress(Double.valueOf(recipesList.get(position).score*1000).intValue());
+        //holder.ingredientCount.setProgress(Double.valueOf(recipesList.get(position).score*1000).intValue());
+        holder.ingredientCount.setProgress(expected_score);
         holder.portions.setText(holder.cv.getContext().getString(R.string.portions, recipesList.get(position).portions));
         holder.type.setText(recipesList.get(position).type);
     }

@@ -149,4 +149,5 @@
     <string name="recipeNotes">\n\nNote:\n%1$s</string>
     <string name="noRecipes">Nessuna ricetta trovata.</string>
     <string name="bestMatchResult" translatable="false">Questi sono i prodotti che più assomigliano al tuo, seleziona quelli che corrispondono al tuo e conferma</string>
+    <string name="reccRatingText" translatable="false">Al fine di valutare il sistema che ti suggerisce delle ricette, puoi votare la ricetta che ti è stata consigliata indicando il numero di ingredienti che effettivamente possiedi.</string>
 </resources>

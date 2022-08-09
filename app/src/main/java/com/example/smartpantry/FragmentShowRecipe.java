@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RatingBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -41,31 +41,10 @@ public class FragmentShowRecipe extends Fragment {
         ingredientsList = view.findViewById(R.id.ingredientsList);
         img = view.findViewById(R.id.typeImg);
 
-        view.findViewById(R.id.fragmentRecipe).setOnClickListener(v->{
-            closeFragment();
-        });
-        view.findViewById(R.id.bgPopUp).setOnClickListener(v->{});
-        db = new DBHelper(getContext());
-
-        RatingBar ratingBar = view.findViewById(R.id.ratingRecipe);
+        TextView ratingVal = view.findViewById(R.id.ratingVal);
+        SeekBar ratingBar = view.findViewById(R.id.ratingRecipe);
         Button rateBtn = view.findViewById(R.id.rateButton);
-        rateBtn.setOnClickListener(v->{
-            float rating = ratingBar.getRating();
-            float expected = this.getArguments().getFloat("expected");
-            ((ActivityRecipes)getActivity()).sendRecipeRating(expected, rating, rec_id);
-            rateBtn.setEnabled(false);
-            ratingBar.setIsIndicator(true);
-            db.insertRating(rec_id, rating);
-        });
 
-        rec_id = this.getArguments().getString("rec_id");
-        Float existingRating = db.getRating(rec_id);
-        Log.println(Log.ASSERT,"rating found", existingRating +"");
-        if (existingRating != null) {
-            ratingBar.setRating(existingRating);
-            ratingBar.setIsIndicator(true);
-            rateBtn.setEnabled(false);
-        }
         name = this.getArguments().getString("name");
         procedure = this.getArguments().getString("procedure");
         ingredientsString = this.getArguments().getString("ingredients");
@@ -78,6 +57,53 @@ public class FragmentShowRecipe extends Fragment {
             e.printStackTrace();
         }
 
+        ratingBar.setMax(ingredients.length());
+
+
+        view.findViewById(R.id.fragmentRecipe).setOnClickListener(v->{
+            closeFragment();
+        });
+        view.findViewById(R.id.bgPopUp).setOnClickListener(v->{});
+        db = new DBHelper(getContext());
+
+        rateBtn.setOnClickListener(v->{
+            int rating = ratingBar.getProgress();
+            int percentageRating = (rating * 100)/ingredientsList.getCount();
+            float expected = this.getArguments().getInt("expected");
+            ((ActivityRecipes)getActivity()).sendRecipeRating(expected, percentageRating, rec_id);
+            rateBtn.setEnabled(false);
+            ratingBar.setEnabled(false);
+            db.insertRating(rec_id, rating);
+        });
+
+        rec_id = this.getArguments().getString("rec_id");
+        Integer existingRating = db.getRating(rec_id);
+        Log.println(Log.ASSERT,"rating found", existingRating +"");
+        if (existingRating != null) {
+            ratingBar.setProgress(existingRating);
+            ratingBar.setEnabled(false);
+            rateBtn.setEnabled(false);
+            ratingVal.setText(existingRating+"/"+ratingBar.getMax());
+        } else {
+            ratingVal.setText("0/"+ratingBar.getMax());
+        }
+
+        ratingBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                ratingVal.setText(i+"/"+ratingBar.getMax());
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         Log.println(Log.ASSERT, "RECIPE FRAGMENT", "CREATED");
         return view;
     }

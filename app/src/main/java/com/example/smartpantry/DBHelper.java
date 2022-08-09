@@ -66,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String RECIPES_RATINGS_DATABASE_CREATE = "create table "
             + TABLE_REC_RATINGS + "( "
             + COLUMN_RATING_REC_ID + " texts not null, "
-            + COLUMN_RATING_VAL + " float not null)";
+            + COLUMN_RATING_VAL + " integer not null)";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -288,15 +288,15 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public Float getRating(String rec_id) {
+    public Integer getRating(String rec_id) {
         Cursor cursor = getReadableDatabase().query(
                 TABLE_REC_RATINGS, new String[]{COLUMN_RATING_VAL},
                 COLUMN_RATING_REC_ID + "=?", new String[]{rec_id}, null, null, null, null);
-        Float rating = null;
+        Integer rating = null;
         Log.println(ASSERT, "found ratings db", cursor.getCount()+"");
         if (cursor.getCount()>0) {
             cursor.moveToFirst();
-            rating = cursor.getFloat(cursor.getColumnIndex(COLUMN_RATING_VAL));
+            rating = cursor.getInt(cursor.getColumnIndex(COLUMN_RATING_VAL));
         }
         return rating;
     }

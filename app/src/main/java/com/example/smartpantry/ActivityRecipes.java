@@ -56,8 +56,6 @@ public class ActivityRecipes extends AppCompatActivity {
     private AdapterRecipesList recipesAdapter;
     private RecyclerView recipesRecyclerView;
 
-    public static final String FAV = "fav", EXPIRE = "expire", ING = "ingredients";
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,8 +73,7 @@ public class ActivityRecipes extends AppCompatActivity {
 
         findViewById(R.id.backBtnRecipesLayout).setOnClickListener(v->finish());
         findViewById(R.id.backBtnRecipes).setOnClickListener(v-> finish());
-
-        sortRecipesBy(ING);
+        getRecipes();
     }
 
     @Override
@@ -85,10 +82,12 @@ public class ActivityRecipes extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void getRecipes(Cursor cursor, Comparator<Recipe> comparator) {
+    private void getRecipes() {
         threadPool.execute(()->{
             if (Global.checkConnectionAvailability(getApplicationContext())) {
                 runOnUiThread(this::toggleProgressBar);
+                Cursor cursor = database.getPantryProducts(DBHelper.COLUMN_PRODUCT_NAME, Global.DESC_ORDER);
+                Comparator<Recipe> comparator  = (a, b) -> Double.valueOf((b.score - a.score)*1000).intValue();
                 StringBuilder ingredientsList = new StringBuilder();
                 cursor.moveToFirst();
                 if(cursor.getCount()>0) {
@@ -183,7 +182,7 @@ public class ActivityRecipes extends AppCompatActivity {
         });
     }
 
-    void sendRecipeRating(float expected, float rating, String rec_id) {
+    void sendRecipeRating(float expected, int rating, String rec_id) {
         threadPool.execute(()-> {
             if (Global.checkConnectionAvailability(getApplicationContext())) {
                 runOnUiThread(this::toggleProgressBar);
@@ -259,28 +258,7 @@ public class ActivityRecipes extends AppCompatActivity {
         recipesRecyclerView.setAdapter(recipesAdapter);
     }
 
-    private void sortRecipesBy(String order) {
-        //FIXME Per niente completo, by fav non calcola avail i prodotti non fav || per expire idem + non ordina per scadenza
-        Cursor cursor;
-        Comparator<Recipe> comparator;
-        switch (order) {
-            case FAV:
-                cursor = database.getFavoriteProductsOnly();
-                comparator  = (a, b) -> Double.valueOf((b.score - a.score)*1000).intValue();
-                break;
-            case EXPIRE:
-                cursor = database.getPantryProducts(DBHelper.COLUMN_PRODUCT_EXPIRE_DATE, Global.DESC_ORDER);
-                comparator  = (a, b) -> Double.valueOf((b.score - a.score)*1000).intValue();
-                break;
-            case ING:
-            default:
-                cursor = database.getPantryProducts(DBHelper.COLUMN_PRODUCT_NAME, Global.DESC_ORDER);
-                comparator  = (a, b) -> Double.valueOf((b.score - a.score)*1000).intValue();
-                break;
-        }
-        getRecipes(cursor, comparator);
 
-    }
     private void setSearchBox() {
         SearchView searchInProductsField = findViewById(R.id.searchProdField);
         SearchManager searchManager =  (SearchManager) getSystemService(Context.SEARCH_SERVICE);

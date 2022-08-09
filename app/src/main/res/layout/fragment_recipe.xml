@@ -82,13 +82,14 @@
                 android:layout_height="0dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="30dp"
+                android:layout_marginBottom="10dp"
                 android:background="@color/milk_white"
                 android:maxHeight="250dp"
                 android:paddingStart="5dp"
                 android:paddingTop="5dp"
                 android:paddingEnd="5dp"
                 android:paddingBottom="5dp"
-                app:layout_constraintBottom_toTopOf="@+id/ratingRecipe"
+                app:layout_constraintBottom_toTopOf="@+id/textView5"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/preparationText"
                 app:layout_constraintTop_toBottomOf="@+id/preparationText">
@@ -112,17 +113,16 @@
                 app:layout_constraintTop_toTopOf="@+id/recipeName"
                 app:srcCompat="@drawable/apetizer" />
 
-            <RatingBar
+            <SeekBar
                 android:id="@+id/ratingRecipe"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:stepSize=".5"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/rateButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+                app:layout_constraintEnd_toStartOf="@+id/ratingVal"
+                app:layout_constraintStart_toStartOf="parent" />
 
             <Button
                 android:id="@+id/rateButton"
@@ -132,6 +132,27 @@
                 android:text="Vota"
                 app:layout_constraintBottom_toBottomOf="@+id/ratingRecipe"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/ratingRecipe" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="30dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/reccRatingText"
+                app:layout_constraintBottom_toTopOf="@+id/ratingRecipe"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/ratingVal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:text="TextView"
+                app:layout_constraintEnd_toStartOf="@+id/rateButton"
                 app:layout_constraintTop_toTopOf="@+id/ratingRecipe" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>

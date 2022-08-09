@@ -3,6 +3,7 @@ package com.example.smartpantry;
 import android.annotation.SuppressLint;
 import android.media.Image;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Size;
 import android.widget.ImageButton;
@@ -61,23 +62,21 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
             }
         }, ContextCompat.getMainExecutor(this));
 
-        captureBtn.setOnClickListener(v -> {
-            imageCapture.takePicture(executor,
-                new ImageCapture.OnImageCapturedCallback() {
-                    @Override
-                    public void onCaptureSuccess(@NonNull ImageProxy image) {
-                        Log.println(Log.ASSERT,"capture","ok");
-                        scanBarcode(image);
-                        image.close();
-                    }
-
-                    @Override
-                    public void onError(@NonNull ImageCaptureException error) {
-                        Log.println(Log.ERROR,"capture","error");
-                    }
+        captureBtn.setOnClickListener(v -> imageCapture.takePicture(executor,
+            new ImageCapture.OnImageCapturedCallback() {
+                @Override
+                public void onCaptureSuccess(@NonNull ImageProxy image) {
+                    Log.println(Log.ASSERT,"capture","ok");
+                    scanBarcode(image);
+                    image.close();
                 }
-            );
-        });
+
+                @Override
+                public void onError(@NonNull ImageCaptureException error) {
+                    Log.println(Log.ERROR,"capture","error");
+                }
+            }
+        ));
     }
 
     @Override
@@ -121,10 +120,8 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
     private void scanBarcode(ImageProxy imageProxy) {
         @SuppressLint("UnsafeExperimentalUsageError") Image mediaImage = imageProxy.getImage();
         if (mediaImage != null) {
-            //Bitmap bitmap = Bitmap.createBitmap(mediaImage.getWidth(), mediaImage.getHeight(), Bitmap.Config.ARGB_8888);
             InputImage image =
                     InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
-                    //InputImage.fromBitmap(bitmap, imageProxy.getImageInfo().getRotationDegrees());
             BarcodeScanner scanner = BarcodeScanning.getClient(getScanOption());
             scanner.process(image)
                 .addOnSuccessListener(barcodes -> {
@@ -156,8 +153,14 @@ public class ActivityCamera extends AppCompatActivity implements FragmentBarcode
     }
 
     private void bindImageAnalysis(@NonNull ProcessCameraProvider cameraProvider) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
+
         ImageAnalysis imageAnalysis =
-                new ImageAnalysis.Builder().setTargetResolution(new Size(1280, 720))
+                new ImageAnalysis.Builder().setTargetResolution(new Size(width, height))
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
         imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), ImageProxy::close);
         Preview preview = new Preview.Builder().build();
