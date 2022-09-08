@@ -112,13 +112,12 @@ public class ActivityLogin extends AppCompatActivity {
                 .setPositiveButton(
                         getResources().getString(R.string.yesText),
                         (dialog, id) -> {
-                            login(token, password, email, remember);
                             deleteSharedPreferences();
                             threadPool.execute(()->{
                                 database.dropAllTables(true);
                                 database.close();
                             });
-                            this.finish();
+                            login(token, password, email, remember);
                         })
                 .setNegativeButton(
                         getResources().getString(R.string.noText),

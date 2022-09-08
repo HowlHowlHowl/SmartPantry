@@ -65,7 +65,7 @@ public class Global {
     //Date format used in the DB
     static final String DB_DATE_FORMAT = "yyyy-MM-dd";
 
-    // FIXME: FOR DEBUG PURPOSE CHANGE TO 1
+    // LOGIN TOKEN DAYS OF VALIDITY
     static final int LOGIN_TOKEN_VALID_DAYS = 6;
 
     //Server APIs URLs
@@ -77,8 +77,7 @@ public class Global {
     static final String DELETE_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/products/";
     static final String VOTE_PRODUCT_URL = "https://lam21.iot-prism-lab.cs.unibo.it/votes";
 
-    //static final String LOCALHOST = "192.168.137.1:8010";
-    static final String LOCALHOST = "192.168.1.110:8010";
+    static final String LOCALHOST = "130.136.2.155:8010";;
     static final String RECIPES_URL = "http://"+LOCALHOST+"/recipes/get_avail_recipes/";
     static final String POST_RECIPE_RATING = "http://"+LOCALHOST+"/recipes/rate_recipe/";
     static final String MATCH_PRODUCT_URL = "http://"+LOCALHOST+"/ingredients/get_matching/";
@@ -88,7 +87,7 @@ public class Global {
     static final String DESC_ORDER = "DESC";
     static final String ASC_ORDER = "ASC";
 
-    //RECIPES TYPE
+    //RECIPES ICONS PATH
     static final String RECIPES_PATH = "recipes_icons/";
 
     //SORTING SHARED PREFERENCES STRUCTURE
