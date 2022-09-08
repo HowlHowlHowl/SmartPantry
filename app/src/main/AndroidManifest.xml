@@ -15,7 +15,8 @@
         android:icon="@mipmap/smart_pantry_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SmartPantry">
+        android:theme="@style/Theme.SmartPantry"
+        android:usesCleartextTraffic="true">
 
         <meta-data
             android:name="preloaded_fonts"
