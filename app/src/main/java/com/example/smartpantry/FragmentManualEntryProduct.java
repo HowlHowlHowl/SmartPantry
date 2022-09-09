@@ -43,6 +43,7 @@ public class FragmentManualEntryProduct extends Fragment {
         window.setOnClickListener(v -> {
             //Prevent window from closing when clicked
         });
+
         //Trigger MainActivity listener and close itself
         confirmBtn.setOnClickListener(v -> {
             String correctBarcode = barcode.getText().toString();
@@ -58,6 +59,9 @@ public class FragmentManualEntryProduct extends Fragment {
                 barcode.setError(getString(R.string.barcodeError));
             }
         });
+        /*FIXME     */
+        barcode.setText(Integer.toString(0));
+        confirmBtn.performClick();
     }
 
     @Override

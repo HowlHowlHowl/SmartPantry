@@ -187,12 +187,12 @@ public class FragmentAddProduct extends Fragment implements FragmentIconPicker.o
             nameField.setError(getResources().getString(R.string.addProductNameError));
             return false;
         }
-
+/*FIXME
         if (description.isEmpty() && !alreadyExisting) {
             descriptionField.setError(getResources().getString(R.string.addProductDescriptionError));
             return false;
         }
-
+*/
         if (Long.parseLong(quantity) <= 0 ) {
             quantityField.setError(getResources().getString(R.string.addProductQuantityError));
             return false;

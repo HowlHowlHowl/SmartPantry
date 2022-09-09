@@ -42,7 +42,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 19;
 
     // Products Database creation sql statement
-    private static final String PRODUCTS_DATABASE_CREATE = "create table "
+    private static final String PRODUCTS_DATABASE_CREATE = "create table if not exists "
             + TABLE_PRODUCTS + "( "
             + COLUMN_PRODUCT_UNIQUE_ID + "integer primary key,"
             + COLUMN_PRODUCT_ID + " text not null, "
@@ -57,13 +57,13 @@ public class DBHelper extends SQLiteOpenHelper {
             + COLUMN_PRODUCT_IS_FAVORITE + " integer not null default 0);";
 
     // Ratings Database creation sql statement
-    private static final String  PREFERENCES_DATABASE_CREATE = "create table "
+    private static final String  PREFERENCES_DATABASE_CREATE = "create table if not exists "
             + TABLE_PREFERENCES + "( "
             + COLUMN_PREFERENCE_PRODUCT_ID + " text primary key, "
             + COLUMN_PREFERENCE_PRODUCT_PREFERENCE + " integer not null)";
 
     // Recipes Ratings Table creation sql statement
-    private static final String RECIPES_RATINGS_DATABASE_CREATE = "create table "
+    private static final String RECIPES_RATINGS_DATABASE_CREATE = "create table if not exists "
             + TABLE_REC_RATINGS + "( "
             + COLUMN_RATING_REC_ID + " texts not null, "
             + COLUMN_RATING_VAL + " integer not null)";
